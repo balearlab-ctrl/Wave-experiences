@@ -2078,11 +2078,7 @@ function loadAdminOffers() {
     <i class="ti ti-loader" style="font-size:28px;animation:spin 1s linear infinite;display:block;margin:0 auto 12px"></i>
     Loading offers from Google Sheets...</div>`;
 
-  fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {
-    method: 'POST', mode: 'cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ _action: 'getOffers' })
-  })
+  fetch(GOOGLE_SCRIPT_URL + '?action=getOffers&t=' + Date.now())
   .then(r => r.json())
   .then(data => {
     sheetsOffers = Array.isArray(data) ? data : [];
