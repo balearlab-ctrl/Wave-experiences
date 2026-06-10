@@ -1300,17 +1300,13 @@ const BRAND        = 'Wave Experiences Mallorca';
 
 async function sendEmail(to, subject, html) {
   try {
-    const res = await fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {
-      method: 'POST',
-      mode: 'no-cors',
+    await fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {
+      method: 'POST', mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ _action: 'sendEmail', to, subject, html })
     });
     return { id: 'sent' };
-  } catch(e) {
-    console.warn('Email send failed:', e);
-    return null;
-  }
+  } catch(e) { console.warn('Email failed:', e); return null; }
 }
 
 function emailBase(content) {
@@ -1634,8 +1630,17 @@ function confirmReservation(offerId,qrId){
   if(o.max&&o.enrolled.length>=o.max){showToast(T('toast.offer-full'),'danger');return;}
   const date=document.getElementById('res-date')?.value||new Date().toISOString().split('T')[0];
   o.enrolled.push({name,phone,email,date,qr:qrId});o.sent++;
-  // Send QR email to customer
-  emailQRCliente({name,phone,email}, o, qrId).catch(()=>{});
+  // Send QR email via Apps Script
+  if(email) fetch(GOOGLE_SCRIPT_URL, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ _action:'sendQR', to:email,
+      cliente:{name, phone, email},
+      oferta:{title:o.title, biz:o.biz, schedule:o.schedule,
+              scheduleDay:o.scheduleDay||'', scheduleTime:o.scheduleTime||'',
+              scheduleDate:o.scheduleDate||'', conditions:o.conditions||''},
+      qrCode:qrId })
+  }).catch(()=>{});
   const divId=`qr_${qrId.replace(/-/g,'_')}`;
   document.getElementById('modal-offer-body').innerHTML=`
     <div style="text-align:center;padding:16px 0">
@@ -1718,8 +1723,15 @@ function confirmScan(qrVal,offerId){
   const o=offers.find(x=>x.id===offerId);
   const e=o.enrolled.find(en=>en.qr===qrVal);
   o.scanned.push({name:e.name,date:new Date().toISOString().split('T')[0],qr:qrVal});
-  // Notify business of redemption
-  emailQRCanjeado(o, e).catch(()=>{});
+  // Notify business of redemption via Apps Script
+  const bizUser = users.find(u => u.name === o.biz);
+  if(bizUser && bizUser.email) fetch(GOOGLE_SCRIPT_URL, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ _action:'notifyRedemption', bizEmail: bizUser.email,
+      oferta:{title:o.title, biz:o.biz, scanned:o.scanned, sent:o.sent},
+      cliente:{name:e.name} })
+  }).catch(()=>{});
   document.getElementById('scan-result').innerHTML=`<div class="alert alert-success"><i class="ti ti-circle-check"></i> Redemption registered for <strong>${e.name}</strong>.</div>`;
   document.getElementById('qr-input').value='';
   showToast(T('toast.redeemed-ok'),'success');
@@ -1915,7 +1927,12 @@ function resendWelcome(evt, id){
     </div>
   `);
 
-  sendEmail(u.email, '👋 Welcome to Wave Experiences Mallorca', html)
+  fetch(GOOGLE_SCRIPT_URL, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ _action:'resendWelcome', name:u.name, email:u.email,
+      contact:u.contact||'', category:u.category||'', plan:u.plan||'Basic', status:u.status })
+  })
     .then(res => {
       if(res && res.id){
         showToast('✉️ Email sent to ' + u.email, 'success');
@@ -2114,11 +2131,27 @@ function submitRegistro(){
 }
 
 function approveUser(id){
-  const u = users.find(x=>x.id===id);
-  u.active = true;
-  u.status = 'active';
-  showToast(`${u.name} ${t("toast.user-approved")}`,"success");
+  const u = users.find(x => x.id == id);
+  if(!u){ showToast('User not found','danger'); return; }
+  u.active = true; u.status = 'active'; u._locallyApproved = true;
+  // Persist to localStorage
+  try {
+    const ls = JSON.parse(localStorage.getItem('wave_pending_users')||'[]');
+    const lu = ls.find(x => x.id==id || x.email===u.email);
+    if(lu){ lu.active=true; lu.status='active'; }
+    localStorage.setItem('wave_pending_users', JSON.stringify(ls));
+  } catch(e){}
+  // Send approval email + update Sheets via Apps Script
+  fetch(GOOGLE_SCRIPT_URL, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ _action:'approveUser',
+      name: u.name, email: u.email, contact: u.contact||'',
+      category: u.category||'', plan: u.plan||'Basic' })
+  }).catch(()=>{});
+  showToast(`${u.name} ${T('toast.user-approved')}`, 'success');
   renderAdminUsers();
+  updatePendingIndicator();
 }
 
 // EDIT OFFER
