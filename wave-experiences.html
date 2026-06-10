@@ -1886,8 +1886,22 @@ function renderAdminOffers(){
     `</tbody></table>`;
 }
 
-function approveOffer(id){const o=offers.find(x=>x.id===id);o.status='active';showToast(`"${o.title}" aprobada`,'success');renderAdminOffers();updatePendingIndicator();}
-function rejectOffer(id){const o=offers.find(x=>x.id===id);o.status='rejected';showToast(`"${o.title}" ${t("toast.offer-rejected")}`,"warning");renderAdminOffers();updatePendingIndicator();}
+function approveOffer(id){
+  const o=offers.find(x=>x.id==id);
+  if(!o){ showToast('Offer not found','danger'); return; }
+  o.status='active';
+  showToast(`"${o.title}" ${T('toast.offer-approved')}`,'success');
+  renderAdminOffers();
+  updatePendingIndicator();
+}
+function rejectOffer(id){
+  const o=offers.find(x=>x.id==id);
+  if(!o){ showToast('Offer not found','danger'); return; }
+  o.status='rejected';
+  showToast(`"${o.title}" ${T('toast.offer-rejected')}`,'warning');
+  renderAdminOffers();
+  updatePendingIndicator();
+}
 function updatePendingIndicator(){
   const c=offers.filter(o=>o.status==='pending').length;
   document.getElementById('pending-count').style.display=c?'inline-block':'none';
