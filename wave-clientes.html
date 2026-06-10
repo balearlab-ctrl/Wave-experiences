@@ -1187,12 +1187,33 @@ function checkVerifyToken(){
       delete tokens[email];
       localStorage.setItem('wave_verify_tokens', JSON.stringify(tokens));
       showToast('Email verified! Welcome to Wave Experiences ✓', 'success');
-      // Clean URL
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }
 }
 checkVerifyToken();
+
+// Check verification status from Sheets on load (catches cases where
+// verification happened in another browser/tab)
+function syncVerificationStatus(){
+  if(!currentUser || currentUser.verified) return;
+  fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec?action=login&email=' + encodeURIComponent(currentUser.email))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(data && data['Verificado'] === 'Yes'){
+        currentUser.verified = true;
+        localStorage.setItem('wave_customer_session', JSON.stringify(currentUser));
+        // Update in customers array too
+        var customers = JSON.parse(localStorage.getItem('wave_customers')||'[]');
+        var u = customers.find(function(x){ return x.email===currentUser.email; });
+        if(u){ u.verified=true; localStorage.setItem('wave_customers', JSON.stringify(customers)); }
+        showToast('Email verified ✓', 'success');
+        updateHeaderAuth();
+      }
+    }).catch(function(){});
+}
+// Run sync after a short delay to not block initial load
+setTimeout(syncVerificationStatus, 1500);
 
 function doLogout(){
   currentUser = null;
