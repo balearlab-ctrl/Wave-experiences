@@ -1580,7 +1580,38 @@ function getViewTitles(){
 
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec';
 let sheetsUsers = [];
-let offers=[];
+let offers=[
+  {id:1,title:'2-for-1 artisan cocktails',biz:'La Taberna del Puerto',category:'Food & Drink',
+   desc:'Order any cocktail from our menu and the second one is on us. Crafted with premium spirits and fresh seasonal fruits. Valid for tables of minimum 2 people.',
+   conditions:'Not combinable with other offers. Min. 2 people. Does not include bottle service.',
+   schedule:'weekly',scheduleDay:'Wednesday',scheduleTime:'20:00-22:00',max:40,
+   enrolled:[],scanned:[],sent:87,status:'active',sendWA:true,sendEmail:false,
+   cover:'',bizLogo:'',createdAt:'01/06/2025'},
+  {id:2,title:'Sunset kayak tour',biz:'Wave Adventures',category:'Leisure & Adventure',
+   desc:'Paddle along the stunning Alcúdia coastline at golden hour. All equipment provided. Suitable for beginners. Maximum 8 people per session for an exclusive experience.',
+   conditions:'Minimum age 14. Not suitable for non-swimmers. Weather dependent.',
+   schedule:'weekly',scheduleDay:'Saturday',scheduleTime:'18:30',max:8,
+   enrolled:[],scanned:[],sent:24,status:'active',sendWA:true,sendEmail:true,
+   cover:'',bizLogo:'',createdAt:'03/06/2025'},
+  {id:3,title:'Relaxing massage 60 min',biz:'Spa Oasis Palma',category:'Health & Wellness',
+   desc:'Enjoy a full 60-minute relaxing massage with aromatherapy oils. Choose from Swedish, deep tissue or hot stone. Includes access to our thermal circuit.',
+   conditions:'Booking required at least 24h in advance.',
+   schedule:'always',max:0,
+   enrolled:[],scanned:[],sent:45,status:'active',sendWA:false,sendEmail:true,
+   cover:'',bizLogo:'',createdAt:'05/06/2025'},
+  {id:4,title:'Summer dress 30% off',biz:'Boutique Isla Style',category:'Fashion & Lifestyle',
+   desc:'Get 30% discount on our entire summer collection. New arrivals weekly. Exclusive designs by local Mallorcan designers.',
+   conditions:'Valid on regular priced items only. Cannot be combined with other promotions.',
+   schedule:'limited',max:50,
+   enrolled:[],scanned:[],sent:12,status:'pending',sendWA:true,sendEmail:false,
+   cover:'',bizLogo:'',createdAt:'08/06/2025'},
+  {id:5,title:'Gastronomic tour Mercat de l\'Olivar',biz:'Palma Food Tours',category:'Leisure & Adventure',
+   desc:'Discover the best local products at Palma\'s most iconic market. Taste fresh seafood, local cheeses, sobrassada and ensaimada with our expert guide.',
+   conditions:'Groups of 4-12 people. Duration approx. 2.5 hours.',
+   schedule:'weekly',scheduleDay:'Tuesday & Friday',scheduleTime:'10:00',max:12,
+   enrolled:[],scanned:[],sent:31,status:'active',sendWA:true,sendEmail:true,
+   cover:'',bizLogo:'',createdAt:'02/06/2025'},
+];
 
 let users=[
   {id:1,name:'La Taberna del Puerto',email:'info@tabernapuerto.com',phone:'+34 971 234 567',category:'Food &amp; Drink',active:true,status:'active',plan:'pro'},
