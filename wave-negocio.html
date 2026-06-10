@@ -501,35 +501,81 @@ let myOffers    = [];
 function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass  = document.getElementById('login-pass').value;
-  const err   = document.getElementById('login-err');
 
   if (!email || !pass) {
     showLoginErr('Please enter your email and password.');
     return;
   }
 
-  // Load users from localStorage (registered via wave-registro.html)
-  const users = JSON.parse(localStorage.getItem('wave_pending_users') || '[]');
-  const user  = users.find(u => u.email === email);
+  // Show loading
+  const btn = document.querySelector('.btn-login');
+  btn.textContent = 'Signing in...';
+  btn.disabled = true;
 
-  if (!user) {
-    showLoginErr('No account found with this email. Please register first.');
-    return;
-  }
-  if (user.status !== 'active') {
-    showLoginErr('Your account is pending approval. We will contact you within 24 hours.');
-    return;
-  }
-  // Simple password check (stored at registration)
-  // In production this would be server-side
-  if (user.password && user.password !== pass) {
-    showLoginErr('Incorrect password.');
-    return;
-  }
+  // Fetch user from Google Sheets
+  fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec?action=login&email=' + encodeURIComponent(email))
+    .then(r => r.json())
+    .then(data => {
+      btn.textContent = 'Sign in →';
+      btn.disabled = false;
 
-  currentUser = user;
-  localStorage.setItem('wave_biz_session', JSON.stringify(user));
-  loadApp();
+      if (!data || data.error) {
+        showLoginErr('Connection error. Please try again.');
+        return;
+      }
+
+      // Find user by email
+      const user = Array.isArray(data) ? data.find(u => u['Email'] === email) : null;
+
+      if (!user) {
+        showLoginErr('No account found with this email. Please register first.');
+        return;
+      }
+      if (user['Estado'] !== 'Activo') {
+        showLoginErr('Your account is pending approval. We will contact you within 24 hours.');
+        return;
+      }
+      const storedPass = user['Contraseña'] || '';
+      if (storedPass && storedPass !== pass) {
+        showLoginErr('Incorrect password.');
+        return;
+      }
+      if (!storedPass) {
+        showLoginErr('No password set. Please contact hello@waveexperiences.com');
+        return;
+      }
+
+      // Login success
+      const currentUser = {
+        name:     user['Negocio']   || '',
+        email:    user['Email']     || '',
+        contact:  user['Contacto']  || '',
+        phone:    user['WhatsApp']  || '',
+        category: user['Categoría'] || '',
+        city:     user['Ciudad']    || '',
+        plan:     user['Plan']      || 'Basic',
+        status:   'active',
+        id:       user['ID']        || ''
+      };
+
+      localStorage.setItem('wave_biz_session', JSON.stringify(currentUser));
+      window.currentUser = currentUser;
+      loadApp();
+    })
+    .catch(() => {
+      btn.textContent = 'Sign in →';
+      btn.disabled = false;
+
+      // Fallback to localStorage if Sheets unreachable
+      const users = JSON.parse(localStorage.getItem('wave_pending_users') || '[]');
+      const user  = users.find(u => u.email === email);
+      if (!user) { showLoginErr('Connection error. Please try again.'); return; }
+      if (user.status !== 'active') { showLoginErr('Your account is pending approval.'); return; }
+      if (user.password && user.password !== pass) { showLoginErr('Incorrect password.'); return; }
+      localStorage.setItem('wave_biz_session', JSON.stringify(user));
+      window.currentUser = user;
+      loadApp();
+    });
 }
 
 function doLogout() {
