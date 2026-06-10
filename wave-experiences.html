@@ -370,6 +370,35 @@ tr:last-child td{border-bottom:none}
 :root[data-theme="dark"] h3{color:#DCF0FF}
 :root[data-theme="dark"] label{color:#8BAECE}
 
+
+/* ── OFFER REVIEW CARDS ── */
+.review-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r2);
+  overflow:hidden;transition:box-shadow .2s}
+.review-card.pending{border-left:4px solid var(--warning)}
+.review-card.active{border-left:4px solid var(--success)}
+.review-card.rejected{border-left:4px solid var(--danger)}
+.review-card-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;
+  gap:12px;border-bottom:1px solid var(--border);background:var(--bg)}
+.review-card-body{padding:18px 20px}
+.review-card-cover{width:100%;height:180px;object-fit:cover;display:block;border-bottom:1px solid var(--border)}
+.review-field{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);
+  padding:12px 14px;margin-bottom:10px}
+.review-field-label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;
+  letter-spacing:.08em;margin-bottom:5px}
+.review-field-value{font-size:13px;color:var(--text2);line-height:1.6}
+.review-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.review-meta{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3)}
+.tab-bar{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px}
+.tab-btn{padding:10px 20px;font-size:13px;font-weight:600;color:var(--text3);cursor:pointer;
+  border:none;background:none;font-family:'Inter',sans-serif;border-bottom:2px solid transparent;
+  margin-bottom:-2px;transition:all .2s;display:flex;align-items:center;gap:6px}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--ocean);border-bottom-color:var(--ocean);font-weight:700}
+.count-badge{background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border);
+  font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px}
+.count-badge.green{background:var(--success-bg);color:var(--success);border-color:var(--success-border)}
+.count-badge.red{background:var(--danger-bg);color:var(--danger);border-color:var(--danger-border)}
+
 /* SCROLLBAR */
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:var(--bg)}
@@ -941,27 +970,45 @@ tr:last-child td{border-bottom:none}
 
     <!-- ADMIN OFFERS -->
     <div class="view" id="view-admin-offers">
-      <div class="section-header">
-        <div class="page-header" style="margin:0"><h1>Approve Offers</h1><p>Aprueba o rechaza las ofertas enviadas by los negocios</p></div>
-      </div>
-      <div class="tabs">
-        <button class="tab active" onclick="filterAdminOffers('pending',this)">Pending <span id="adm-tab-pending-count"></span></button>
-        <button class="tab" onclick="filterAdminOffers('active',this)">Approved</button>
-        <button class="tab" onclick="filterAdminOffers('rejected',this)">Rejected</button>
-        <button class="tab" onclick="filterAdminOffers('all',this)">All</button>
-      </div>
-      <div class="card">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Offer</th><th>Business</th><th>Category</th><th>Availability</th><th>Max.</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="admin-offers-table"></tbody>
-          </table>
-        </div>
-      </div>
+  <div class="section-header">
+    <div class="page-header" style="margin:0">
+      <h1 id="adm-offers-title">Approve Offers</h1>
+      <p id="adm-offers-sub">Review and approve offers submitted by businesses</p>
     </div>
+    <button class="btn btn-ghost" onclick="loadAdminOffers()">
+      <i class="ti ti-refresh"></i> Refresh
+    </button>
+  </div>
 
-    <!-- ADMIN USERS -->
-    <div class="view" id="view-admin-users">
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tab-pending" onclick="switchOfferTab('pending')">
+      <i class="ti ti-clock" style="color:var(--warning)"></i> Pending
+      <span class="count-badge" id="cnt-pending">0</span>
+    </button>
+    <button class="tab-btn" id="tab-active" onclick="switchOfferTab('active')">
+      <i class="ti ti-circle-check" style="color:var(--success)"></i> Approved
+      <span class="count-badge green" id="cnt-active">0</span>
+    </button>
+    <button class="tab-btn" id="tab-rejected" onclick="switchOfferTab('rejected')">
+      <i class="ti ti-circle-x" style="color:var(--danger)"></i> Rejected
+      <span class="count-badge red" id="cnt-rejected">0</span>
+    </button>
+    <button class="tab-btn" id="tab-all" onclick="switchOfferTab('all')">
+      <i class="ti ti-list"></i> All
+      <span class="count-badge" style="background:var(--bg3);color:var(--text3);border-color:var(--border)" id="cnt-all">0</span>
+    </button>
+  </div>
+
+  <div id="offers-review-container">
+    <div style="text-align:center;padding:48px;color:var(--text3)">
+      <i class="ti ti-loader" style="font-size:28px;animation:spin 1s linear infinite;display:block;margin-bottom:12px"></i>
+      Loading offers...
+    </div>
+  </div>
+</div>
+
+<div class="view" id="view-admin-users">
       <div class="section-header">
         <div class="page-header" style="margin:0"><h1>Usuarios / Negocios</h1><p>Manage businesses registered on the platform</p></div>
         <button class="btn btn-primary" onclick="showNewUserModal()"><i class="ti ti-plus"></i> Nuevo negocio</button>
@@ -1498,393 +1545,265 @@ let users=[
   {id:8,name:'Mallorca Photo Tours',email:'info@mallorcaphoto.com',phone:'+34 600 345 678',category:'Ocio',active:true}
 ];
 
-let adminOffersFilter='pending';
-let publicFilter='';
-let schedFilter='';
+let adminOffersFilter = 'pending';
+let sheetsOffers = [];
 
-function getViewTitles(){return{'public-offers':T('nav.offers'),'registro-negocio':T('nav.list-biz'),'biz-dashboard':T('nav.my-dashboard'),'biz-offers':T('nav.my-offers'),'biz-scanner':T('nav.validate-qr'),'new-offer':T('new.title'),'admin-dashboard':T('adm.title'),'admin-offers':T('adm.offers.title'),'admin-users':T('usr.title'),'admin-billing':T('bil.title')};}
+function loadAdminOffers() {
+  const container = document.getElementById('offers-review-container');
+  container.innerHTML = `<div style="text-align:center;padding:48px;color:var(--text3)">
+    <i class="ti ti-loader" style="font-size:28px;animation:spin 1s linear infinite;display:block;margin:0 auto 12px"></i>
+    Loading offers from Google Sheets...</div>`;
 
-function showView(v){
-  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
-  document.getElementById('view-'+v).classList.add('active');
-  const btn=document.querySelector(`[data-view="${v}"]`);
-  if(btn)btn.classList.add('active');
-  document.getElementById('topbar-title').textContent=getViewTitles()[v]||'';
-  renderView(v);
-  if(window.innerWidth<=768)document.getElementById('sidebar').classList.remove('open');
+  fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {
+    method: 'POST', mode: 'cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ _action: 'getOffers' })
+  })
+  .then(r => r.json())
+  .then(data => {
+    sheetsOffers = Array.isArray(data) ? data : [];
+    // Also merge local offers
+    offers.forEach(o => {
+      if (!sheetsOffers.find(s => String(s['ID']) === String(o.id))) {
+        sheetsOffers.push({
+          'ID': o.id, 'Fecha': o.createdAt||'', 'Título': o.title,
+          'Negocio': o.biz, 'Categoría': o.category, 'Descripción': o.desc,
+          'Condiciones': o.conditions||'', 'Horario': o.schedule||'',
+          'Día': o.scheduleDay||'', 'Hora': o.scheduleTime||'',
+          'Fecha Evento': o.scheduleDate||'', 'Máx': o.max||0,
+          'Estado': o.status==='active'?'Approved':o.status==='rejected'?'Rejected':'Pending',
+          'Cover URL': o.cover||'', 'Logo URL': o.bizLogo||'',
+          '_local': true, '_obj': o
+        });
+      }
+    });
+    updateOfferCounts();
+    renderOfferReview();
+  })
+  .catch(() => {
+    // Fallback to local offers
+    sheetsOffers = offers.map(o => ({
+      'ID': o.id, 'Fecha': o.createdAt||'', 'Título': o.title,
+      'Negocio': o.biz, 'Categoría': o.category, 'Descripción': o.desc,
+      'Condiciones': o.conditions||'', 'Horario': o.schedule||'',
+      'Día': o.scheduleDay||'', 'Hora': o.scheduleTime||'',
+      'Fecha Evento': o.scheduleDate||'', 'Máx': o.max||0,
+      'Estado': o.status==='active'?'Approved':o.status==='rejected'?'Rejected':'Pending',
+      'Cover URL': o.cover||'', 'Logo URL': o.bizLogo||'',
+      '_local': true, '_obj': o
+    }));
+    updateOfferCounts();
+    renderOfferReview();
+  });
 }
 
-function renderView(v){
-  switch(v){
-    case 'public-offers':renderPublicOffers();break;
-    case 'registro-negocio':renderRegistro();break;
-    case 'biz-dashboard':renderBizDashboard();break;
-    case 'biz-offers':renderBizOffersFull();break;
-    case 'biz-scanner':renderScanner();break;
-    case 'admin-dashboard':renderAdminDashboard();break;
-    case 'admin-offers':renderAdminOffers();break;
-    case 'admin-users':loadSheetsUsers();break;
-    case 'admin-billing':renderBilling();break;
-    case 'new-offer':setupNewOffer();break;
+function updateOfferCounts() {
+  const pending  = sheetsOffers.filter(o => o['Estado'] === 'Pending').length;
+  const approved = sheetsOffers.filter(o => o['Estado'] === 'Approved').length;
+  const rejected = sheetsOffers.filter(o => o['Estado'] === 'Rejected').length;
+  document.getElementById('cnt-pending').textContent  = pending;
+  document.getElementById('cnt-active').textContent   = approved;
+  document.getElementById('cnt-rejected').textContent = rejected;
+  document.getElementById('cnt-all').textContent      = sheetsOffers.length;
+  // Update nav dot
+  const dot = document.getElementById('pending-count');
+  if(dot) dot.style.display = pending ? 'inline-block' : 'none';
+}
+
+function switchOfferTab(tab) {
+  adminOffersFilter = tab;
+  ['pending','active','rejected','all'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+  });
+  renderOfferReview();
+}
+
+function renderOfferReview() {
+  const container = document.getElementById('offers-review-container');
+  let list = sheetsOffers;
+  if (adminOffersFilter !== 'all') {
+    const statusMap = { pending:'Pending', active:'Approved', rejected:'Rejected' };
+    list = sheetsOffers.filter(o => o['Estado'] === statusMap[adminOffersFilter]);
   }
-}
 
-function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');}
-
-// PUBLIC
-function renderPublicOffers(){
-  let list=offers.filter(o=>o.status==='active');
-  if(publicFilter)list=list.filter(o=>o.category===publicFilter);
-  if(schedFilter){
-    if(schedFilter==='weekly')list=list.filter(o=>o.schedule==='weekly');
-    else if(schedFilter==='always')list=list.filter(o=>o.schedule==='always');
-    else if(schedFilter==='today')list=list.filter(o=>o.schedule==='date');
-  }
-  document.getElementById('hero-count').textContent=offers.filter(o=>o.status==='active').length;
-  const grid=document.getElementById('public-offer-grid');
-  if(!list.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><i class="ti ti-mood-sad"></i><h3>Sin ofertas</h3><p>No hay ofertas con estos filtros.</p></div>';return;}
-  grid.innerHTML=list.map(o=>offerCardHTML(o)).join('');
-}
-
-function offerCardHTML(o){
-  const catCls=getCatClass(o.category);
-  const spotsLeft=o.max?o.max-o.enrolled.length:null;
-  const spotsHTML=spotsLeft!==null?`<span class="offer-spots"><i class="ti ti-users" style="font-size:10px"></i> ${spotsLeft} ${T('offer.spots')}</span>`:'<span class="offer-spots" style="color:var(--success)"><i class="ti ti-infinity" style="font-size:10px"></i> Unlimited</span>';
-  const coverHTML = o.cover ? `<img class="offer-cover" src="${o.cover}">` : '';
-  const bizLogoHTML = o.bizLogo ? `<img class="offer-biz-logo" src="${o.bizLogo}">` : '';
-  return`<div class="offer-card" onclick="openOfferDetail(${o.id})">
-    <div class="offer-card-img ${catCls}">
-      <div class="offer-cat-badge">${o.category}</div>
-      ${coverHTML}
-      ${bizLogoHTML}
-      <div class="offer-emoji-wrap" style="${o.cover?'display:none':''}">${getCatEmoji(o.category)}</div>
-    </div>
-    <div class="offer-card-body">
-      <div class="offer-card-title">${o.title}</div>
-      <div class="offer-card-biz">${o.biz}</div>
-      <div class="offer-card-desc">${o.desc.substring(0,90)}...</div>
-      <div class="offer-card-footer">
-        <div class="offer-schedule"><i class="ti ti-clock"></i> ${getScheduleLabel(o)}</div>
-        ${spotsHTML}
-      </div>
-    </div>
-  </div>`;
-}
-
-function getCatClass(cat){const m={'Food &amp; Drink':'cat-food','Ocio':'cat-leisure','Salud':'cat-health','Moda':'cat-fashion','Viajes':'cat-travel'};return m[cat]||'cat-other';}
-function getCatEmoji(cat){const m={'Food &amp; Drink':'🍽️','Ocio':'🎭','Salud':'💆','Moda':'👗','Viajes':'✈️'};return m[cat]||'🎁';}
-function getScheduleLabel(o){
-  if(o.schedule==='always')return T('offer.always');
-  if(o.schedule==='weekly')return`${o.scheduleDay} · ${o.scheduleTime}`;
-  if(o.schedule==='date')return o.scheduleDate||'Special date';
-  if(o.schedule==='limited')return`${T('offer.soldout')} (${o.max} ${T('offer.spots')})`;
-  return'—';
-}
-function filterOffers(v){publicFilter=v;renderPublicOffers();}
-function filterBySchedule(v){schedFilter=v;renderPublicOffers();}
-
-// OFFER DETAIL
-function openOfferDetail(id){
-  const o=offers.find(x=>x.id===id);
-  if(!o)return;
-  document.getElementById('modal-offer-title').textContent=o.title;
-  const spotsLeft=o.max?o.max-o.enrolled.length:null;
-  const qrId=`QR-${String(o.id).padStart(4,'0')}-${Math.random().toString(36).substring(2,6).toUpperCase()}`;
-  const bizLogoInModal = o.bizLogo ? `<img src="${o.bizLogo}" style="width:44px;height:44px;object-fit:contain;border-radius:var(--radius);border:1px solid var(--border);background:#fff;padding:4px;flex-shrink:0">` : `<div style="width:44px;height:44px;border-radius:var(--radius);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${getCatEmoji(o.category)}</div>`;
-  const coverInModal = o.cover ? `<img src="${o.cover}" style="width:100%;height:140px;object-fit:cover;border-radius:var(--radius2);margin-bottom:14px">` : '';
-  document.getElementById('modal-offer-body').innerHTML=`
-    ${coverInModal}
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-      ${bizLogoInModal}
-      <div><div style="font-size:12px;color:var(--ocean);font-weight:700">${o.biz}</div><div style="font-size:11px;color:var(--text3)">${o.category}</div></div>
-    </div>
-    <p style="font-size:13px;line-height:1.7;color:var(--text2);margin-bottom:14px">${o.desc}</p>
-    ${o.conditions?`<div class="alert alert-warning"><i class="ti ti-alert-triangle"></i> <strong>Conditions:</strong> ${o.conditions}</div>`:''}
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
-      <div class="stat-card" style="padding:12px"><div class="stat-label">Availability</div><div style="font-size:13px;font-weight:700;margin-top:4px;color:var(--navy)">${getScheduleLabel(o)}</div></div>
-      <div class="stat-card" style="padding:12px"><div class="stat-label">Spots</div><div style="font-size:13px;font-weight:700;margin-top:4px;color:var(--navy)">${spotsLeft!==null?spotsLeft+' / '+o.max:'Unlimited'}</div></div>
-    </div>
-    <hr class="divider">
-    <h4 style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:12px">Book your spot</h4>
-    <div class="form-group"><label class="form-label">Your name</label><input class="form-control" id="res-name" placeholder="Full name"></div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">WhatsApp</label><input class="form-control" id="res-phone" placeholder="+34 600 000 000"></div>
-      <div class="form-group"><label class="form-label">Email</label><input class="form-control" id="res-email" placeholder="tu@email.com"></div>
-    </div>
-    ${o.schedule==='date'?`<div class="form-group"><label class="form-label">Date</label><input class="form-control" id="res-date" type="date" value="${o.scheduleDate||''}"></div>`:''}
-    <input type="hidden" id="res-offer-id" value="${o.id}">`;
-  document.getElementById('modal-offer-footer').innerHTML=`
-    <button class="btn btn-ghost" onclick="closeModal('offer-modal')">Cancel</button>
-    <button class="btn btn-primary" onclick="confirmReservation(${o.id},'${qrId}')"><i class="ti ti-check"></i> Reservar y recibir QR</button>`;
-  document.getElementById('offer-modal').style.display='flex';
-}
-
-function confirmReservation(offerId,qrId){
-  const name=document.getElementById('res-name').value.trim();
-  const phone=document.getElementById('res-phone').value.trim();
-  const email=document.getElementById('res-email').value.trim();
-  if(!name){showToast(T('toast.enter-name'),'warning');return;}
-  if(!phone&&!email){showToast(T('toast.enter-contact'),'warning');return;}
-  const o=offers.find(x=>x.id===offerId);
-  if(o.max&&o.enrolled.length>=o.max){showToast(T('toast.offer-full'),'danger');return;}
-  const date=document.getElementById('res-date')?.value||new Date().toISOString().split('T')[0];
-  o.enrolled.push({name,phone,email,date,qr:qrId});o.sent++;
-  // Send QR email via Apps Script
-  if(email) fetch(GOOGLE_SCRIPT_URL, {
-    method:'POST', mode:'no-cors',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ _action:'sendQR', to:email,
-      cliente:{name, phone, email},
-      oferta:{title:o.title, biz:o.biz, schedule:o.schedule,
-              scheduleDay:o.scheduleDay||'', scheduleTime:o.scheduleTime||'',
-              scheduleDate:o.scheduleDate||'', conditions:o.conditions||''},
-      qrCode:qrId })
-  }).catch(()=>{});
-  const divId=`qr_${qrId.replace(/-/g,'_')}`;
-  document.getElementById('modal-offer-body').innerHTML=`
-    <div style="text-align:center;padding:16px 0">
-      <div style="font-size:44px;margin-bottom:10px">🎉</div>
-      <h3 style="font-size:18px;font-weight:800;color:var(--navy);margin-bottom:6px">Booking confirmed!</h3>
-      <p style="font-size:12px;color:var(--text3);margin-bottom:18px">Your exclusive QR for <strong>${o.title}</strong></p>
-      <div class="qr-wrapper" style="margin:0 auto 14px" id="${divId}"></div>
-      <p style="font-size:11px;color:var(--text3);margin-bottom:3px">Código: <strong style="color:var(--ocean)">${qrId}</strong></p>
-      <p style="font-size:11px;color:var(--text3);margin-bottom:18px">Show it at the venue to redeem your offer.</p>
-      <div style="background:var(--bg3);border-radius:var(--radius);padding:12px;text-align:left;margin-bottom:14px">
-        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Summary</div>
-        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:2px">${o.title}</div>
-        <div style="font-size:11px;color:var(--text3)">${o.biz} · ${getScheduleLabel(o)}</div>
-      </div>
-      ${phone?`<div class="alert alert-success" style="justify-content:center"><i class="ti ti-brand-whatsapp"></i> QR enviado by WhatsApp a ${phone}</div>`:''}
-      ${email?`<div class="alert alert-info" style="justify-content:center"><i class="ti ti-mail"></i> QR enviado by email a ${email}</div>`:''}
+  if (!list.length) {
+    container.innerHTML = `<div style="text-align:center;padding:56px;color:var(--text3)">
+      <i class="ti ti-files" style="font-size:44px;display:block;margin-bottom:14px;color:var(--border2)"></i>
+      <h3 style="font-size:15px;color:var(--text2);margin-bottom:6px">No offers here</h3>
+      <p style="font-size:13px">There are no offers with this status yet.</p>
     </div>`;
-  document.getElementById('modal-offer-footer').innerHTML=`<button class="btn btn-primary" onclick="closeModal('offer-modal')">Close</button>`;
-  setTimeout(()=>{const d=document.getElementById(divId);if(d&&window.QRCode)new QRCode(d,{text:qrId,width:120,height:120,colorDark:'#060E20',colorLight:'#fff'});},100);
-}
-
-// BIZ DASHBOARD
-function renderBizDashboard(){
-  const myOffers=offers.filter((_,i)=>i<4);
-  const active=myOffers.filter(o=>o.status==='active');
-  const totalSent=myOffers.reduce((a,o)=>a+o.sent,0);
-  const totalScanned=myOffers.reduce((a,o)=>a+o.scanned.length,0);
-  const conv=totalSent?Math.round(totalScanned/totalSent*100):0;
-  document.getElementById('biz-active-count').textContent=active.length;
-  document.getElementById('biz-sent-count').textContent=totalSent;
-  document.getElementById('biz-scanned-count').textContent=totalScanned;
-  document.getElementById('biz-conversion').textContent=conv+'%';
-  document.getElementById('biz-offers-table').innerHTML=myOffers.map(o=>`<tr>
-    <td class="td-primary">${o.title}</td><td>${statusBadge(o.status)}</td><td>${o.enrolled.length}</td><td>${o.max||'∞'}</td>
-    <td style="font-size:11px;color:var(--text3)">${getScheduleLabel(o)}</td><td style="color:var(--success);font-weight:600">${o.scanned.length}</td>
-    <td><div class="action-row"><button class="btn btn-ghost btn-sm" onclick="openOfferDetail(${o.id})" title="Ver"><i class="ti ti-eye"></i></button><button class="btn btn-ghost btn-sm" onclick="editOffer(${o.id})" title="Editar"><i class="ti ti-edit"></i></button></div></td></tr>`).join('');
-}
-
-function renderBizOffersFull(){
-  document.getElementById('biz-offers-full-table').innerHTML=offers.map(o=>`<tr>
-    <td class="td-primary">${o.title}<br><span style="font-size:10px;color:var(--text3);font-weight:400">${o.biz}</span></td>
-    <td>${statusBadge(o.status)}</td><td style="font-size:11px;color:var(--text3)">${getScheduleLabel(o)}</td>
-    <td>${o.enrolled.length} / ${o.max||'∞'}</td><td>${o.sent}</td><td style="color:var(--success);font-weight:600">${o.scanned.length}</td>
-    <td><div class="action-row"><button class="btn btn-ghost btn-sm" onclick="openOfferDetail(${o.id})" title="Ver"><i class="ti ti-eye"></i></button><button class="btn btn-ghost btn-sm" onclick="editOffer(${o.id})" title="Editar"><i class="ti ti-edit"></i></button><button class="btn btn-ghost btn-sm" onclick="deleteOffer(${o.id})" title="Eliminar" style="color:var(--danger)"><i class="ti ti-trash"></i></button></div></td></tr>`).join('');
-}
-
-// SCANNER
-function renderScanner(){
-  const samples=offers.filter(o=>o.enrolled.length>0).flatMap(o=>o.enrolled.filter(e=>e.qr).map(e=>({qr:e.qr})));
-  document.getElementById('sample-qr-btns').innerHTML=samples.slice(0,6).map(s=>`<button class="btn btn-ghost btn-sm" onclick="document.getElementById('qr-input').value='${s.qr}'">${s.qr}</button>`).join('')||'<span style="font-size:11px;color:var(--text3)">Sin QRs aún</span>';
-}
-
-function scanQR(){
-  const qrVal=document.getElementById('qr-input').value.trim();
-  if(!qrVal){showToast('Introduce un código QR','warning');return;}
-  const icon=document.getElementById('scan-icon');
-  icon.className='ti ti-loader scanning';
-  setTimeout(()=>{
-    icon.className='ti ti-scan';icon.style.color='var(--ocean)';
-    let found=null,foundOffer=null;
-    for(const o of offers){const e=o.enrolled.find(en=>en.qr===qrVal);if(e){found=e;foundOffer=o;break;}}
-    const res=document.getElementById('scan-result');res.style.display='block';
-    if(!found){res.innerHTML=`<div class="alert alert-warning"><i class="ti ti-alert-triangle"></i> QR not found. Please check the code.</div>`;return;}
-    const already=foundOffer.scanned.find(s=>s.qr===qrVal);
-    if(already){res.innerHTML=`<div class="alert alert-warning"><i class="ti ti-alert-triangle"></i> This QR was already redeemed on ${already.date} by ${already.name}.</div>`;return;}
-    res.innerHTML=`<div style="padding:4px">
-      <div class="alert alert-success"><i class="ti ti-circle-check"></i> Valid QR — ready to redeem</div>
-      <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px">
-        <div class="avatar" style="width:44px;height:44px;font-size:16px">${found.name.charAt(0)}</div>
-        <div><div style="font-weight:700;font-size:14px;color:var(--navy)">${found.name}</div>
-        <div style="font-size:11px;color:var(--text2)">Oferta: <strong>${foundOffer.title}</strong></div>
-        <div style="font-size:11px;color:var(--text3)">${foundOffer.biz} · ${found.date}</div></div>
-      </div>
-      <button class="btn btn-success" style="width:100%" onclick="confirmScan('${qrVal}',${foundOffer.id})"><i class="ti ti-check"></i> Confirmar canje at the venue</button>
-    </div>`;
-  },1100);
-}
-
-function confirmScan(qrVal,offerId){
-  const o=offers.find(x=>x.id===offerId);
-  const e=o.enrolled.find(en=>en.qr===qrVal);
-  o.scanned.push({name:e.name,date:new Date().toISOString().split('T')[0],qr:qrVal});
-  // Notify business of redemption via Apps Script
-  const bizUser = users.find(u => u.name === o.biz);
-  if(bizUser && bizUser.email) fetch(GOOGLE_SCRIPT_URL, {
-    method:'POST', mode:'no-cors',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ _action:'notifyRedemption', bizEmail: bizUser.email,
-      oferta:{title:o.title, biz:o.biz, scanned:o.scanned, sent:o.sent},
-      cliente:{name:e.name} })
-  }).catch(()=>{});
-  document.getElementById('scan-result').innerHTML=`<div class="alert alert-success"><i class="ti ti-circle-check"></i> Redemption registered for <strong>${e.name}</strong>.</div>`;
-  document.getElementById('qr-input').value='';
-  showToast(T('toast.redeemed-ok'),'success');
-}
-
-// ADMIN DASHBOARD
-function renderAdminDashboard(){
-  const active=offers.filter(o=>o.status==='active').length;
-  const pending=offers.filter(o=>o.status==='pending').length;
-  const totalSent=offers.reduce((a,o)=>a+o.sent,0);
-  const totalScanned=offers.reduce((a,o)=>a+o.scanned.length,0);
-  const commission=totalScanned*3.5;
-  const conv=totalSent?Math.round(totalScanned/totalSent*100):0;
-  document.getElementById('adm-active').textContent=active;
-  document.getElementById('adm-pending').textContent=pending;
-  document.getElementById('adm-sent').textContent=totalSent;
-  document.getElementById('adm-scanned').textContent=totalScanned;
-  document.getElementById('adm-commission').textContent='€'+commission.toFixed(0);
-  document.getElementById('adm-conv').textContent=conv+'%';
-  document.getElementById('adm-comm-bar').style.width=Math.min(conv*2,100)+'%';
-  document.getElementById('adm-conv-bar').style.width=conv+'%';
-  const byBiz={};
-  offers.forEach(o=>{if(!byBiz[o.biz])byBiz[o.biz]={count:0,sent:0,scanned:0};byBiz[o.biz].count++;byBiz[o.biz].sent+=o.sent;byBiz[o.biz].scanned+=o.scanned.length;});
-  document.getElementById('adm-biz-table').innerHTML=Object.entries(byBiz).sort((a,b)=>b[1].scanned-a[1].scanned).map(([name,d])=>`<tr>
-    <td class="td-primary">${name}</td><td>${d.count}</td><td>${d.sent}</td>
-    <td style="color:var(--success);font-weight:600">${d.scanned}</td>
-    <td style="color:var(--ocean);font-weight:600">€${(d.scanned*3.5).toFixed(2)}</td></tr>`).join('');
-  updatePendingIndicator();
-}
-
-function filterAdminOffers(filter,btn){
-  adminOffersFilter=filter;
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
-  renderAdminOffers();
-}
-
-function renderAdminOffers(){
-  let list=offers;if(adminOffersFilter!=='all')list=offers.filter(o=>o.status===adminOffersFilter);
-  const pc=offers.filter(o=>o.status==='pending').length;
-  document.getElementById('adm-tab-pending-count').textContent=pc?`(${pc})`:'';
-  const container=document.getElementById('admin-offers-table').closest('.table-wrap');
-
-  if(!list.length){
-    container.innerHTML=`<div class="empty" style="padding:40px;text-align:center;color:var(--text3)">
-      <i class="ti ti-files" style="font-size:40px;display:block;margin-bottom:12px"></i>
-      No offers in this status</div>`;
     return;
   }
 
-  // Pending: show full detail cards for proper review
-  if(adminOffersFilter === 'pending'){
-    container.innerHTML = `<div style="display:flex;flex-direction:column;gap:16px;padding:4px 0">` +
-      list.map(o => `
-        <div style="background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r2);overflow:hidden">
-          <!-- Header -->
-          <div style="background:var(--bg3);border-bottom:1px solid var(--border);padding:14px 18px;
-            display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-            <div style="display:flex;align-items:center;gap:12px">
-              ${o.bizLogo ? `<img src="${o.bizLogo}" style="width:40px;height:40px;object-fit:contain;
-                border-radius:8px;border:1px solid var(--border);background:#fff;padding:3px;flex-shrink:0">` :
-                `<div style="width:40px;height:40px;border-radius:8px;background:var(--ocean);
-                color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0">
-                ${o.biz.charAt(0)}</div>`}
-              <div>
-                <div style="font-size:15px;font-weight:800;color:var(--navy)">${o.title}</div>
-                <div style="font-size:12px;color:var(--ocean);font-weight:600">${o.biz} · 
-                  <span class="badge badge-cat" style="font-size:10px">${o.category}</span>
+  if (adminOffersFilter === 'pending') {
+    // Full detail cards for pending review
+    container.innerHTML = `<div style="display:flex;flex-direction:column;gap:20px">` +
+      list.map(o => {
+        const estado = o['Estado'];
+        const id     = o['ID'];
+        const cover  = o['Cover URL'];
+        const logo   = o['Logo URL'];
+        const biz    = o['Negocio'] || '';
+        const title  = o['Título'] || '';
+        const cat    = o['Categoría'] || '';
+        const desc   = o['Descripción'] || '';
+        const cond   = o['Condiciones'] || '';
+        const sched  = o['Horario'] || '';
+        const day    = o['Día'] || '';
+        const time   = o['Hora'] || '';
+        const date   = o['Fecha Evento'] || '';
+        const max    = o['Máx'] || 0;
+        const created = o['Fecha'] || '';
+
+        const schedLabel = sched === 'always' ? 'Always available' :
+          sched === 'weekly'  ? day + ' · ' + time :
+          sched === 'date'    ? date :
+          sched === 'limited' ? 'Until sold out' : sched || '—';
+
+        return `<div class="review-card pending">
+          ${cover ? `<img class="review-card-cover" src="${cover}" alt="${title}">` : ''}
+          <div class="review-card-header">
+            <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0">
+              ${logo
+                ? `<img src="${logo}" style="width:44px;height:44px;object-fit:contain;border-radius:8px;
+                    border:1px solid var(--border);background:#fff;padding:4px;flex-shrink:0">`
+                : `<div style="width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,var(--ocean),var(--blue));
+                    color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;
+                    font-weight:700;flex-shrink:0">${biz.charAt(0)}</div>`
+              }
+              <div style="min-width:0">
+                <div style="font-size:16px;font-weight:800;color:var(--navy);white-space:nowrap;
+                  overflow:hidden;text-overflow:ellipsis">${title}</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:3px;flex-wrap:wrap">
+                  <span style="font-size:12px;color:var(--ocean);font-weight:600">${biz}</span>
+                  <span class="badge badge-cat" style="font-size:10px">${cat}</span>
+                  <span style="font-size:11px;color:var(--text3)">Submitted: ${created}</span>
                 </div>
               </div>
             </div>
-            <div style="display:flex;gap:8px">
-              <button class="btn btn-success btn-sm" onclick="approveOffer(${o.id})">
-                <i class="ti ti-check"></i> Approve
-              </button>
-              <button class="btn btn-danger btn-sm" onclick="rejectOffer(${o.id})">
+            <div style="display:flex;gap:8px;flex-shrink:0">
+              <button class="btn btn-danger btn-sm" onclick="doRejectOffer('${id}')">
                 <i class="ti ti-x"></i> Reject
               </button>
+              <button class="btn btn-success btn-sm" onclick="doApproveOffer('${id}')">
+                <i class="ti ti-check"></i> Approve
+              </button>
             </div>
           </div>
 
-          <!-- Content -->
-          <div style="display:grid;grid-template-columns:${o.cover?'200px 1fr':'1fr'};gap:0">
-            ${o.cover ? `<div style="background:#f0f0f0;min-height:160px;overflow:hidden">
-              <img src="${o.cover}" style="width:100%;height:100%;object-fit:cover;display:block">
+          <div class="review-card-body">
+            <div class="review-field">
+              <div class="review-field-label">Full description</div>
+              <div class="review-field-value">${desc}</div>
+            </div>
+
+            ${cond ? `<div class="review-field" style="background:var(--warning-bg);border-color:var(--warning-border)">
+              <div class="review-field-label" style="color:var(--warning)">Conditions</div>
+              <div class="review-field-value" style="color:var(--warning)">${cond}</div>
             </div>` : ''}
-            <div style="padding:16px 18px">
-              <!-- Description -->
-              <div style="font-size:13px;line-height:1.7;color:var(--text2);margin-bottom:14px;
-                background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:12px">
-                <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;
-                  letter-spacing:.06em;margin-bottom:6px">Description</div>
-                ${o.desc}
+
+            <div class="review-grid">
+              <div class="review-field" style="margin:0">
+                <div class="review-field-label">Schedule</div>
+                <div class="review-field-value" style="font-weight:700">${schedLabel}</div>
               </div>
-
-              ${o.conditions ? `<div style="font-size:12px;color:var(--warning);background:var(--warning-bg);
-                border:1px solid var(--warning-border);border-radius:var(--r);padding:10px 12px;margin-bottom:14px">
-                <strong>Conditions:</strong> ${o.conditions}
-              </div>` : ''}
-
-              <!-- Details grid -->
-              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
-                <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:10px">
-                  <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Schedule</div>
-                  <div style="font-size:12px;font-weight:700;color:var(--navy)">${getScheduleLabel(o)}</div>
-                </div>
-                <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:10px">
-                  <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Max. people</div>
-                  <div style="font-size:12px;font-weight:700;color:var(--navy)">${o.max || 'Unlimited'}</div>
-                </div>
-                <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:10px">
-                  <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Distribution</div>
-                  <div style="font-size:12px;font-weight:700;color:var(--navy)">
-                    ${o.sendWA?'<i class="ti ti-brand-whatsapp" style="color:var(--success)"></i> ':''}
-                    ${o.sendEmail?'<i class="ti ti-mail" style="color:var(--ocean)"></i> ':''}
-                    ${!o.sendWA&&!o.sendEmail?'—':''}
-                  </div>
-                </div>
+              <div class="review-field" style="margin:0">
+                <div class="review-field-label">Max. people</div>
+                <div class="review-field-value" style="font-weight:700">${max || 'Unlimited'}</div>
               </div>
-
-              <div style="font-size:11px;color:var(--text3)">
-                Submitted by <strong style="color:var(--text2)">${o.biz}</strong> · 
-                Created: ${o.createdAt||'—'}
+              <div class="review-field" style="margin:0">
+                <div class="review-field-label">Category</div>
+                <div class="review-field-value" style="font-weight:700">${cat}</div>
               </div>
             </div>
           </div>
-        </div>
-      `).join('') + `</div>`;
-    return;
+        </div>`;
+      }).join('') + `</div>`;
+  } else {
+    // Compact table for approved/rejected/all
+    container.innerHTML = `
+      <div class="card" style="padding:0;overflow:hidden">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <thead><tr>
+            <th>Offer</th><th>Business</th><th>Category</th>
+            <th>Schedule</th><th>Status</th><th>Actions</th>
+          </tr></thead>
+          <tbody>` +
+      list.map(o => {
+        const estado = o['Estado'];
+        const badge = estado === 'Approved'
+          ? '<span class="badge badge-active">✓ Approved</span>'
+          : estado === 'Rejected'
+          ? '<span class="badge badge-rejected">✗ Rejected</span>'
+          : '<span class="badge badge-pending">⏳ Pending</span>';
+        const sched = o['Horario'] === 'weekly' ? (o['Día']||'') + ' ' + (o['Hora']||'')
+          : o['Horario'] === 'always' ? 'Always available'
+          : o['Fecha Evento'] || o['Horario'] || '—';
+        return `<tr>
+          <td>
+            <div class="td-primary">${o['Título']||''}</div>
+            <div style="font-size:11px;color:var(--text3)">${(o['Descripción']||'').substring(0,60)}...</div>
+          </td>
+          <td style="color:var(--text2);font-weight:500">${o['Negocio']||''}</td>
+          <td><span class="badge badge-cat">${o['Categoría']||''}</span></td>
+          <td style="font-size:12px;color:var(--text3)">${sched}</td>
+          <td>${badge}</td>
+          <td><div class="action-row">
+            ${estado !== 'Approved' ? `<button class="btn btn-success btn-sm" onclick="doApproveOffer('${o['ID']}')">
+              <i class="ti ti-check"></i></button>` : ''}
+            ${estado !== 'Rejected' ? `<button class="btn btn-danger btn-sm" onclick="doRejectOffer('${o['ID']}')">
+              <i class="ti ti-x"></i></button>` : ''}
+          </div></td>
+        </tr>`;
+      }).join('') +
+      `</tbody></table></div>`;
   }
-
-  // Other statuses: compact table view
-  container.innerHTML = `<table width="100%" cellpadding="0" cellspacing="0">
-    <thead><tr>
-      <th>Offer</th><th>Business</th><th>Category</th>
-      <th>Schedule</th><th>Max.</th><th>Status</th><th>Actions</th>
-    </tr></thead>
-    <tbody>` +
-    list.map(o=>`<tr>
-      <td><div class="td-primary">${o.title}</div>
-        <div style="font-size:10px;color:var(--text3)">${o.desc.substring(0,60)}...</div></td>
-      <td style="color:var(--text2)">${o.biz}</td>
-      <td><span class="badge badge-cat">${o.category}</span></td>
-      <td style="font-size:11px;color:var(--text3)">${getScheduleLabel(o)}</td>
-      <td style="text-align:center">${o.max||'∞'}</td>
-      <td>${statusBadge(o.status)}</td>
-      <td><div class="action-row">
-        <button class="btn btn-ghost btn-sm" onclick="openOfferDetail(${o.id})"><i class="ti ti-eye"></i></button>
-        <button class="btn btn-ghost btn-sm" onclick="editOffer(${o.id})"><i class="ti ti-edit"></i></button>
-      </div></td>
-    </tr>`).join('') +
-    `</tbody></table>`;
 }
+
+function doApproveOffer(id) {
+  const o = sheetsOffers.find(x => String(x['ID']) === String(id));
+  if (!o) return;
+  o['Estado'] = 'Approved';
+
+  // Update local offer too
+  const local = offers.find(x => String(x.id) === String(id));
+  if (local) local.status = 'active';
+
+  // Save to Sheets
+  fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ _action: 'updateOfferStatus', id, status: 'Approved',
+      bizEmail: '', bizName: o['Negocio'], title: o['Título'] })
+  }).catch(()=>{});
+
+  updateOfferCounts();
+  renderOfferReview();
+  showToast(`"${o['Título']}" approved ✓`, 'success');
+}
+
+function doRejectOffer(id) {
+  const o = sheetsOffers.find(x => String(x['ID']) === String(id));
+  if (!o) return;
+  o['Estado'] = 'Rejected';
+
+  const local = offers.find(x => String(x.id) === String(id));
+  if (local) local.status = 'rejected';
+
+  fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ _action: 'updateOfferStatus', id, status: 'Rejected' })
+  }).catch(()=>{});
+
+  updateOfferCounts();
+  renderOfferReview();
+  showToast(`"${o['Título']}" rejected`, 'warning');
+}
+
+// Keep old functions working
+function filterAdminOffers(f) { switchOfferTab(f); }
+function renderAdminOffers() { loadAdminOffers(); }
 
 function approveOffer(id){
   const o=offers.find(x=>x.id==id);

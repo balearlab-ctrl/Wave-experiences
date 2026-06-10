@@ -789,7 +789,15 @@ function submitOffer() {
 
   myOffers.push(offer);
   saveMyOffers();
-  showToast('Offer submitted for review!', 'success');
+
+  // Save to Google Sheets for admin review
+  fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ _action: 'saveOffer', ...offer })
+  }).catch(()=>{});
+
+  showToast('Offer submitted for review! ✓', 'success');
   // Reset form
   ['f-title','f-desc','f-cond','f-max'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-sched').value = '';
