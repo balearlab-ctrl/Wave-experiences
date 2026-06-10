@@ -2478,13 +2478,82 @@ function viewOfferDetail(id) {
   `;
 
   document.getElementById('modal-offer-footer').innerHTML = `
+    <button class="btn btn-ghost btn-sm" onclick="editOfferAdmin('${id}')">
+      <i class="ti ti-edit"></i> Edit</button>
+    <div style="flex:1"></div>
     <button class="btn btn-ghost" onclick="closeModal('offer-modal')">Close</button>
     ${estado !== 'Approved' ? `<button class="btn btn-success" onclick="doApproveOffer('${id}');closeModal('offer-modal')">
       <i class="ti ti-check"></i> Approve</button>` : ''}
     ${estado !== 'Rejected' ? `<button class="btn btn-danger" onclick="doRejectOffer('${id}');closeModal('offer-modal')">
       <i class="ti ti-x"></i> Reject</button>` : ''}
   `;
+  document.getElementById('modal-offer-footer').style.display = 'flex';
   document.getElementById('offer-modal').style.display = 'flex';
+}
+
+function editOfferAdmin(id){
+  const o = sheetsOffers.find(function(x){ return String(x['ID'])===String(id); });
+  if(!o){ showToast('Offer not found','danger'); return; }
+
+  document.getElementById('modal-offer-title').textContent = 'Edit Offer';
+  document.getElementById('modal-offer-body').innerHTML =
+    '<div class="form-group"><label class="form-label">Title *</label>' +
+    '<input class="form-control" id="eo-title" value="' + (o['Título']||'').replace(/"/g,'&quot;') + '"></div>' +
+    '<div class="form-group"><label class="form-label">Description</label>' +
+    '<textarea class="form-control" id="eo-desc" rows="3">' + (o['Descripción']||'') + '</textarea></div>' +
+    '<div class="form-group"><label class="form-label">Conditions</label>' +
+    '<textarea class="form-control" id="eo-cond" rows="2">' + (o['Condiciones']||'') + '</textarea></div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
+    '<div class="form-group"><label class="form-label">Category</label>' +
+    '<select class="form-control" id="eo-cat">' +
+    ['Food & Drink','Leisure & Adventure','Health & Wellness','Fashion & Lifestyle','Travel & Tours','Other']
+      .map(function(c){ return '<option' + (c===(o['Categoría']||'')?' selected':'') + '>' + c + '</option>'; }).join('') +
+    '</select></div>' +
+    '<div class="form-group"><label class="form-label">Max. people</label>' +
+    '<input class="form-control" id="eo-max" type="number" value="' + (o['Máx']||0) + '"></div>' +
+    '</div>' +
+    '<div class="form-group"><label class="form-label">Status</label>' +
+    '<select class="form-control" id="eo-status">' +
+    ['Pending','Approved','Rejected'].map(function(s){
+      return '<option' + (s===o['Estado']?' selected':'') + '>' + s + '</option>';
+    }).join('') + '</select></div>';
+
+  document.getElementById('modal-offer-footer').innerHTML =
+    '<button class="btn btn-ghost" onclick="viewOfferDetail(\u0022' + id + '\u0022)">\u2190 Back</button>' +
+    '<button class="btn btn-primary" onclick="saveOfferAdminEdit(\u0022' + id + '\u0022)">' +
+    '<i class="ti ti-device-floppy"></i> Save changes</button>';
+}
+
+function saveOfferAdminEdit(id){
+  const o = sheetsOffers.find(function(x){ return String(x['ID'])===String(id); });
+  if(!o) return;
+  o['Título']      = document.getElementById('eo-title').value.trim();
+  o['Descripción'] = document.getElementById('eo-desc').value.trim();
+  o['Condiciones'] = document.getElementById('eo-cond').value;
+  o['Categoría']   = document.getElementById('eo-cat').value;
+  o['Máx']         = parseInt(document.getElementById('eo-max').value)||0;
+  var newStatus    = document.getElementById('eo-status').value;
+  if(newStatus !== o['Estado']){
+    o['Estado'] = newStatus;
+    fetch(GOOGLE_SCRIPT_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ _action:'updateOfferStatus', id:id, status:newStatus })
+    }).catch(function(){});
+  }
+  // Also update local offer
+  var local = offers.find(function(x){ return String(x.id)===String(id); });
+  if(local){
+    local.title      = o['Título'];
+    local.desc       = o['Descripción'];
+    local.conditions = o['Condiciones'];
+    local.category   = o['Categoría'];
+    local.max        = o['Máx'];
+  }
+  updateOfferCounts();
+  renderOfferReview();
+  closeModal('offer-modal');
+  showToast('Offer updated ✓', 'success');
 }
 
 function doApproveOffer(id) {

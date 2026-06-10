@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wave Experiences Mallorca — Exclusive Offers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#060E20;--ocean:#0E2D5F;--blue:#2A5080;--cyan:#5AAFC8;
+  --white:#fff;--bg:#F0F6FA;--bg2:#E4EFF6;--border:#C8DFF0;
+  --text:#060E20;--text2:#1A3050;--text3:#5A7898;
+  --success:#0A8A4A;--success-bg:#E8F7EF;
+  --danger:#C8341A;--danger-bg:#FEF0ED;
+  --warning:#A86800;--warning-bg:#FFF8E8;--warning-border:#F5DFA0;
+  --r:8px;--r2:14px;--r3:20px;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── HEADER ── */
+.header{
+  background:#fff;border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:100;
+}
+.header-inner{
+  max-width:960px;margin:0 auto;padding:0 24px;
+  height:60px;display:flex;align-items:center;justify-content:space-between;
+}
+.header-logo img{height:36px;object-fit:contain}
+.header-nav{display:flex;align-items:center;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r);
+  border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;transition:all .15s}
+.btn-primary{background:linear-gradient(135deg,var(--ocean),var(--blue));color:#fff}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--text2);border:1.5px solid var(--border)}
+.btn-ghost:hover{background:var(--bg2);border-color:var(--ocean)}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+/* ── HERO ── */
+.hero{
+  background:linear-gradient(160deg,#060E20 0%,#0E2D5F 55%,#1A4A8A 100%);
+  padding:56px 24px;text-align:center;position:relative;overflow:hidden;
+}
+.hero::before{content:'';position:absolute;right:-10%;top:-20%;width:500px;height:500px;
+  border-radius:50%;background:radial-gradient(circle,rgba(90,175,200,.12),transparent 65%);pointer-events:none}
+.hero-inner{max-width:680px;margin:0 auto;position:relative;z-index:1}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:36px;font-weight:800;
+  color:#fff;margin-bottom:12px;line-height:1.15}
+.hero h1 span{color:#5AAFC8}
+.hero p{font-size:15px;color:rgba(255,255,255,.65);margin-bottom:28px;line-height:1.7}
+.hero-cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn-hero{padding:13px 28px;font-size:14px;font-weight:700;border-radius:50px}
+.btn-hero-outline{background:rgba(255,255,255,.1);color:#fff;border:1.5px solid rgba(255,255,255,.25);
+  padding:13px 28px;font-size:14px;font-weight:700;border-radius:50px}
+.btn-hero-outline:hover{background:rgba(255,255,255,.2)}
+.hero-stats{display:flex;gap:28px;justify-content:center;margin-top:36px;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat-val{font-size:24px;font-weight:800;font-family:'Space Grotesk',sans-serif;color:#fff}
+.hero-stat-label{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px}
+
+/* ── MAIN CONTENT ── */
+.main{max-width:960px;margin:0 auto;padding:32px 24px}
+
+/* ── FILTERS ── */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;align-items:center}
+.filter-pill{padding:7px 14px;border-radius:50px;font-size:12px;font-weight:600;
+  cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--text2);
+  transition:all .15s;white-space:nowrap}
+.filter-pill:hover{border-color:var(--ocean);color:var(--ocean)}
+.filter-pill.active{background:var(--ocean);color:#fff;border-color:var(--ocean)}
+.filter-sep{width:1px;height:20px;background:var(--border);margin:0 4px}
+
+/* ── OFFER GRID ── */
+.offers-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+@media(max-width:640px){.offers-grid{grid-template-columns:1fr}}
+
+/* ── OFFER CARD ── */
+.offer-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--r3);
+  overflow:hidden;cursor:pointer;transition:all .2s}
+.offer-card:hover{transform:translateY(-3px);border-color:var(--cyan);
+  box-shadow:0 8px 32px rgba(14,45,95,.12)}
+.offer-card.flash{border-color:rgba(255,107,0,.4);box-shadow:0 4px 20px rgba(255,61,0,.1)}
+.offer-card.flash:hover{border-color:#FF6B00;box-shadow:0 8px 32px rgba(255,61,0,.2)}
+.card-img{height:240px;position:relative;overflow:hidden;display:flex;
+  align-items:center;justify-content:center}
+.card-img img.cover{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cat-food{background:linear-gradient(135deg,#FFF0E8,#FFD8B8)}
+.cat-leisure{background:linear-gradient(135deg,#E4EFF6,#C8DFF0)}
+.cat-health{background:linear-gradient(135deg,#E8F8F0,#C0EDD4)}
+.cat-fashion{background:linear-gradient(135deg,#F8E8F4,#ECC8E8)}
+.cat-travel{background:linear-gradient(135deg,#E8F0FF,#C8D8FF)}
+.card-emoji{font-size:56px;position:relative;z-index:1;filter:drop-shadow(0 4px 8px rgba(0,0,0,.1))}
+.card-cat-badge{position:absolute;top:12px;left:12px;background:rgba(6,14,32,.7);
+  backdrop-filter:blur(6px);color:#fff;font-size:10px;font-weight:700;
+  padding:3px 10px;border-radius:20px;z-index:2}
+.flash-badge{position:absolute;top:12px;right:12px;
+  background:linear-gradient(135deg,#FF6B00,#FF3D00);
+  color:#fff;font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;
+  display:flex;align-items:center;gap:4px;z-index:2;
+  animation:flash-pulse 1.5s ease-in-out infinite}
+@keyframes flash-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,61,0,.5)}50%{box-shadow:0 0 0 6px rgba(255,61,0,0)}}
+.biz-logo-overlay{position:absolute;bottom:10px;right:10px;width:36px;height:36px;
+  border-radius:8px;background:#fff;padding:3px;border:1px solid rgba(255,255,255,.5);
+  object-fit:contain;z-index:2}
+.card-body{padding:16px 18px 18px}
+.card-biz{font-size:11px;font-weight:700;color:var(--ocean);margin-bottom:4px;
+  text-transform:uppercase;letter-spacing:.04em}
+.card-title{font-size:16px;font-weight:800;color:var(--navy);margin-bottom:6px;
+  font-family:'Space Grotesk',sans-serif;line-height:1.25}
+.card-desc{font-size:12px;color:var(--text3);margin-bottom:10px;line-height:1.6;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.card-sched{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:4px}
+.card-price{font-size:13px;font-weight:700;color:var(--navy)}
+.card-spots{font-size:11px;color:var(--success);font-weight:600}
+.flash-timer{display:flex;align-items:center;gap:6px;margin-top:8px;
+  background:linear-gradient(135deg,#1a0800,#2d1000);border-radius:8px;padding:8px 12px}
+.flash-unit{text-align:center}
+.flash-label{font-size:8px;color:rgba(255,107,0,.6);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
+.flash-digits{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:800;color:#FF6B00;line-height:1}
+.flash-sep{font-size:15px;font-weight:800;color:rgba(255,107,0,.4);animation:blink .8s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* ── SECTION HEADER ── */
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.section-hdr h2{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--navy)}
+.section-hdr p{font-size:13px;color:var(--text3);margin-top:3px}
+
+/* ── AUTH MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(6,14,32,.6);z-index:500;
+  display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal{background:#fff;border-radius:var(--r3);width:100%;max-width:460px;
+  max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.2)}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:17px;font-weight:800;color:var(--navy);font-family:'Space Grotesk',sans-serif}
+.modal-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:20px;
+  display:flex;align-items:center;padding:2px}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+.modal-tabs{display:flex;border-bottom:1px solid var(--border);margin:-24px -24px 20px}
+.modal-tab{flex:1;padding:14px;text-align:center;font-size:13px;font-weight:600;
+  color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.modal-tab.active{color:var(--ocean);border-bottom-color:var(--ocean)}
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:11px;font-weight:700;color:var(--text2);
+  margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.form-control{width:100%;background:var(--bg);border:1.5px solid var(--border);
+  border-radius:var(--r);color:var(--text);padding:10px 13px;font-size:13px;
+  font-family:'Inter',sans-serif;transition:border-color .2s}
+.form-control:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(90,175,200,.1)}
+.form-hint{font-size:11px;color:var(--text3);margin-top:4px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.alert{padding:10px 14px;border-radius:var(--r);font-size:12px;margin-bottom:14px;
+  display:flex;align-items:flex-start;gap:8px}
+.alert-success{background:var(--success-bg);border:1px solid #A8DFC1;color:var(--success)}
+.alert-danger{background:var(--danger-bg);border:1px solid #F5B8AE;color:var(--danger)}
+.alert-warning{background:var(--warning-bg);border:1px solid var(--warning-border);color:var(--warning)}
+.alert-info{background:#E4EFF6;border:1px solid var(--border);color:var(--ocean)}
+.divider{border:none;border-top:1px solid var(--border);margin:16px 0}
+
+/* ── BOOKING MODAL ── */
+.booking-modal{max-width:620px}
+.booking-cover{width:100%;height:200px;object-fit:cover;border-radius:var(--r2) var(--r2) 0 0}
+.booking-cover-placeholder{height:200px;display:flex;align-items:center;justify-content:center;
+  font-size:64px;border-radius:var(--r2) var(--r2) 0 0}
+.step-indicator{display:flex;gap:0;margin-bottom:20px}
+.step{flex:1;text-align:center;padding:8px 4px;font-size:11px;font-weight:600;
+  color:var(--text3);border-bottom:2px solid var(--border);position:relative}
+.step.active{color:var(--ocean);border-bottom-color:var(--ocean)}
+.step.done{color:var(--success);border-bottom-color:var(--success)}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:12px 0}
+.cal-header{text-align:center;font-size:10px;font-weight:700;color:var(--text3);
+  text-transform:uppercase;padding:4px 0}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  border-radius:var(--r);font-size:12px;font-weight:600;cursor:pointer;
+  border:1.5px solid transparent;transition:all .15s;color:var(--text2)}
+.cal-day:hover:not(.disabled):not(.empty){background:var(--bg2);border-color:var(--ocean)}
+.cal-day.selected{background:var(--ocean);color:#fff;border-color:var(--ocean)}
+.cal-day.today{border-color:var(--cyan);color:var(--ocean)}
+.cal-day.disabled{color:var(--border);cursor:not-allowed}
+.cal-day.empty{cursor:default}
+.time-slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.time-slot{padding:8px 6px;text-align:center;border-radius:var(--r);
+  border:1.5px solid var(--border);font-size:12px;font-weight:600;
+  cursor:pointer;transition:all .15s;color:var(--text2);background:#fff}
+.time-slot:hover:not(.full){border-color:var(--ocean);color:var(--ocean);background:var(--bg)}
+.time-slot.selected{background:var(--ocean);color:#fff;border-color:var(--ocean)}
+.time-slot.full{background:var(--bg);color:var(--border);cursor:not-allowed;border-color:var(--border)}
+.time-slot .avail{font-size:9px;font-weight:400;margin-top:2px;opacity:.7}
+
+/* ── QR BOX ── */
+.qr-success{text-align:center;padding:24px}
+.qr-code-box{background:linear-gradient(135deg,#060E20,#0E2D5F);border-radius:var(--r2);
+  padding:24px;margin:16px 0;display:inline-block;min-width:200px}
+.qr-code-id{font-family:monospace;font-size:22px;font-weight:800;color:#5AAFC8;
+  letter-spacing:.1em;margin-bottom:6px}
+.qr-code-hint{font-size:11px;color:rgba(255,255,255,.4)}
+
+/* ── USER PANEL ── */
+.user-panel{background:linear-gradient(135deg,var(--navy),var(--ocean));
+  border-radius:var(--r2);padding:20px;margin-bottom:24px;color:#fff}
+.user-panel-name{font-size:17px;font-weight:700;margin-bottom:2px}
+.user-panel-email{font-size:12px;color:rgba(255,255,255,.5)}
+.user-panel-tier{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.1);
+  border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;margin-top:8px}
+.bookings-list{display:flex;flex-direction:column;gap:12px}
+.booking-item{background:#fff;border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;
+  display:flex;align-items:center;gap:14px}
+.booking-qr{font-family:monospace;font-size:13px;font-weight:700;color:var(--ocean);
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--r);
+  padding:4px 10px;white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-active{background:var(--success-bg);color:var(--success)}
+.badge-redeemed{background:#EEF;color:#66A}
+.badge-expired{background:var(--bg2);color:var(--text3)}
+
+/* ── EMPTY / LOADING ── */
+.empty{text-align:center;padding:56px 24px;color:var(--text3)}
+.empty i{font-size:48px;display:block;margin-bottom:14px;color:var(--border)}
+.empty h3{font-size:16px;color:var(--text2);margin-bottom:6px}
+.spinner{display:inline-block;width:32px;height:32px;border:3px solid var(--border);
+  border-top-color:var(--ocean);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:22px;right:22px;z-index:9999;display:none}
+#toast-inner{background:#fff;border:1px solid var(--border);border-radius:var(--r);
+  padding:11px 16px;font-size:13px;display:flex;align-items:center;gap:8px;
+  min-width:260px;box-shadow:0 6px 20px rgba(6,14,32,.12)}
+
+/* ── FOOTER ── */
+.footer{background:var(--navy);color:rgba(255,255,255,.5);text-align:center;
+  padding:28px 24px;font-size:12px;margin-top:48px}
+.footer a{color:var(--cyan);text-decoration:none}
+
+@media(max-width:600px){
+  .hero h1{font-size:26px}
+  .form-row{grid-template-columns:1fr}
+  .time-slots{grid-template-columns:repeat(3,1fr)}
+  .header-inner{padding:0 16px}
+  .main{padding:20px 16px}
+}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-logo">
+      <img src="https://balearlab-ctrl.github.io/Wave-experiences/LOGO_WAVE_EXPERIENCES_azul_ok.png?v=2" alt="Wave Experiences Mallorca">
+    </div>
+    <nav class="header-nav">
+      <div id="header-auth">
+        <button class="btn btn-ghost btn-sm" onclick="openModal('auth-modal','login')">Sign in</button>
+        <button class="btn btn-primary btn-sm" onclick="openModal('auth-modal','register')" style="margin-left:6px">Join free</button>
+      </div>
+      <div id="header-user" style="display:none">
+        <button class="btn btn-ghost btn-sm" onclick="openModal('profile-modal')">
+          <i class="ti ti-user-circle"></i> <span id="header-username">My account</span>
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="doLogout()" style="margin-left:4px">
+          <i class="ti ti-logout"></i>
+        </button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <h1>Exclusive Offers<br>in <span>Mallorca</span></h1>
+    <p>Discover the best restaurants, experiences and activities on the island.<br>Book instantly — get your QR by email — redeem at the venue.</p>
+    <div class="hero-cta">
+      <button class="btn btn-primary btn-hero" onclick="document.querySelector('.main').scrollIntoView({behavior:'smooth'})">
+        <i class="ti ti-search"></i> Browse offers
+      </button>
+      <button class="btn btn-hero-outline" onclick="openModal('auth-modal','register')">
+        <i class="ti ti-user-plus"></i> Join free
+      </button>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-val">50+</div><div class="hero-stat-label">Exclusive offers</div></div>
+      <div class="hero-stat"><div class="hero-stat-val">15k+</div><div class="hero-stat-label">Happy customers</div></div>
+      <div class="hero-stat"><div class="hero-stat-val">100%</div><div class="hero-stat-label">Mallorca local</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- FILTERS -->
+  <div class="filters" id="filters">
+    <button class="filter-pill active" onclick="filterCat('',this)">All offers</button>
+    <button class="filter-pill" onclick="filterCat('Food &amp; Drink',this)">🍽 Food & Drink</button>
+    <button class="filter-pill" onclick="filterCat('Leisure &amp; Adventure',this)">🎭 Leisure</button>
+    <button class="filter-pill" onclick="filterCat('Health &amp; Wellness',this)">💆 Wellness</button>
+    <button class="filter-pill" onclick="filterCat('Fashion &amp; Lifestyle',this)">👗 Fashion</button>
+    <button class="filter-pill" onclick="filterCat('Travel &amp; Tours',this)">✈️ Travel</button>
+    <div class="filter-sep"></div>
+    <button class="filter-pill" id="flash-filter" onclick="filterFlash(this)">⚡ Flash only</button>
+  </div>
+
+  <!-- FLASH BANNER -->
+  <div id="flash-banner" style="display:none;background:linear-gradient(135deg,#1a0800,#FF3D00);
+    border-radius:var(--r2);padding:14px 18px;margin-bottom:20px;
+    display:flex;align-items:center;gap:12px">
+    <div style="font-size:24px">⚡</div>
+    <div>
+      <div style="font-size:13px;font-weight:700;color:#FF6B00">Flash offers active now!</div>
+      <div style="font-size:11px;color:rgba(255,200,100,.7)">Limited time — book before the countdown ends</div>
+    </div>
+  </div>
+
+  <!-- OFFERS -->
+  <div class="section-hdr">
+    <div>
+      <h2 id="offers-section-title">Offers for you</h2>
+      <p id="offers-section-sub">Click any offer to see details and book</p>
+    </div>
+    <div id="offers-count" style="font-size:13px;color:var(--text3)"></div>
+  </div>
+
+  <div class="offers-grid" id="offers-grid">
+    <div style="grid-column:1/-1;text-align:center;padding:48px">
+      <div class="spinner"></div>
+      <p style="margin-top:14px;color:var(--text3);font-size:13px">Loading offers...</p>
+    </div>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <p style="margin-bottom:8px">
+    <a href="https://waveexperiences.com">waveexperiences.com</a>
+    &nbsp;·&nbsp;
+    <a href="mailto:hello@waveexperiences.com">hello@waveexperiences.com</a>
+  </p>
+  <p>© 2025 Wave Experiences Mallorca · All rights reserved</p>
+</footer>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="auth-modal" style="display:none" onclick="if(event.target===this)closeModal('auth-modal')">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="auth-modal-title">Welcome</span>
+      <button class="modal-close" onclick="closeModal('auth-modal')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-tabs">
+        <div class="modal-tab active" id="tab-login" onclick="switchAuthTab('login')">Sign in</div>
+        <div class="modal-tab" id="tab-register" onclick="switchAuthTab('register')">Create account</div>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="auth-login">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-control" id="login-email" type="email" placeholder="your@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-control" id="login-pass" type="password" placeholder="Your password"
+            onkeydown="if(event.key==='Enter')submitLogin()">
+        </div>
+        <div id="login-err" class="alert alert-danger" style="display:none"></div>
+        <button class="btn btn-primary" style="width:100%;padding:12px" onclick="submitLogin()">
+          Sign in →
+        </button>
+      </div>
+
+      <!-- REGISTER -->
+      <div id="auth-register" style="display:none">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">First name *</label>
+            <input class="form-control" id="reg-fname" placeholder="John">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last name *</label>
+            <input class="form-control" id="reg-lname" placeholder="Doe">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email *</label>
+          <input class="form-control" id="reg-email" type="email" placeholder="your@email.com">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Password *</label>
+            <input class="form-control" id="reg-pass" type="password" placeholder="Min. 8 characters">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone (optional)</label>
+            <input class="form-control" id="reg-phone" placeholder="+34 600 000 000">
+          </div>
+        </div>
+        <div id="reg-err" class="alert alert-danger" style="display:none"></div>
+        <button class="btn btn-primary" style="width:100%;padding:12px" onclick="submitRegister()">
+          <i class="ti ti-user-plus"></i> Create my account
+        </button>
+        <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:12px">
+          We will send a verification email to confirm your address.
+        </p>
+      </div>
+
+      <!-- VERIFY EMAIL -->
+      <div id="auth-verify" style="display:none;text-align:center;padding:12px 0">
+        <div style="font-size:48px;margin-bottom:16px">📧</div>
+        <h3 style="font-size:17px;font-weight:700;color:var(--navy);margin-bottom:8px">Check your inbox!</h3>
+        <p style="font-size:13px;color:var(--text3);margin-bottom:16px">We sent a verification link to <strong id="verify-email-addr"></strong>. Click it to activate your account.</p>
+        <div class="alert alert-info"><i class="ti ti-info-circle"></i> Check your spam folder if you don't see it.</div>
+        <button class="btn btn-ghost" style="width:100%;margin-top:8px" onclick="resendVerification()">
+          <i class="ti ti-refresh"></i> Resend verification email
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- OFFER MODAL -->
+<div class="modal-overlay" id="offer-modal" style="display:none" onclick="if(event.target===this)closeModal('offer-modal')">
+  <div class="modal booking-modal" id="offer-modal-inner">
+    <div class="modal-header">
+      <span class="modal-title" id="offer-modal-title">Offer Details</span>
+      <button class="modal-close" onclick="closeModal('offer-modal')"><i class="ti ti-x"></i></button>
+    </div>
+    <div id="offer-modal-content"></div>
+  </div>
+</div>
+
+<!-- PROFILE MODAL -->
+<div class="modal-overlay" id="profile-modal" style="display:none" onclick="if(event.target===this)closeModal('profile-modal')">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">My Account</span>
+      <button class="modal-close" onclick="closeModal('profile-modal')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body" id="profile-content"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"><div id="toast-inner"></div></div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec';
+
+// ── DATA ──────────────────────────────────────────────────────────────────
+let allOffers   = [];
+let currentUser = null;
+let catFilter   = '';
+let flashFilter = false;
+
+// Offer sample data (will be replaced by Sheets data)
+const SAMPLE_OFFERS = [
+  {id:1,title:'2-for-1 artisan cocktails',biz:'La Taberna del Puerto',
+    category:'Food & Drink',includes:'2 cocktails of your choice\nWelcome tapas',
+    desc:'Order any cocktail and get the second one free. Crafted with premium spirits and fresh seasonal fruits.',
+    conditions:'Min. 2 people. Not combinable with other offers.',
+    price:'€12 per person · Normally €20',
+    schedule:'weekly',scheduleDay:'Wednesday',scheduleTime:'20:00-23:00',
+    max:40,enrolled:[],scanned:[],sent:87,status:'active',
+    cover:'',bizLogo:'',createdAt:'01/06/2025',flash:false,flashEnd:null,
+    bookingType:'none'},
+  {id:2,title:'Sunset kayak tour',biz:'Wave Adventures',
+    category:'Leisure & Adventure',includes:'Full kayak equipment\nLife jacket\nGuide included\nBottled water',
+    desc:'Paddle along the stunning Alcúdia coastline at golden hour. Suitable for beginners.',
+    conditions:'Min. age 14. Weather dependent.',
+    price:'€35 per person',
+    schedule:'weekly',scheduleDay:'Saturday',scheduleTime:'18:30',
+    max:8,enrolled:[],scanned:[],sent:24,status:'active',
+    cover:'',bizLogo:'',createdAt:'03/06/2025',flash:false,flashEnd:null,
+    bookingType:'slots',
+    availability:{
+      'Mon':[],'Tue':[],'Wed':[],'Thu':[],'Fri':[],'Sat':['18:30','19:00'],'Sun':['18:00','18:30']
+    }},
+  {id:3,title:'Relaxing massage 60 min',biz:'Spa Oasis Palma',
+    category:'Health & Wellness',includes:'60-min full body massage\nAromatherapy oils\nThermal circuit access',
+    desc:'Choose from Swedish, deep tissue or hot stone. Includes access to our thermal circuit.',
+    conditions:'Booking required 24h in advance.',
+    price:'€55 · Normally €75',
+    schedule:'always',max:0,enrolled:[],scanned:[],sent:45,status:'active',
+    cover:'',bizLogo:'',createdAt:'05/06/2025',flash:false,flashEnd:null,
+    bookingType:'hourly',
+    availability:{'09:00':10,'10:00':10,'11:00':10,'12:00':10,'16:00':10,'17:00':10,'18:00':10}},
+  {id:4,title:'Gastronomic tour Mercat',biz:'Palma Food Tours',
+    category:'Leisure & Adventure',includes:'Expert guide\nFresh seafood tasting\nLocal cheeses\nSobrassada & ensaimada',
+    desc:'Discover the best local products at Palma most iconic market with our expert guide.',
+    conditions:'Groups 4-12. Duration approx 2.5 hours.',
+    price:'€45 per person',
+    schedule:'weekly',scheduleDay:'Tuesday & Friday',scheduleTime:'10:00',
+    max:12,enrolled:[],scanned:[],sent:31,status:'active',
+    cover:'',bizLogo:'',createdAt:'02/06/2025',flash:false,flashEnd:null,
+    bookingType:'slots',
+    availability:{'Tue':['10:00'],'Fri':['10:00']}},
+  {id:5,title:'Flash: Champagne & Oysters',biz:'La Taberna del Puerto',
+    category:'Food & Drink',includes:'Half dozen fresh oysters\nGlass of champagne\nBread & butter',
+    desc:'Exclusive flash offer tonight only! Fresh oysters with a glass of champagne at an unbeatable price.',
+    conditions:'While stocks last. One offer per person.',
+    price:'€28 · Normally €45',
+    schedule:'always',max:20,enrolled:[],scanned:[],sent:0,status:'active',
+    cover:'',bizLogo:'',createdAt:'10/06/2025',flash:true,
+    flashEnd:new Date(Date.now()+4*60*60*1000).toISOString(),
+    flashDuration:4,bookingType:'none'},
+];
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+(function init(){
+  // Check session
+  const session = localStorage.getItem('wave_customer_session');
+  if(session){
+    try{
+      currentUser = JSON.parse(session);
+      updateHeaderAuth();
+    }catch(e){}
+  }
+  // Load offers
+  loadOffers();
+})();
+
+function loadOffers(){
+  // Try Sheets first, fallback to sample
+  fetch(SCRIPT_URL + '?action=getOffers&t=' + Date.now())
+    .then(r => r.json())
+    .then(data => {
+      if(Array.isArray(data) && data.length > 0){
+        allOffers = data.filter(o => o['Estado']==='Approved' || o.status==='active').map(o => ({
+          id: o['ID']||o.id,
+          title: o['Título']||o.title||'',
+          biz: o['Negocio']||o.biz||'',
+          category: o['Categoría']||o.category||'',
+          includes: o['includes']||o['Incluye']||'',
+          desc: o['Descripción']||o.desc||'',
+          conditions: o['Condiciones']||o.conditions||'',
+          price: o['price']||o['Precio']||'',
+          schedule: o['Horario']||o.schedule||'',
+          scheduleDay: o['Día']||o.scheduleDay||'',
+          scheduleTime: o['Hora']||o.scheduleTime||'',
+          max: o['Máx']||o.max||0,
+          enrolled: o.enrolled||[],
+          scanned: o.scanned||[],
+          status: 'active',
+          flash: o.flash||false,
+          flashEnd: o.flashEnd||null,
+          bookingType: o.bookingType||'none',
+          availability: o.availability||null,
+          cover: o['Cover URL']||o.cover||'',
+          bizLogo: o['Logo URL']||o.bizLogo||'',
+        }));
+      } else {
+        allOffers = SAMPLE_OFFERS;
+      }
+      renderOffers();
+    })
+    .catch(() => {
+      allOffers = SAMPLE_OFFERS;
+      renderOffers();
+    });
+}
+
+// ── RENDER OFFERS ─────────────────────────────────────────────────────────
+function renderOffers(){
+  const grid = document.getElementById('offers-grid');
+  let list = allOffers.filter(o => {
+    if(o.flash && o.flashEnd && new Date(o.flashEnd) < new Date()) return false;
+    if(catFilter && o.category !== catFilter) return false;
+    if(flashFilter && !o.flash) return false;
+    return true;
+  });
+
+  document.getElementById('offers-count').textContent = list.length + ' offer' + (list.length!==1?'s':'');
+
+  const hasFlash = list.some(o => o.flash && o.flashEnd && new Date(o.flashEnd) > new Date());
+  const banner = document.getElementById('flash-banner');
+  if(banner) banner.style.display = hasFlash ? 'flex' : 'none';
+
+  if(!list.length){
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><i class="ti ti-tag-off"></i><h3>No offers found</h3><p>Try a different category</p></div>';
+    return;
+  }
+
+  grid.innerHTML = list.map(o => offerCardHTML(o)).join('');
+  startFlashTimers();
+}
+
+function offerCardHTML(o){
+  const cats = {'Food & Drink':'cat-food','Leisure & Adventure':'cat-leisure',
+    'Health & Wellness':'cat-health','Fashion & Lifestyle':'cat-fashion','Travel & Tours':'cat-travel'};
+  const emojis = {'Food & Drink':'🍽️','Leisure & Adventure':'🎭','Health & Wellness':'💆',
+    'Fashion & Lifestyle':'👗','Travel & Tours':'✈️'};
+  const catCls = cats[o.category]||'cat-leisure';
+  const emoji  = emojis[o.category]||'🎁';
+  const isFlash = o.flash && o.flashEnd && new Date(o.flashEnd) > new Date();
+  const tid = 'timer-' + o.id;
+  const spotsLeft = o.max > 0 ? (o.max - (o.enrolled||[]).length) : null;
+  const schedLabel = o.schedule==='always' ? 'Always available' :
+    o.schedule==='weekly' ? (o.scheduleDay||'') + (o.scheduleTime?' · '+o.scheduleTime:'') :
+    o.schedule==='date' ? o.scheduleDate||'' :
+    o.schedule==='limited' ? 'Until sold out' : '';
+
+  return `<div class="offer-card${isFlash?' flash':''}" onclick="openOffer(${o.id})">
+    <div class="card-img ${catCls}">
+      ${o.cover ? `<img class="cover" src="${o.cover}" alt="${o.title}">` : `<div class="card-emoji">${emoji}</div>`}
+      <div class="card-cat-badge">${o.category}</div>
+      ${isFlash ? `<div class="flash-badge"><i class="ti ti-bolt" style="font-size:10px"></i> FLASH</div>` : ''}
+      ${o.bizLogo ? `<img class="biz-logo-overlay" src="${o.bizLogo}" alt="${o.biz}">` : ''}
+    </div>
+    <div class="card-body">
+      <div class="card-biz">${o.biz}</div>
+      <div class="card-title">${o.title}</div>
+      ${o.desc ? `<div class="card-desc">${o.desc}</div>` : ''}
+      <div class="card-footer">
+        ${schedLabel ? `<div class="card-sched"><i class="ti ti-clock" style="font-size:11px"></i>${schedLabel}</div>` : ''}
+        ${o.price ? `<div class="card-price">${o.price.split('·')[0].trim()}</div>` : ''}
+        ${spotsLeft !== null ? `<div class="card-spots"><i class="ti ti-users" style="font-size:10px"></i> ${spotsLeft} spots left</div>` : ''}
+      </div>
+      ${isFlash ? `<div class="flash-timer" id="${tid}">
+        <div class="flash-unit"><div class="flash-label">H</div><div class="flash-digits" id="${tid}-h">--</div></div>
+        <div class="flash-sep">:</div>
+        <div class="flash-unit"><div class="flash-label">M</div><div class="flash-digits" id="${tid}-m">--</div></div>
+        <div class="flash-sep">:</div>
+        <div class="flash-unit"><div class="flash-label">S</div><div class="flash-digits" id="${tid}-s">--</div></div>
+      </div>` : ''}
+    </div>
+  </div>`;
+}
+
+// ── FILTERS ───────────────────────────────────────────────────────────────
+function filterCat(cat, el){
+  catFilter = cat;
+  document.querySelectorAll('.filter-pill:not(#flash-filter)').forEach(p => p.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderOffers();
+}
+function filterFlash(el){
+  flashFilter = !flashFilter;
+  el.classList.toggle('active', flashFilter);
+  renderOffers();
+}
+
+// ── FLASH TIMERS ──────────────────────────────────────────────────────────
+var _ft = null;
+function startFlashTimers(){
+  if(_ft) clearInterval(_ft);
+  _ft = setInterval(tickFlash, 1000);
+  tickFlash();
+}
+function tickFlash(){
+  var now = new Date(), expired = false;
+  allOffers.forEach(function(o){
+    if(!o.flash||!o.flashEnd) return;
+    var diff = new Date(o.flashEnd) - now;
+    var h = document.getElementById('timer-'+o.id+'-h');
+    var m = document.getElementById('timer-'+o.id+'-m');
+    var s = document.getElementById('timer-'+o.id+'-s');
+    if(!h) return;
+    if(diff<=0){ h.textContent=m.textContent=s.textContent='00'; expired=true; return; }
+    h.textContent=String(Math.floor(diff/3600000)).padStart(2,'0');
+    m.textContent=String(Math.floor((diff%3600000)/60000)).padStart(2,'0');
+    s.textContent=String(Math.floor((diff%60000)/1000)).padStart(2,'0');
+  });
+  if(expired) renderOffers();
+}
+
+// ── OPEN OFFER ────────────────────────────────────────────────────────────
+function openOffer(id){
+  const o = allOffers.find(x => String(x.id)===String(id));
+  if(!o) return;
+  document.getElementById('offer-modal-title').textContent = o.title;
+
+  const catCls = {'Food & Drink':'cat-food','Leisure & Adventure':'cat-leisure',
+    'Health & Wellness':'cat-health','Fashion & Lifestyle':'cat-fashion','Travel & Tours':'cat-travel'}[o.category]||'cat-leisure';
+  const emoji = {'Food & Drink':'🍽️','Leisure & Adventure':'🎭','Health & Wellness':'💆',
+    'Fashion & Lifestyle':'👗','Travel & Tours':'✈️'}[o.category]||'🎁';
+  const schedLabel = o.schedule==='always' ? 'Always available' :
+    o.schedule==='weekly' ? (o.scheduleDay||'')+(o.scheduleTime?' · '+o.scheduleTime:'') :
+    o.schedule==='date' ? o.scheduleDate||'' : o.schedule==='limited' ? 'Until sold out' : '';
+
+  const includesHTML = (o.includes||'').split('\n').filter(Boolean).map(l =>
+    `<div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;font-size:13px;color:var(--text2)">
+      <i class="ti ti-circle-check" style="color:var(--success);font-size:14px;flex-shrink:0;margin-top:1px"></i>
+      ${l.replace(/^[-*•]\s*/,'')}
+    </div>`).join('');
+
+  document.getElementById('offer-modal-content').innerHTML = `
+    ${o.cover
+      ? `<img class="booking-cover" src="${o.cover}" alt="${o.title}">`
+      : `<div class="booking-cover-placeholder ${catCls}">${emoji}</div>`}
+    <div style="padding:20px 24px">
+      <div style="font-size:11px;font-weight:700;color:var(--ocean);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">${o.biz}</div>
+      <h2 style="font-size:20px;font-weight:800;color:var(--navy);font-family:'Space Grotesk',sans-serif;margin-bottom:8px">${o.title}</h2>
+      ${o.price ? `<div style="font-size:15px;font-weight:700;color:var(--ocean);margin-bottom:12px">${o.price}</div>` : ''}
+
+      ${includesHTML ? `<div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;margin-bottom:14px">
+        <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">What is included</div>
+        ${includesHTML}
+      </div>` : ''}
+
+      ${o.desc ? `<p style="font-size:13px;line-height:1.75;color:var(--text2);margin-bottom:12px">${o.desc}</p>` : ''}
+
+      ${o.conditions ? `<div style="background:var(--warning-bg);border:1px solid var(--warning-border);border-radius:var(--r);padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--warning)">
+        <strong>Conditions:</strong> ${o.conditions}</div>` : ''}
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:10px">
+          <div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Schedule</div>
+          <div style="font-size:12px;font-weight:700;color:var(--navy)">${schedLabel||'See details'}</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:10px">
+          <div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Capacity</div>
+          <div style="font-size:12px;font-weight:700;color:var(--navy)">${o.max>0?o.max+' people max':'Unlimited'}</div>
+        </div>
+      </div>
+
+      <hr class="divider">
+      <div id="booking-section-${o.id}">
+        ${renderBookingSection(o)}
+      </div>
+    </div>`;
+
+  document.getElementById('offer-modal').style.display = 'flex';
+}
+
+function renderBookingSection(o){
+  if(!currentUser){
+    return `<div class="alert alert-info" style="margin-bottom:12px">
+        <i class="ti ti-lock"></i> Sign in or create a free account to book this offer.
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" style="flex:1" onclick="closeModal('offer-modal');openModal('auth-modal','login')">Sign in</button>
+        <button class="btn btn-primary" style="flex:1" onclick="closeModal('offer-modal');openModal('auth-modal','register')">Join free</button>
+      </div>`;
+  }
+  if(!currentUser.verified){
+    return `<div class="alert alert-warning">
+        <i class="ti ti-mail"></i> Please verify your email before booking.
+        <button class="btn btn-ghost btn-sm" style="margin-left:8px" onclick="resendVerification()">Resend</button>
+      </div>`;
+  }
+
+  if(o.bookingType === 'none' || !o.bookingType){
+    return `<button class="btn btn-primary" style="width:100%;padding:13px;font-size:14px" onclick="bookOffer(${o.id})">
+      <i class="ti ti-ticket"></i> Book now — get QR by email
+    </button>`;
+  }
+  if(o.bookingType === 'slots' || o.bookingType === 'hourly'){
+    return `<button class="btn btn-primary" style="width:100%;padding:13px;font-size:14px" onclick="openCalendar(${o.id})">
+      <i class="ti ti-calendar"></i> Choose date & time
+    </button>`;
+  }
+  return '';
+}
+
+// ── BOOKING ───────────────────────────────────────────────────────────────
+function bookOffer(id){
+  const o = allOffers.find(x => String(x.id)===String(id));
+  if(!o||!currentUser) return;
+  if(o.max>0 && (o.enrolled||[]).length >= o.max){
+    showToast('Sorry, this offer is full','danger'); return;
+  }
+  const qrId = 'QR-' + String(id).slice(-4) + '-' + Math.random().toString(36).substr(2,4).toUpperCase();
+  if(!o.enrolled) o.enrolled = [];
+  o.enrolled.push({name:currentUser.name,email:currentUser.email,date:new Date().toLocaleDateString('en-GB'),qr:qrId});
+  o.sent = (o.sent||0) + 1;
+
+  // Save booking to user's local storage
+  saveUserBooking({offerId:o.id,offerTitle:o.title,biz:o.biz,qr:qrId,
+    date:new Date().toLocaleDateString('en-GB'),status:'active'});
+
+  // Send QR email via Apps Script
+  fetch(SCRIPT_URL, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      _action:'sendQR', to:currentUser.email,
+      cliente:{name:currentUser.name,email:currentUser.email},
+      oferta:{
+        title:o.title, biz:o.biz, includes:o.includes||'',
+        desc:o.desc||'', price:o.price||'',
+        conditions:o.conditions||'', schedule:o.schedule,
+        scheduleDay:o.scheduleDay||'', scheduleTime:o.scheduleTime||'',
+        scheduleDate:o.scheduleDate||'', max:o.max||0
+      },
+      qrCode:qrId
+    })
+  }).catch(()=>{});
+
+  showBookingSuccess(o, qrId);
+}
+
+function showBookingSuccess(o, qrId){
+  document.getElementById('offer-modal-content').innerHTML = `
+    <div class="qr-success">
+      <div style="font-size:48px;margin-bottom:12px">🎉</div>
+      <h3 style="font-size:19px;font-weight:800;color:var(--navy);font-family:'Space Grotesk',sans-serif;margin-bottom:6px">Booking confirmed!</h3>
+      <p style="font-size:13px;color:var(--text3);margin-bottom:16px">Your QR code has been sent to <strong>${currentUser.email}</strong></p>
+      <div class="qr-code-box">
+        <div class="qr-code-id">${qrId}</div>
+        <div class="qr-code-hint">Show this at ${o.biz}</div>
+      </div>
+      <p style="font-size:12px;color:var(--text3);margin-top:12px">This code is personal and can only be redeemed once.</p>
+      <button class="btn btn-ghost" style="margin-top:16px" onclick="closeModal('offer-modal')">Close</button>
+    </div>`;
+}
+
+// ── CALENDAR BOOKING ──────────────────────────────────────────────────────
+let calState = {offerId:null, selectedDate:null, selectedTime:null, year:null, month:null};
+
+function openCalendar(id){
+  const o = allOffers.find(x => String(x.id)===String(id));
+  if(!o) return;
+  calState.offerId = id;
+  calState.selectedDate = null;
+  calState.selectedTime = null;
+  const now = new Date();
+  calState.year  = now.getFullYear();
+  calState.month = now.getMonth();
+  renderCalendarStep(o);
+}
+
+function renderCalendarStep(o){
+  const sec = document.getElementById('booking-section-' + o.id);
+  if(!sec) return;
+  sec.innerHTML = `
+    <div>
+      <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px">
+        <i class="ti ti-calendar" style="color:var(--ocean)"></i> Select a date
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <button class="btn btn-ghost btn-sm" onclick="prevMonth(${o.id})" id="cal-prev">‹ Prev</button>
+        <span style="font-size:13px;font-weight:700;color:var(--navy)" id="cal-month-label"></span>
+        <button class="btn btn-ghost btn-sm" onclick="nextMonth(${o.id})" id="cal-next">Next ›</button>
+      </div>
+      <div class="calendar-grid" id="cal-grid"></div>
+      <div id="time-slots-section" style="margin-top:12px"></div>
+      <div id="cal-book-btn" style="margin-top:12px"></div>
+    </div>`;
+  renderCalendarGrid(o);
+}
+
+function renderCalendarGrid(o){
+  const months = ['January','February','March','April','May','June',
+    'July','August','September','October','November','December'];
+  const days   = ['Mo','Tu','We','Th','Fr','Sa','Su'];
+  document.getElementById('cal-month-label').textContent = months[calState.month] + ' ' + calState.year;
+  const grid = document.getElementById('cal-grid');
+  if(!grid) return;
+
+  let html = days.map(d => `<div class="cal-header">${d}</div>`).join('');
+  const firstDay = new Date(calState.year, calState.month, 1);
+  const offset   = (firstDay.getDay()+6)%7; // Mon=0
+  const daysInMonth = new Date(calState.year, calState.month+1, 0).getDate();
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  for(let i=0;i<offset;i++) html += '<div class="cal-day empty"></div>';
+  for(let d=1;d<=daysInMonth;d++){
+    const date = new Date(calState.year, calState.month, d);
+    const isPast = date < today;
+    const isSelected = calState.selectedDate &&
+      calState.selectedDate.toDateString()===date.toDateString();
+    const isToday = date.toDateString()===today.toDateString();
+    html += `<div class="cal-day${isPast?' disabled':''}${isSelected?' selected':''}${isToday&&!isPast?' today':''}"
+      onclick="${isPast?'':'selectDate('+d+','+o.id+')'}">${d}</div>`;
+  }
+  grid.innerHTML = html;
+}
+
+function selectDate(d, oid){
+  calState.selectedDate = new Date(calState.year, calState.month, d);
+  const o = allOffers.find(x => String(x.id)===String(oid));
+  renderCalendarGrid(o);
+  renderTimeSlots(o);
+}
+
+function renderTimeSlots(o){
+  const sec = document.getElementById('time-slots-section');
+  if(!sec||!calState.selectedDate) return;
+  const dayName = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][calState.selectedDate.getDay()];
+  const avail = o.availability;
+  let slots = [];
+  if(avail){
+    if(avail[dayName]) slots = avail[dayName];
+    else if(o.bookingType==='hourly') slots = Object.keys(avail);
+  }
+  if(!slots.length){
+    sec.innerHTML = '<div class="alert alert-warning"><i class="ti ti-calendar-off"></i> No availability on this day. Please select another date.</div>';
+    document.getElementById('cal-book-btn').innerHTML = '';
+    return;
+  }
+  sec.innerHTML = `
+    <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:8px">Available times</div>
+    <div class="time-slots">
+      ${slots.map(t => {
+        const isSelected = calState.selectedTime===t;
+        return `<div class="time-slot${isSelected?' selected':''}" onclick="selectTime('${t}',${o.id})">${t}</div>`;
+      }).join('')}
+    </div>`;
+  updateCalBookBtn(o);
+}
+
+function selectTime(t, oid){
+  calState.selectedTime = t;
+  const o = allOffers.find(x => String(x.id)===String(oid));
+  renderTimeSlots(o);
+  updateCalBookBtn(o);
+}
+
+function updateCalBookBtn(o){
+  const btn = document.getElementById('cal-book-btn');
+  if(!btn) return;
+  if(calState.selectedDate && calState.selectedTime){
+    const dateStr = calState.selectedDate.toLocaleDateString('en-GB');
+    btn.innerHTML = `<button class="btn btn-primary" style="width:100%;padding:12px" onclick="bookOfferWithSlot(${o.id})">
+      <i class="ti ti-ticket"></i> Book ${dateStr} at ${calState.selectedTime}
+    </button>`;
+  }
+}
+
+function bookOfferWithSlot(id){
+  const o = allOffers.find(x => String(x.id)===String(id));
+  if(!o||!currentUser||!calState.selectedDate||!calState.selectedTime) return;
+  const dateStr = calState.selectedDate.toLocaleDateString('en-GB');
+  const qrId = 'QR-' + String(id).slice(-4) + '-' + Math.random().toString(36).substr(2,4).toUpperCase();
+  if(!o.enrolled) o.enrolled = [];
+  o.enrolled.push({name:currentUser.name,email:currentUser.email,
+    date:dateStr,time:calState.selectedTime,qr:qrId});
+  o.sent=(o.sent||0)+1;
+  saveUserBooking({offerId:o.id,offerTitle:o.title,biz:o.biz,qr:qrId,
+    date:dateStr+' at '+calState.selectedTime,status:'active'});
+  fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({_action:'sendQR',to:currentUser.email,
+      cliente:{name:currentUser.name,email:currentUser.email},
+      oferta:{title:o.title,biz:o.biz,includes:o.includes||'',desc:o.desc||'',
+        price:o.price||'',conditions:o.conditions||'',
+        schedule:'Date: '+dateStr+' · Time: '+calState.selectedTime,
+        scheduleDay:'',scheduleTime:calState.selectedTime,scheduleDate:dateStr,max:o.max||0},
+      qrCode:qrId})
+  }).catch(()=>{});
+  showBookingSuccess(o, qrId);
+}
+
+function prevMonth(oid){
+  if(calState.month===0){calState.month=11;calState.year--;}
+  else calState.month--;
+  const o=allOffers.find(x=>String(x.id)===String(oid));
+  renderCalendarGrid(o);
+}
+function nextMonth(oid){
+  if(calState.month===11){calState.month=0;calState.year++;}
+  else calState.month++;
+  const o=allOffers.find(x=>String(x.id)===String(oid));
+  renderCalendarGrid(o);
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────────────
+function switchAuthTab(tab){
+  document.getElementById('auth-login').style.display    = tab==='login'?'block':'none';
+  document.getElementById('auth-register').style.display = tab==='register'?'block':'none';
+  document.getElementById('auth-verify').style.display   = 'none';
+  document.getElementById('tab-login').classList.toggle('active', tab==='login');
+  document.getElementById('tab-register').classList.toggle('active', tab==='register');
+  document.getElementById('auth-modal-title').textContent = tab==='login'?'Welcome back':'Create account';
+}
+
+function submitLogin(){
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const err   = document.getElementById('login-err');
+  if(!email||!pass){err.textContent='Please fill in all fields';err.style.display='flex';return;}
+
+  // Check localStorage customers
+  const customers = JSON.parse(localStorage.getItem('wave_customers')||'[]');
+  const user = customers.find(u => u.email===email);
+  if(!user){err.textContent='No account found with this email.';err.style.display='flex';return;}
+  if(user.password!==pass){err.textContent='Incorrect password.';err.style.display='flex';return;}
+
+  currentUser = user;
+  localStorage.setItem('wave_customer_session', JSON.stringify(user));
+  updateHeaderAuth();
+  closeModal('auth-modal');
+  showToast('Welcome back, ' + user.name + '!', 'success');
+}
+
+function submitRegister(){
+  const fname = document.getElementById('reg-fname').value.trim();
+  const lname = document.getElementById('reg-lname').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass  = document.getElementById('reg-pass').value;
+  const phone = document.getElementById('reg-phone').value.trim();
+  const err   = document.getElementById('reg-err');
+
+  if(!fname||!lname||!email||!pass){err.textContent='Please fill in all required fields';err.style.display='flex';return;}
+  if(pass.length<8){err.textContent='Password must be at least 8 characters';err.style.display='flex';return;}
+
+  const customers = JSON.parse(localStorage.getItem('wave_customers')||'[]');
+  if(customers.find(u=>u.email===email)){err.textContent='An account with this email already exists';err.style.display='flex';return;}
+
+  const newUser = {
+    id: Date.now(), name: fname+' '+lname, firstName:fname, lastName:lname,
+    email, password:pass, phone, tier:'standard',
+    verified:false, createdAt:new Date().toLocaleDateString('en-GB'),
+    bookings:[]
+  };
+  customers.push(newUser);
+  localStorage.setItem('wave_customers', JSON.stringify(customers));
+
+  // Send verification email
+  sendVerificationEmail(newUser);
+
+  document.getElementById('verify-email-addr').textContent = email;
+  document.getElementById('auth-login').style.display    = 'none';
+  document.getElementById('auth-register').style.display = 'none';
+  document.getElementById('auth-verify').style.display   = 'block';
+}
+
+function sendVerificationEmail(user){
+  const token = Math.random().toString(36).substr(2,16).toUpperCase();
+  // Store token
+  const tokens = JSON.parse(localStorage.getItem('wave_verify_tokens')||'{}');
+  tokens[user.email] = token;
+  localStorage.setItem('wave_verify_tokens', JSON.stringify(tokens));
+
+  const verifyUrl = window.location.href.split('?')[0] + '?verify=' + token + '&email=' + encodeURIComponent(user.email);
+  const html =
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="font-family:Arial,sans-serif;background:#F0F6FA">' +
+    '<div style="max-width:560px;margin:32px auto">' +
+    '<div style="background:linear-gradient(135deg,#060E20,#0E2D5F);padding:32px;text-align:center;border-radius:16px 16px 0 0">' +
+    '<img src="' + 'https://balearlab-ctrl.github.io/Wave-experiences/LOGO_WAVE_EXPERIENCES_azul_ok.png?v=2' + '" alt="Wave Experiences" width="160" style="height:auto;display:block;margin:0 auto 16px">' +
+    '<h1 style="color:#fff;font-size:20px;margin:0">Verify your email</h1></div>' +
+    '<div style="background:#fff;padding:28px;border-radius:0 0 16px 16px">' +
+    '<p style="font-size:14px;color:#1A3050">Hi <strong>' + user.firstName + '</strong>,</p>' +
+    '<p style="font-size:13px;color:#3A5270;line-height:1.7">Thank you for joining Wave Experiences Mallorca! Click the button below to verify your email and start booking exclusive offers.</p>' +
+    '<div style="text-align:center;margin:24px 0">' +
+    '<a href="' + verifyUrl + '" style="display:inline-block;background:linear-gradient(135deg,#0E2D5F,#2A5080);color:#fff;padding:14px 32px;border-radius:50px;font-size:14px;font-weight:700;text-decoration:none">Verify my email ✓</a></div>' +
+    '<p style="font-size:11px;color:#8BAECE;text-align:center">This link expires in 24 hours. If you did not create this account, ignore this email.</p>' +
+    '</div></div></body></html>';
+
+  fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({_action:'sendEmail',to:user.email,
+      subject:'Verify your Wave Experiences account',html})
+  }).catch(()=>{});
+}
+
+function resendVerification(){
+  const email = document.getElementById('verify-email-addr')?.textContent;
+  if(!email) return;
+  const customers = JSON.parse(localStorage.getItem('wave_customers')||'[]');
+  const user = customers.find(u=>u.email===email);
+  if(user) sendVerificationEmail(user);
+  showToast('Verification email resent','success');
+}
+
+function checkVerifyToken(){
+  const params = new URLSearchParams(window.location.search);
+  const token  = params.get('verify');
+  const email  = params.get('email');
+  if(!token||!email) return;
+  const tokens = JSON.parse(localStorage.getItem('wave_verify_tokens')||'{}');
+  if(tokens[email]===token){
+    const customers = JSON.parse(localStorage.getItem('wave_customers')||'[]');
+    const user = customers.find(u=>u.email===email);
+    if(user){
+      user.verified = true;
+      localStorage.setItem('wave_customers', JSON.stringify(customers));
+      currentUser = user;
+      localStorage.setItem('wave_customer_session', JSON.stringify(user));
+      updateHeaderAuth();
+      delete tokens[email];
+      localStorage.setItem('wave_verify_tokens', JSON.stringify(tokens));
+      showToast('Email verified! Welcome to Wave Experiences ✓', 'success');
+      // Clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }
+}
+checkVerifyToken();
+
+function doLogout(){
+  currentUser = null;
+  localStorage.removeItem('wave_customer_session');
+  updateHeaderAuth();
+  showToast('Signed out successfully','success');
+  renderOffers();
+}
+
+function updateHeaderAuth(){
+  const authEl = document.getElementById('header-auth');
+  const userEl = document.getElementById('header-user');
+  if(currentUser){
+    authEl.style.display='none';
+    userEl.style.display='flex';
+    document.getElementById('header-username').textContent = currentUser.firstName||currentUser.name;
+  } else {
+    authEl.style.display='flex';
+    userEl.style.display='none';
+  }
+}
+
+// ── PROFILE ───────────────────────────────────────────────────────────────
+function openModal(id, tab){
+  if(id==='profile-modal') renderProfile();
+  if(id==='auth-modal' && tab) switchAuthTab(tab);
+  document.getElementById(id).style.display='flex';
+}
+
+function renderProfile(){
+  if(!currentUser){closeModal('profile-modal');return;}
+  const bookings = JSON.parse(localStorage.getItem('wave_bookings_'+currentUser.email)||'[]');
+  const tierBadge = currentUser.tier==='gold'
+    ? '<span style="background:linear-gradient(135deg,#B8860B,#FFD700);color:#3d2800;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px">⭐ Gold</span>'
+    : currentUser.tier==='platinum'
+    ? '<span style="background:linear-gradient(135deg,#4A4A6A,#A8A8D0);color:#fff;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px">💎 Platinum</span>'
+    : '<span style="background:var(--bg2);color:var(--text3);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">Standard</span>';
+
+  document.getElementById('profile-content').innerHTML = `
+    <div style="background:linear-gradient(135deg,var(--navy),var(--ocean));border-radius:var(--r2);padding:18px;margin-bottom:16px;color:#fff">
+      <div style="font-size:16px;font-weight:700">${currentUser.name}</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:8px">${currentUser.email}</div>
+      ${tierBadge}
+      ${!currentUser.verified ? '<div style="background:rgba(255,200,0,.15);border:1px solid rgba(255,200,0,.3);border-radius:8px;padding:8px 12px;margin-top:10px;font-size:11px;color:#FFD700">⚠️ Email not verified — <button onclick="resendVerification()" style="background:none;border:none;color:#FFD700;cursor:pointer;font-size:11px;text-decoration:underline">Resend verification</button></div>' : ''}
+    </div>
+
+    <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px">My bookings (${bookings.length})</div>
+    ${bookings.length ? bookings.slice().reverse().map(b => `
+      <div class="booking-item">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;color:var(--navy)">${b.offerTitle}</div>
+          <div style="font-size:11px;color:var(--text3)">${b.biz} · ${b.date}</div>
+        </div>
+        <div class="booking-qr">${b.qr}</div>
+        <span class="badge badge-${b.status||'active'}">${b.status||'active'}</span>
+      </div>`).join('')
+    : '<div class="empty" style="padding:28px"><i class="ti ti-ticket" style="font-size:32px"></i><h3>No bookings yet</h3><p>Browse offers and book your first experience</p></div>'}
+
+    <button class="btn btn-ghost" style="width:100%;margin-top:14px" onclick="doLogout();closeModal('profile-modal')">
+      <i class="ti ti-logout"></i> Sign out
+    </button>`;
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────
+function saveUserBooking(booking){
+  if(!currentUser) return;
+  const key = 'wave_bookings_' + currentUser.email;
+  const existing = JSON.parse(localStorage.getItem(key)||'[]');
+  existing.push(booking);
+  localStorage.setItem(key, JSON.stringify(existing));
+}
+
+function closeModal(id){
+  const el = document.getElementById(id);
+  if(el) el.style.display='none';
+}
+
+function showToast(msg, type){
+  const icons = {success:'ti-circle-check',warning:'ti-alert-triangle',danger:'ti-alert-circle',info:'ti-info-circle'};
+  const colors = {success:'var(--success)',warning:'var(--warning)',danger:'var(--danger)',info:'var(--ocean)'};
+  document.getElementById('toast-inner').innerHTML =
+    `<i class="ti ${icons[type]||'ti-info-circle'}" style="color:${colors[type]||'var(--ocean)'};font-size:16px"></i> ${msg}`;
+  const t = document.getElementById('toast');
+  t.style.display='block';
+  setTimeout(()=>t.style.display='none', 3500);
+}
+</script>
+</body>
+</html>

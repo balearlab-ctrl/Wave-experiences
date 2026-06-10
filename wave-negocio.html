@@ -324,213 +324,251 @@ select.form-control option{background:#fff}
 
       <!-- NEW OFFER -->
       <div class="view" id="view-new-offer">
-  <div class="page-header">
-    <h1>Create New Offer</h1>
-    <p>Fill in all the details — our team will review and publish within 24 hours.</p>
-  </div>
+  <!-- WIZARD CONTAINER -->
+  <div style="max-width:660px;margin:0 auto">
 
-  <div class="alert alert-info" style="margin-bottom:20px">
-    <i class="ti ti-info-circle"></i>
-    <span>Customers will receive the offer details by <strong>email</strong> and can show it at your venue to redeem.</span>
-  </div>
+    <!-- PROGRESS BAR -->
+    <div id="wizard-progress" style="margin-bottom:28px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:12px;font-weight:600;color:var(--text3)" id="wizard-step-label">Step 1 of 4</div>
+        <div style="font-size:12px;color:var(--text3)" id="wizard-step-name">Choose offer type</div>
+      </div>
+      <div style="background:var(--border);border-radius:4px;height:4px;overflow:hidden">
+        <div id="wizard-bar" style="height:100%;background:linear-gradient(90deg,var(--ocean),var(--cyan));border-radius:4px;transition:width .4s ease;width:25%"></div>
+      </div>
+    </div>
 
-  <div style="display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start">
-
-    <!-- LEFT: FORM -->
-    <div style="display:flex;flex-direction:column;gap:16px">
-
-      <!-- BLOCK 1: Basic info -->
-      <div class="card">
-        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:16px;display:flex;align-items:center;gap:8px">
-          <div style="width:24px;height:24px;border-radius:6px;background:var(--ocean);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800">1</div>
-          Offer Information
-        </div>
-        <div class="form-group">
-          <label class="form-label">Offer title *</label>
-          <input class="form-control" id="f-title" placeholder="E.g. 2-for-1 cocktails every Wednesday" oninput="updatePreview()">
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Category *</label>
-            <select class="form-control" id="f-cat" onchange="updatePreview()">
-              <option value="">Select...</option>
-              <option>Food &amp; Drink</option>
-              <option>Leisure &amp; Adventure</option>
-              <option>Health &amp; Wellness</option>
-              <option>Fashion &amp; Lifestyle</option>
-              <option>Travel &amp; Tours</option>
-              <option>Other</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Price / Value</label>
-            <input class="form-control" id="f-price" placeholder="E.g. €15 per person · Normally €25">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">What does the offer include? *</label>
-          <textarea class="form-control" id="f-includes" rows="3" 
-            placeholder="List exactly what is included:&#10;- 2 cocktails of your choice&#10;- Selection of tapas&#10;- Welcome drink"></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Full description</label>
-          <textarea class="form-control" id="f-desc" rows="3" 
-            placeholder="Describe the experience, atmosphere, what makes it special..."></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Conditions &amp; restrictions</label>
-          <textarea class="form-control" id="f-cond" rows="2" 
-            placeholder="E.g. Not combinable with other offers. Reservation required. Valid for groups of 2+"></textarea>
-        </div>
+    <!-- STEP 1: TYPE -->
+    <div id="wiz-step-1">
+      <div style="margin-bottom:24px">
+        <h2 style="font-size:22px;font-weight:800;color:var(--navy);font-family:'Space Grotesk',sans-serif;margin-bottom:6px">
+          What kind of offer is it?
+        </h2>
+        <p style="font-size:14px;color:var(--text3);line-height:1.6">
+          Don't worry — we'll guide you through the rest based on your choice.
+        </p>
       </div>
 
-      <!-- BLOCK 2: Availability -->
-      <div class="card">
-        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:16px;display:flex;align-items:center;gap:8px">
-          <div style="width:24px;height:24px;border-radius:6px;background:var(--ocean);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800">2</div>
-          Availability &amp; Schedule
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px" id="type-cards">
+
+        <div class="type-card" onclick="selectOfferType('discount',this)" data-type="discount">
+          <div class="type-icon">🎁</div>
+          <div class="type-title">Discount or special price</div>
+          <div class="type-desc">The customer shows the email at your venue to get the offer. No reservation needed.</div>
+          <div class="type-example">e.g. 2-for-1 drinks, 20% off menu, free dessert</div>
         </div>
-        <div class="form-group">
-          <label class="form-label">When is this offer available? *</label>
-          <select class="form-control" id="f-sched" onchange="updateSchedFields();updatePreview()">
-            <option value="">Select type...</option>
-            <option value="always">Always available</option>
-            <option value="weekly">Specific days of the week</option>
-            <option value="date">Single specific date</option>
-            <option value="limited">Limited capacity (until sold out)</option>
-          </select>
+
+        <div class="type-card" onclick="selectOfferType('table',this)" data-type="table">
+          <div class="type-icon">🪑</div>
+          <div class="type-title">Table or seat reservation</div>
+          <div class="type-desc">The customer reserves a specific date and time. You define how many tables are available.</div>
+          <div class="type-example">e.g. romantic dinner for 2, group booking, tasting menu</div>
         </div>
-        <div id="sched-fields"></div>
-        <div class="form-row" style="margin-top:4px">
-          <div class="form-group">
-            <label class="form-label">Max. people <span style="color:var(--text3);font-weight:400;text-transform:none">(0 = unlimited)</span></label>
-            <input class="form-control" id="f-max" type="number" min="0" value="0">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Valid until (optional)</label>
-            <input class="form-control" id="f-valid-until" type="date">
-            <div class="form-hint">Leave empty if always valid</div>
-          </div>
+
+        <div class="type-card" onclick="selectOfferType('activity',this)" data-type="activity">
+          <div class="type-icon">🏄</div>
+          <div class="type-title">Activity with slots</div>
+          <div class="type-desc">You offer specific sessions on certain days. The customer picks from the available slots.</div>
+          <div class="type-example">e.g. kayak tour, cooking class, yoga session</div>
         </div>
+
+        <div class="type-card" onclick="selectOfferType('service',this)" data-type="service">
+          <div class="type-icon">⏰</div>
+          <div class="type-title">Service by appointment</div>
+          <div class="type-desc">The customer books a specific hour during your opening times.</div>
+          <div class="type-example">e.g. massage, haircut, personal shopping</div>
+        </div>
+
       </div>
 
-      <!-- BLOCK 3: Flash offer -->
-      <div class="card" style="border:1.5px solid rgba(255,107,0,.2);background:linear-gradient(135deg,rgba(255,107,0,.03),transparent)">
-        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;display:flex;align-items:center;gap:8px">
-          <div style="width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#FF6B00,#FF3D00);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px">&#9889;</div>
-          Flash Offer <span style="font-size:10px;font-weight:400;color:var(--text3);margin-left:4px">(optional — activated by admin on approval)</span>
-        </div>
-        <p style="font-size:12px;color:var(--text3);margin-bottom:14px">Request this offer to be a time-limited Flash offer with countdown. Gold members will be notified by email before it goes live.</p>
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:14px">
-          <input type="checkbox" id="f-flash" style="accent-color:#FF6B00;width:16px;height:16px" onchange="toggleFlashFields()">
-          <span style="font-size:13px;font-weight:600;color:var(--navy)">Request as Flash offer</span>
+      <div style="margin-top:20px;padding:14px;background:var(--bg3);border-radius:var(--r);
+        border:1px solid var(--border);font-size:12px;color:var(--text3);display:flex;align-items:flex-start;gap:8px">
+        <i class="ti ti-bulb" style="color:var(--cyan);font-size:16px;flex-shrink:0;margin-top:1px"></i>
+        <span>Not sure? Choose <strong style="color:var(--text2)">Discount or special price</strong> — it's the simplest and works for most offers.</span>
+      </div>
+    </div>
+
+    <!-- STEP 2: OFFER DETAILS -->
+    <div id="wiz-step-2" style="display:none">
+      <div style="margin-bottom:24px">
+        <h2 style="font-size:22px;font-weight:800;color:var(--navy);font-family:'Space Grotesk',sans-serif;margin-bottom:6px" id="step2-title">
+          Tell us about your offer
+        </h2>
+        <p style="font-size:14px;color:var(--text3)" id="step2-sub">The clearer you are, the more customers you'll attract.</p>
+      </div>
+
+      <!-- Title -->
+      <div class="wiz-field">
+        <label class="wiz-label">
+          What's the offer called? *
+          <span class="wiz-tip">Be specific — "2-for-1 cocktails on Wednesdays" works better than "Drinks offer"</span>
         </label>
-        <div id="flash-fields" style="display:none">
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Suggested duration</label>
-              <select class="form-control" id="f-flash-dur">
-                <option value="4">4 hours</option>
-                <option value="6">6 hours</option>
-                <option value="8">8 hours</option>
-                <option value="12">12 hours</option>
-                <option value="24">24 hours</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Suggested launch time</label>
-              <input class="form-control" id="f-flash-time" type="time" value="20:00">
-            </div>
-          </div>
-          <div class="alert alert-warning" style="font-size:11px">
-            <i class="ti ti-star"></i> Gold &amp; Platinum members will receive an exclusive preview email 30 minutes before launch.
-          </div>
-        </div>
+        <input class="form-control" id="w-title" placeholder="e.g. 2-for-1 artisan cocktails every Wednesday" oninput="updateWizPreview()">
       </div>
 
-      <!-- BLOCK 4: Media -->
-      <div class="card">
-        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:16px;display:flex;align-items:center;gap:8px">
-          <div style="width:24px;height:24px;border-radius:6px;background:var(--ocean);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800">3</div>
-          Photos
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Offer photo</label>
-            <div class="upload-area" onclick="document.getElementById('f-img').click()">
-              <input type="file" id="f-img" accept="image/*" onchange="previewImg(this)">
-              <img id="f-img-preview" style="display:none;width:100%;height:80px;object-fit:cover;border-radius:6px">
-              <div id="f-img-placeholder">
-                <i class="ti ti-photo" style="font-size:22px;color:var(--text3)"></i>
-                <div style="font-size:11px;color:var(--text3);margin-top:4px">Click to upload photo</div>
-              </div>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Your logo</label>
-            <div class="upload-area" onclick="document.getElementById('f-logo').click()">
-              <input type="file" id="f-logo" accept="image/*" onchange="previewLogo(this)">
-              <img id="f-logo-preview" style="display:none;width:56px;height:56px;object-fit:contain;
-                border-radius:var(--r);border:1px solid var(--border);background:#fff;padding:4px;margin:0 auto">
-              <div id="f-logo-placeholder">
-                <i class="ti ti-building-store" style="font-size:22px;color:var(--text3)"></i>
-                <div style="font-size:11px;color:var(--text3);margin-top:4px">Business logo</div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <!-- What's included -->
+      <div class="wiz-field">
+        <label class="wiz-label">
+          What exactly is included? *
+          <span class="wiz-tip">List each item on a new line. This appears directly in the customer's email.</span>
+        </label>
+        <textarea class="form-control" id="w-includes" rows="4"
+          placeholder="2 cocktails of your choice&#10;Selection of tapas&#10;Welcome drink" oninput="updateWizPreview()"></textarea>
       </div>
 
-      <!-- SUBMIT -->
-      <div style="display:flex;gap:10px">
-        <button class="btn btn-ghost" onclick="showView('my-offers')" style="flex:0">
-          <i class="ti ti-arrow-left"></i> Cancel
-        </button>
-        <button class="btn btn-primary" onclick="submitOffer()" style="flex:1">
-          <i class="ti ti-send"></i> Submit for review
-        </button>
-      </div>
-    </div>
-
-    <!-- RIGHT: PREVIEW -->
-    <div style="position:sticky;top:76px">
-      <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Live preview</div>
-      <div class="offer-card" style="cursor:default;margin-bottom:16px">
-        <div class="offer-card-img cat-leisure" id="prev-img" style="position:relative">
-          <img id="prev-cover" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
-          <div class="offer-cat-badge" id="prev-cat">Category</div>
-          <div style="font-size:40px;position:relative;z-index:1" id="prev-emoji">🎁</div>
-        </div>
-        <div class="offer-card-body">
-          <div class="offer-card-title" id="prev-title">Your offer title</div>
-          <div style="font-size:11px;color:var(--ocean);font-weight:600;margin-bottom:4px" id="prev-biz"></div>
-          <div style="font-size:11px;color:var(--text3);margin-bottom:6px" id="prev-sched">Always available</div>
-          <div style="font-size:12px;font-weight:700;color:var(--navy)" id="prev-price"></div>
-        </div>
+      <!-- Price -->
+      <div class="wiz-field">
+        <label class="wiz-label">
+          Price or value
+          <span class="wiz-tip">Show the saving — "€15 · Normally €25" is more persuasive than just "€15"</span>
+        </label>
+        <input class="form-control" id="w-price" placeholder="e.g. €15 per person · Normally €25" oninput="updateWizPreview()">
       </div>
 
-      <!-- Email preview -->
-      <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Customer email preview</div>
-      <div style="background:#F2F8FC;border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;font-size:12px">
-        <div style="background:linear-gradient(135deg,#060E20,#0E2D5F);padding:14px;text-align:center;color:#fff">
-          <div style="font-size:16px;margin-bottom:4px">Your booking is confirmed!</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.6)" id="email-prev-title">Offer title</div>
+      <!-- Description (optional) -->
+      <div class="wiz-field">
+        <label class="wiz-label">
+          A bit more context (optional)
+          <span class="wiz-tip">Describe the atmosphere, what makes it special, any details customers should know.</span>
+        </label>
+        <textarea class="form-control" id="w-desc" rows="3"
+          placeholder="e.g. Every Wednesday evening we prepare special cocktails using seasonal fruits and premium spirits. Perfect for a relaxed night out..." oninput="updateWizPreview()"></textarea>
+      </div>
+
+      <!-- Conditions -->
+      <div class="wiz-field">
+        <label class="wiz-label">
+          Any conditions or restrictions?
+          <span class="wiz-tip">Be honest here — it avoids misunderstandings and builds trust.</span>
+        </label>
+        <textarea class="form-control" id="w-cond" rows="2"
+          placeholder="e.g. Not combinable with other offers. Min. 2 people. Valid at the bar only."></textarea>
+      </div>
+
+      <!-- Category -->
+      <div class="wiz-field">
+        <label class="wiz-label">Category</label>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px" id="cat-pills">
+          <div class="cat-pill active" onclick="selectCat('Food &amp; Drink',this)">🍽 Food & Drink</div>
+          <div class="cat-pill" onclick="selectCat('Leisure &amp; Adventure',this)">🎭 Leisure</div>
+          <div class="cat-pill" onclick="selectCat('Health &amp; Wellness',this)">💆 Wellness</div>
+          <div class="cat-pill" onclick="selectCat('Fashion &amp; Lifestyle',this)">👗 Fashion</div>
+          <div class="cat-pill" onclick="selectCat('Travel &amp; Tours',this)">✈️ Travel</div>
+          <div class="cat-pill" onclick="selectCat('Other',this)">📦 Other</div>
         </div>
-        <div style="padding:14px;background:#fff">
-          <div style="font-size:11px;color:var(--text3);margin-bottom:8px">What's included:</div>
-          <div style="font-size:12px;color:var(--text2);white-space:pre-line;margin-bottom:10px" id="email-prev-includes">—</div>
-          <div style="background:var(--bg3);border-radius:8px;padding:10px;font-size:11px;color:var(--text3)">
-            <div id="email-prev-sched">—</div>
-            <div id="email-prev-price" style="font-weight:700;color:var(--navy);margin-top:4px"></div>
-          </div>
-          <div style="margin-top:10px;background:linear-gradient(135deg,#060E20,#0E2D5F);border-radius:8px;padding:12px;text-align:center;color:#fff;font-size:12px">
-            <div style="font-size:9px;color:rgba(255,255,255,.5);margin-bottom:4px">YOUR QR CODE</div>
-            <div style="font-family:monospace;font-size:16px;font-weight:800;letter-spacing:.1em;color:#5AAFC8">QR-XXXX-ABCD</div>
-            <div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:4px">Show this at the venue</div>
+        <input type="hidden" id="w-cat" value="Food &amp; Drink">
+      </div>
+
+      <!-- Photo -->
+      <div class="wiz-field">
+        <label class="wiz-label">
+          Add a photo (optional — but recommended!)
+          <span class="wiz-tip">Offers with photos get 3× more clicks. Any good photo of your venue or the dish works.</span>
+        </label>
+        <div class="upload-area" onclick="document.getElementById('w-img').click()" id="w-img-area">
+          <input type="file" id="w-img" accept="image/*" style="display:none" onchange="previewWizImg(this)">
+          <img id="w-img-preview" style="display:none;width:100%;max-height:160px;object-fit:cover;border-radius:6px">
+          <div id="w-img-placeholder" style="padding:16px 0;text-align:center">
+            <i class="ti ti-photo" style="font-size:28px;color:var(--text3);display:block;margin-bottom:6px"></i>
+            <div style="font-size:12px;color:var(--text3)">Click to upload a photo</div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- STEP 3: AVAILABILITY -->
+    <div id="wiz-step-3" style="display:none">
+      <div style="margin-bottom:24px">
+        <h2 style="font-size:22px;font-weight:800;color:var(--navy);font-family:'Space Grotesk',sans-serif;margin-bottom:6px" id="step3-title">
+          When is it available?
+        </h2>
+        <p style="font-size:14px;color:var(--text3)" id="step3-sub"></p>
+      </div>
+      <div id="step3-content"></div>
+    </div>
+
+    <!-- STEP 4: PREVIEW & SUBMIT -->
+    <div id="wiz-step-4" style="display:none">
+      <div style="margin-bottom:20px">
+        <h2 style="font-size:22px;font-weight:800;color:var(--navy);font-family:'Space Grotesk',sans-serif;margin-bottom:6px">
+          Looking good! Ready to submit?
+        </h2>
+        <p style="font-size:14px;color:var(--text3)">This is how your offer will look. Our team will review it within 24 hours.</p>
+      </div>
+
+      <!-- Preview card -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+        <div class="offer-card" style="cursor:default" id="wiz-preview-card">
+          <div class="offer-card-img cat-food" id="wiz-prev-img">
+            <img id="wiz-prev-cover" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+            <div class="offer-cat-badge" id="wiz-prev-cat">Category</div>
+            <div style="font-size:40px;position:relative;z-index:1" id="wiz-prev-emoji">🎁</div>
+          </div>
+          <div class="offer-card-body">
+            <div style="font-size:11px;font-weight:700;color:var(--ocean);margin-bottom:3px">${{currentUser?.name||"Your business"}}</div>
+            <div class="offer-card-title" id="wiz-prev-title">Your offer title</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:4px" id="wiz-prev-sched"></div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);margin-top:6px" id="wiz-prev-price"></div>
+          </div>
+        </div>
+
+        <!-- Email preview -->
+        <div style="background:#F0F6FA;border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;font-size:11px">
+          <div style="background:linear-gradient(135deg,#060E20,#0E2D5F);padding:12px;text-align:center;color:#fff">
+            <div style="font-size:12px;font-weight:700;margin-bottom:2px" id="email-prev-title-wiz">Offer title</div>
+            <div style="font-size:10px;opacity:.6">${{currentUser?.name||"Your business"}}</div>
+          </div>
+          <div style="padding:12px;background:#fff">
+            <div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">What's included</div>
+            <div id="email-prev-includes-wiz" style="font-size:11px;color:var(--text2);line-height:1.8;margin-bottom:10px;white-space:pre-line">—</div>
+            <div style="background:var(--bg3);border-radius:6px;padding:8px;font-size:10px;color:var(--text3)">
+              <div id="email-prev-sched-wiz">Schedule</div>
+              <div id="email-prev-price-wiz" style="font-weight:700;color:var(--navy);margin-top:2px"></div>
+            </div>
+            <div style="margin-top:8px;background:linear-gradient(135deg,#060E20,#0E2D5F);border-radius:6px;padding:10px;text-align:center">
+              <div style="font-size:8px;color:rgba(255,255,255,.4);margin-bottom:3px">YOUR QR CODE</div>
+              <div style="font-family:monospace;font-size:13px;font-weight:800;color:#5AAFC8;letter-spacing:.1em">QR-XXXX-ABCD</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flash option -->
+      <div style="background:linear-gradient(135deg,rgba(255,107,0,.05),transparent);border:1.5px solid rgba(255,107,0,.2);
+        border-radius:var(--r2);padding:16px;margin-bottom:16px">
+        <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer">
+          <input type="checkbox" id="w-flash" style="accent-color:#FF6B00;margin-top:2px;flex-shrink:0">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:2px">⚡ Request as Flash offer</div>
+            <div style="font-size:12px;color:var(--text3)">A time-limited offer with countdown timer. Gold members get an exclusive email preview before it goes live. The admin team activates this when approving your offer.</div>
+          </div>
+        </label>
+      </div>
+
+      <!-- Summary -->
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:20px" id="wiz-summary"></div>
+
+      <div class="alert alert-info">
+        <i class="ti ti-clock"></i>
+        Our team reviews every offer within <strong>24 hours</strong> to ensure quality. You'll receive an email when it's live.
+      </div>
+    </div>
+
+    <!-- NAVIGATION BUTTONS -->
+    <div style="display:flex;gap:10px;margin-top:24px;align-items:center" id="wiz-nav">
+      <button class="btn btn-ghost" id="wiz-back" onclick="wizBack()" style="display:none">
+        <i class="ti ti-arrow-left"></i> Back
+      </button>
+      <div style="flex:1"></div>
+      <button class="btn btn-ghost" onclick="showView('my-offers')">Cancel</button>
+      <button class="btn btn-primary" id="wiz-next" onclick="wizNext()" style="display:none">
+        Continue <i class="ti ti-arrow-right"></i>
+      </button>
+      <button class="btn btn-primary" id="wiz-submit" onclick="wizSubmit()" style="display:none">
+        <i class="ti ti-send"></i> Submit for review
+      </button>
+    </div>
+
   </div>
 </div>
 
@@ -802,6 +840,26 @@ function renderBookings() {
 }
 
 // ── NEW OFFER FORM ────────────────────────────────────────────────────────
+function parseAvailability(text){
+  if(!text.trim()) return null;
+  var result = {};
+  text.split('\n').forEach(function(line){
+    line = line.trim();
+    if(!line) return;
+    var parts = line.split(':');
+    if(parts.length < 2) return;
+    var day   = parts[0].trim();
+    var times = parts.slice(1).join(':').split(',').map(function(t){ return t.trim(); }).filter(Boolean);
+    result[day] = times;
+  });
+  return Object.keys(result).length ? result : null;
+}
+
+function toggleBookingConfig(){
+  var type = document.getElementById('f-booking-type').value;
+  document.getElementById('booking-config').style.display = type==='none' ? 'none' : 'block';
+}
+
 function toggleFlashFields(){
   const show = document.getElementById('f-flash').checked;
   document.getElementById('flash-fields').style.display = show ? 'block' : 'none';
@@ -883,6 +941,493 @@ function previewLogo(input) {
   reader.readAsDataURL(file);
 }
 
+// ══════════════════════════════════════════════════
+//  OFFER WIZARD
+// ══════════════════════════════════════════════════
+var wizState = {
+  step: 1,
+  type: null,   // discount | table | activity | service
+  cat: 'Food & Drink',
+  days: [],     // selected days of week
+  slots: {},    // {day: [times]}
+  hours: {start:'09:00', end:'22:00', interval:60},
+  maxPerSlot: 10,
+  maxTotal: 0,
+  validUntil: ''
+};
+
+function initWizard() {
+  wizState = { step:1, type:null, cat:'Food & Drink', days:[], slots:{},
+    hours:{start:'09:00',end:'22:00',interval:60}, maxPerSlot:10, maxTotal:0, validUntil:'' };
+  showWizStep(1);
+  // Reset all inputs
+  ['w-title','w-includes','w-price','w-desc','w-cond'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  document.getElementById('w-img-preview').style.display = 'none';
+  document.getElementById('w-img-placeholder').style.display = 'block';
+  document.querySelectorAll('.type-card').forEach(function(el){ el.classList.remove('selected'); });
+  document.querySelectorAll('.cat-pill').forEach(function(el){ el.classList.remove('active'); });
+  var firstCat = document.querySelector('.cat-pill');
+  if(firstCat) firstCat.classList.add('active');
+}
+
+function showWizStep(step) {
+  wizState.step = step;
+  for(var i=1;i<=4;i++){
+    var el = document.getElementById('wiz-step-'+i);
+    if(el) el.style.display = i===step ? 'block' : 'none';
+  }
+  // Progress bar
+  var pct = (step/4)*100;
+  var bar = document.getElementById('wizard-bar');
+  if(bar) bar.style.width = pct + '%';
+  var stepNames = ['Choose offer type','Offer details','Availability','Review & submit'];
+  var lbl = document.getElementById('wizard-step-label');
+  var nm  = document.getElementById('wizard-step-name');
+  if(lbl) lbl.textContent = 'Step ' + step + ' of 4';
+  if(nm)  nm.textContent  = stepNames[step-1];
+  // Nav buttons
+  var backBtn   = document.getElementById('wiz-back');
+  var nextBtn   = document.getElementById('wiz-next');
+  var submitBtn = document.getElementById('wiz-submit');
+  if(backBtn)   backBtn.style.display   = step>1 ? 'flex' : 'none';
+  if(nextBtn)   nextBtn.style.display   = step<4 ? 'flex' : 'none';
+  if(submitBtn) submitBtn.style.display = step===4 ? 'flex' : 'none';
+  // Step-specific setup
+  if(step===3) buildStep3();
+  if(step===4) buildStep4();
+}
+
+function wizNext() {
+  var step = wizState.step;
+  if(step===1){
+    if(!wizState.type){ showToast('Please choose an offer type','warning'); return; }
+  }
+  if(step===2){
+    var title    = document.getElementById('w-title').value.trim();
+    var includes = document.getElementById('w-includes').value.trim();
+    if(!title||!includes){ showToast('Please fill in the title and what is included','warning'); return; }
+    wizState.cat = document.getElementById('w-cat').value || 'Food & Drink';
+  }
+  showWizStep(step+1);
+}
+
+function wizBack() {
+  showWizStep(wizState.step - 1);
+}
+
+function selectOfferType(type, el) {
+  wizState.type = type;
+  document.querySelectorAll('.type-card').forEach(function(c){ c.classList.remove('selected'); });
+  if(el) el.classList.add('selected');
+  // Show continue button
+  document.getElementById('wiz-next').style.display = 'flex';
+  // Update step 2 title based on type
+  var titles = {
+    discount: 'Tell us about your discount',
+    table:    'Tell us about your table offer',
+    activity: 'Tell us about your activity',
+    service:  'Tell us about your service'
+  };
+  var subs = {
+    discount: 'What will customers get? The clearer you are, the more they will book.',
+    table:    'Describe the dining experience - menu, atmosphere, what makes it special.',
+    activity: 'What will participants do? Include everything that is provided.',
+    service:  'Describe the service and what the customer can expect.'
+  };
+  document.getElementById('step2-title').textContent = titles[type]||'Tell us about your offer';
+  document.getElementById('step2-sub').textContent   = subs[type]||'';
+}
+
+function selectCat(cat, el) {
+  wizState.cat = cat;
+  document.getElementById('w-cat').value = cat;
+  document.querySelectorAll('.cat-pill').forEach(function(p){ p.classList.remove('active'); });
+  if(el) el.classList.add('active');
+  updateWizPreview();
+}
+
+// ── STEP 3: AVAILABILITY ──────────────────────────────────────────────────
+function buildStep3() {
+  var type = wizState.type;
+  var container = document.getElementById('step3-content');
+  var sub = document.getElementById('step3-sub');
+
+  if(type === 'discount') {
+    sub.textContent = 'When can customers use this discount?';
+    container.innerHTML =
+      '<div class="wiz-field">' +
+      '<label class="wiz-label">Availability<span class="wiz-tip">Most discounts work best as "Always available" — customers can use it any time they visit.</span></label>' +
+      '<div style="display:flex;flex-direction:column;gap:8px">' +
+      '<label style="display:flex;align-items:center;gap:10px;padding:12px;border:1.5px solid var(--border);border-radius:var(--r);cursor:pointer;background:#fff">' +
+      '<input type="radio" name="disc-avail" value="always" checked style="accent-color:var(--ocean)"> ' +
+      '<div><div style="font-size:13px;font-weight:600;color:var(--navy)">Always available</div>' +
+      '<div style="font-size:11px;color:var(--text3)">Any day, any time</div></div></label>' +
+      '<label style="display:flex;align-items:center;gap:10px;padding:12px;border:1.5px solid var(--border);border-radius:var(--r);cursor:pointer;background:#fff">' +
+      '<input type="radio" name="disc-avail" value="weekly" style="accent-color:var(--ocean)"> ' +
+      '<div><div style="font-size:13px;font-weight:600;color:var(--navy)">Specific days / times</div>' +
+      '<div style="font-size:11px;color:var(--text3)">e.g. Wednesdays 19:00-23:00</div></div></label>' +
+      '</div></div>' +
+      '<div id="disc-days-section" style="display:none">' +
+      buildDaySelector() +
+      '<div class="wiz-field" style="margin-top:16px">' +
+      '<label class="wiz-label">Time range (optional)<span class="wiz-tip">e.g. 19:00 - 23:00</span></label>' +
+      '<div style="display:flex;align-items:center;gap:10px">' +
+      '<input class="form-control" id="disc-time-start" type="time" value="19:00" style="max-width:120px">' +
+      '<span style="color:var(--text3)">to</span>' +
+      '<input class="form-control" id="disc-time-end" type="time" value="23:00" style="max-width:120px">' +
+      '</div></div></div>' +
+      '<div class="wiz-field">' +
+      '<label class="wiz-label">Maximum people (total)<span class="wiz-tip">Leave at 0 for unlimited. Set a number if you want to limit the total redemptions.</span></label>' +
+      '<input class="form-control" id="w-max" type="number" min="0" value="0" style="max-width:120px">' +
+      '</div>' +
+      '<div class="wiz-field">' +
+      '<label class="wiz-label">Valid until (optional)<span class="wiz-tip">Leave empty if this offer has no end date.</span></label>' +
+      '<input class="form-control" id="w-valid-until" type="date" style="max-width:180px">' +
+      '</div>';
+
+    // Wire radio buttons
+    setTimeout(function(){
+      document.querySelectorAll('input[name="disc-avail"]').forEach(function(r){
+        r.addEventListener('change', function(){
+          document.getElementById('disc-days-section').style.display =
+            this.value==='weekly'?'block':'none';
+        });
+      });
+    }, 100);
+
+  } else if(type === 'table') {
+    sub.textContent = 'Which days and times do you offer this? Set how many tables are available each slot.';
+    container.innerHTML =
+      '<div class="wiz-field">' +
+      '<label class="wiz-label">Which days are available? *<span class="wiz-tip">Select all days when customers can book this table offer.</span></label>' +
+      buildDaySelector() + '</div>' +
+      '<div class="wiz-field" id="table-times-section">' +
+      '<label class="wiz-label">Available time slots *<span class="wiz-tip">Add the times when tables are available. You can add multiple times per day.</span></label>' +
+      '<div id="table-times-list">' +
+      '<div class="time-input-row"><input class="form-control" placeholder="e.g. 13:00" type="time" style="max-width:120px" id="table-t-0">' +
+      '<span style="font-size:12px;color:var(--text3)">tables available:</span>' +
+      '<input class="form-control" type="number" min="1" value="4" style="max-width:70px" id="table-c-0">' +
+      '<button class="btn btn-ghost btn-sm" onclick="addTableSlot()"><i class="ti ti-plus"></i> Add time</button></div>' +
+      '</div></div>' +
+      '<div class="wiz-field">' +
+      '<label class="wiz-label">Max. people per table<span class="wiz-tip">How many people fit at one table for this offer?</span></label>' +
+      '<input class="form-control" id="w-max" type="number" min="1" value="4" style="max-width:120px">' +
+      '</div>' +
+      '<div class="wiz-field">' +
+      '<label class="wiz-label">Valid until (optional)</label>' +
+      '<input class="form-control" id="w-valid-until" type="date" style="max-width:180px">' +
+      '</div>';
+
+  } else if(type === 'activity') {
+    sub.textContent = 'Which days and times do you run this activity?';
+    container.innerHTML =
+      '<div class="wiz-field">' +
+      '<label class="wiz-label">Which days? *<span class="wiz-tip">Select all days when this activity runs.</span></label>' +
+      buildDaySelector() + '</div>' +
+      '<div class="wiz-field">' +
+      '<label class="wiz-label">Session times *<span class="wiz-tip">What time does each session start? Add one or more.</span></label>' +
+      '<div id="activity-times">' +
+      '<div class="time-input-row"><input class="form-control" type="time" value="10:00" style="max-width:120px" id="act-t-0">' +
+      '<button class="btn btn-ghost btn-sm" onclick="addActivityTime()"><i class="ti ti-plus"></i> Add time</button></div>' +
+      '</div></div>' +
+      '<div class="wiz-field">' +
+      '<label class="wiz-label">Max. people per session *<span class="wiz-tip">How many people can join each session?</span></label>' +
+      '<input class="form-control" id="w-max" type="number" min="1" value="8" style="max-width:120px">' +
+      '</div>' +
+      '<div class="wiz-field">' +
+      '<label class="wiz-label">Valid until (optional)</label>' +
+      '<input class="form-control" id="w-valid-until" type="date" style="max-width:180px">' +
+      '</div>';
+
+  } else if(type === 'service') {
+    sub.textContent = 'When are you available? Customers will pick a specific hour.';
+    container.innerHTML =
+      '<div class="wiz-field">' +
+      '<label class="wiz-label">Which days? *<span class="wiz-tip">Select your working days for this service.</span></label>' +
+      buildDaySelector() + '</div>' +
+      '<div class="wiz-field">' +
+      '<label class="wiz-label">Working hours *<span class="wiz-tip">Customers can book any slot within these hours.</span></label>' +
+      '<div style="display:flex;align-items:center;gap:10px">' +
+      '<input class="form-control" id="svc-start" type="time" value="09:00" style="max-width:120px">' +
+      '<span style="color:var(--text3)">to</span>' +
+      '<input class="form-control" id="svc-end" type="time" value="20:00" style="max-width:120px">' +
+      '</div></div>' +
+      '<div class="form-row" style="margin-bottom:16px">' +
+      '<div class="wiz-field">' +
+      '<label class="wiz-label">Session duration<span class="wiz-tip">How long is each appointment?</span></label>' +
+      '<select class="form-control" id="svc-duration">' +
+      '<option value="30">30 minutes</option><option value="45">45 minutes</option>' +
+      '<option value="60" selected>1 hour</option><option value="90">1.5 hours</option>' +
+      '<option value="120">2 hours</option></select></div>' +
+      '<div class="wiz-field">' +
+      '<label class="wiz-label">Simultaneous bookings<span class="wiz-tip">How many customers can book the same slot?</span></label>' +
+      '<input class="form-control" id="svc-parallel" type="number" min="1" value="1"></div>' +
+      '</div>' +
+      '<div class="wiz-field">' +
+      '<label class="wiz-label">Valid until (optional)</label>' +
+      '<input class="form-control" id="w-valid-until" type="date" style="max-width:180px">' +
+      '</div>';
+  }
+}
+
+function buildDaySelector() {
+  var days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  return '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:12px">' +
+    days.map(function(d){
+      return '<div class="day-toggle" onclick="toggleDay(&quot;' + d + '&quot;,this)">' + d + '</div>';
+    }).join('') + '</div>';
+}
+
+function toggleDay(day, el) {
+  el.classList.toggle('selected');
+  var idx = wizState.days.indexOf(day);
+  if(idx > -1) wizState.days.splice(idx,1);
+  else wizState.days.push(day);
+}
+
+var tableSlotCount = 1;
+function addTableSlot(){
+  var i = tableSlotCount++;
+  var div = document.createElement('div');
+  div.className = 'time-input-row';
+  div.innerHTML = '<input class="form-control" type="time" style="max-width:120px" id="table-t-'+i+'">' +
+    '<span style="font-size:12px;color:var(--text3)">tables:</span>' +
+    '<input class="form-control" type="number" min="1" value="4" style="max-width:70px" id="table-c-'+i+'">' +
+    '<button class="btn btn-ghost btn-sm" onclick="this.parentNode.remove()" style="color:var(--danger)"><i class="ti ti-trash"></i></button>';
+  document.getElementById('table-times-list').appendChild(div);
+}
+
+var actTimeCount = 1;
+function addActivityTime(){
+  var i = actTimeCount++;
+  var div = document.createElement('div');
+  div.className = 'time-input-row';
+  div.innerHTML = '<input class="form-control" type="time" style="max-width:120px" id="act-t-'+i+'">' +
+    '<button class="btn btn-ghost btn-sm" onclick="this.parentNode.remove()" style="color:var(--danger)"><i class="ti ti-trash"></i></button>';
+  document.getElementById('activity-times').appendChild(div);
+}
+
+// ── STEP 4: PREVIEW & SUMMARY ─────────────────────────────────────────────
+function buildStep4() {
+  updateWizPreview();
+  // Build summary
+  var type = wizState.type;
+  var typeLabels = {discount:'Discount / Special price',table:'Table reservation',
+    activity:'Activity with slots',service:'Service by appointment'};
+  var title    = document.getElementById('w-title')?.value||'';
+  var includes = document.getElementById('w-includes')?.value||'';
+  var price    = document.getElementById('w-price')?.value||'';
+  var max      = document.getElementById('w-max')?.value||'0';
+  var validUntil = document.getElementById('w-valid-until')?.value||'';
+
+  var schedSummary = getSchedSummary();
+
+  document.getElementById('wiz-summary').innerHTML =
+    '<div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Offer summary</div>' +
+    '<table style="width:100%;font-size:12px;border-collapse:collapse">' +
+    row('Type',    typeLabels[type]||type) +
+    row('Title',   title) +
+    row('Category',wizState.cat) +
+    (price ? row('Price', price) : '') +
+    row('Schedule',schedSummary) +
+    (parseInt(max)>0 ? row('Max. people', max) : row('Capacity','Unlimited')) +
+    (validUntil ? row('Valid until', validUntil) : '') +
+    '</table>';
+
+  function row(k,v){
+    return '<tr><td style="padding:5px 0;color:var(--text3);width:36%;vertical-align:top">' + k + '</td>' +
+      '<td style="padding:5px 0;color:var(--navy);font-weight:600">' + v + '</td></tr>';
+  }
+}
+
+function getSchedSummary(){
+  var type = wizState.type;
+  if(type==='discount'){
+    var r = document.querySelector('input[name="disc-avail"]:checked');
+    if(r && r.value==='weekly'){
+      var days = Array.from(document.querySelectorAll('.day-toggle.selected')).map(function(el){return el.textContent;}).join(', ');
+      var ts = document.getElementById('disc-time-start')?.value||'';
+      var te = document.getElementById('disc-time-end')?.value||'';
+      return days + (ts&&te?' · '+ts+'-'+te:'');
+    }
+    return 'Always available';
+  }
+  if(type==='table'||type==='activity'){
+    var days = Array.from(document.querySelectorAll('.day-toggle.selected')).map(function(el){return el.textContent;}).join(', ');
+    return days||'See details';
+  }
+  if(type==='service'){
+    var days = Array.from(document.querySelectorAll('.day-toggle.selected')).map(function(el){return el.textContent;}).join(', ');
+    var ss = document.getElementById('svc-start')?.value||'';
+    var se = document.getElementById('svc-end')?.value||'';
+    return days + (ss&&se?' · '+ss+'-'+se:'');
+  }
+  return '—';
+}
+
+function updateWizPreview(){
+  var title    = document.getElementById('w-title')?.value||'Your offer title';
+  var includes = document.getElementById('w-includes')?.value||'';
+  var price    = document.getElementById('w-price')?.value||'';
+  var cat      = wizState.cat||'Food & Drink';
+  var cats     = {'Food & Drink':'cat-food','Leisure & Adventure':'cat-leisure',
+    'Health & Wellness':'cat-health','Fashion & Lifestyle':'cat-fashion','Travel & Tours':'cat-travel'};
+  var emojis   = {'Food & Drink':'🍽️','Leisure & Adventure':'🎭','Health & Wellness':'💆',
+    'Fashion & Lifestyle':'👗','Travel & Tours':'✈️'};
+
+  ['wiz-prev-title','email-prev-title-wiz'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.textContent = title;
+  });
+  var priceEl = document.getElementById('wiz-prev-price');
+  if(priceEl) priceEl.textContent = price;
+  var epPrice = document.getElementById('email-prev-price-wiz');
+  if(epPrice) epPrice.textContent = price;
+  var epInc = document.getElementById('email-prev-includes-wiz');
+  if(epInc) epInc.textContent = includes||'—';
+  var img = document.getElementById('wiz-prev-img');
+  if(img) img.className = 'offer-card-img ' + (cats[cat]||'cat-leisure');
+  var emoji = document.getElementById('wiz-prev-emoji');
+  if(emoji) emoji.textContent = emojis[cat]||'🎁';
+  var catBadge = document.getElementById('wiz-prev-cat');
+  if(catBadge) catBadge.textContent = cat;
+}
+
+function previewWizImg(input){
+  var file = input.files[0]; if(!file) return;
+  var r = new FileReader();
+  r.onload = function(e){
+    var prev = document.getElementById('w-img-preview');
+    var ph   = document.getElementById('w-img-placeholder');
+    var cover= document.getElementById('wiz-prev-cover');
+    var emoji= document.getElementById('wiz-prev-emoji');
+    if(prev){ prev.src=e.target.result; prev.style.display='block'; }
+    if(ph)  ph.style.display='none';
+    if(cover){ cover.src=e.target.result; cover.style.display='block'; }
+    if(emoji) emoji.style.display='none';
+  };
+  r.readAsDataURL(file);
+}
+
+// ── SUBMIT ────────────────────────────────────────────────────────────────
+function wizSubmit(){
+  var title    = document.getElementById('w-title')?.value.trim();
+  var includes = document.getElementById('w-includes')?.value.trim();
+  var price    = document.getElementById('w-price')?.value.trim()||'';
+  var desc     = document.getElementById('w-desc')?.value.trim()||'';
+  var cond     = document.getElementById('w-cond')?.value.trim()||'';
+  var max      = parseInt(document.getElementById('w-max')?.value)||0;
+  var validUntil = document.getElementById('w-valid-until')?.value||'';
+  var isFlash  = document.getElementById('w-flash')?.checked||false;
+  var imgPrev  = document.getElementById('w-img-preview');
+  var type     = wizState.type;
+
+  if(!title||!includes){ showToast('Please complete the offer details','warning'); return; }
+
+  // Build schedule info
+  var schedObj = buildScheduleObj();
+
+  // Build availability object
+  var availability = buildAvailabilityObj();
+
+  var offer = {
+    id: Date.now(),
+    title: title,
+    biz: currentUser.name,
+    category: wizState.cat,
+    includes: includes,
+    desc: desc,
+    conditions: cond,
+    price: price,
+    schedule: schedObj.type,
+    scheduleDay: schedObj.days,
+    scheduleTime: schedObj.time,
+    scheduleDate: '',
+    max: max,
+    validUntil: validUntil,
+    enrolled: [], scanned: [], sent: 0,
+    status: 'pending',
+    sendEmail: true,
+    bookingType: type==='discount'?'none':type,
+    availability: availability,
+    flashRequested: isFlash,
+    cover: imgPrev&&imgPrev.style.display!=='none' ? imgPrev.src : '',
+    bizLogo: '',
+    offerType: type,
+    createdAt: new Date().toLocaleDateString('en-GB'),
+  };
+
+  myOffers.push(offer);
+  saveMyOffers();
+
+  fetch(SCRIPT_URL, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({_action:'saveOffer', ...offer})
+  }).catch(function(){});
+
+  showToast('Offer submitted for review! We will notify you within 24 hours.','success');
+  initWizard();
+  showView('my-offers');
+}
+
+function buildScheduleObj(){
+  var type = wizState.type;
+  if(type==='discount'){
+    var r = document.querySelector('input[name="disc-avail"]:checked');
+    if(r&&r.value==='weekly'){
+      var days = Array.from(document.querySelectorAll('.day-toggle.selected')).map(function(el){return el.textContent;}).join(', ');
+      var ts = document.getElementById('disc-time-start')?.value||'';
+      var te = document.getElementById('disc-time-end')?.value||'';
+      return {type:'weekly', days:days, time:ts&&te?ts+'-'+te:''};
+    }
+    return {type:'always', days:'', time:''};
+  }
+  if(type==='table'||type==='activity'||type==='service'){
+    var days = Array.from(document.querySelectorAll('.day-toggle.selected')).map(function(el){return el.textContent;}).join(', ');
+    var time = '';
+    if(type==='service'){
+      var ss=document.getElementById('svc-start')?.value||'';
+      var se=document.getElementById('svc-end')?.value||'';
+      time = ss&&se?ss+'-'+se:'';
+    }
+    return {type:'weekly', days:days, time:time};
+  }
+  return {type:'always',days:'',time:''};
+}
+
+function buildAvailabilityObj(){
+  var type = wizState.type;
+  var days = Array.from(document.querySelectorAll('.day-toggle.selected')).map(function(el){return el.textContent;});
+  if(!days.length) return null;
+
+  if(type==='table'){
+    var slots = {};
+    document.querySelectorAll('[id^="table-t-"]').forEach(function(inp,i){
+      var time = inp.value;
+      var cap  = parseInt(document.getElementById('table-c-'+i)?.value)||4;
+      if(time) days.forEach(function(d){ if(!slots[d]) slots[d]=[]; slots[d].push({time:time,capacity:cap}); });
+    });
+    return slots;
+  }
+  if(type==='activity'){
+    var times = Array.from(document.querySelectorAll('[id^="act-t-"]')).map(function(el){return el.value;}).filter(Boolean);
+    var slots = {};
+    days.forEach(function(d){ slots[d]=times; });
+    return slots;
+  }
+  if(type==='service'){
+    var ss  = document.getElementById('svc-start')?.value||'09:00';
+    var se  = document.getElementById('svc-end')?.value||'20:00';
+    var dur = parseInt(document.getElementById('svc-duration')?.value)||60;
+    var par = parseInt(document.getElementById('svc-parallel')?.value)||1;
+    return {days:days, start:ss, end:se, duration:dur, parallel:par};
+  }
+  return null;
+}
+
 function submitOffer() {
   const title    = document.getElementById('f-title').value.trim();
   const cat      = document.getElementById('f-cat').value;
@@ -925,6 +1470,9 @@ function submitOffer() {
     sent:         0,
     status:       'pending',
     sendEmail:    true,
+    bookingType:  document.getElementById('f-booking-type').value || 'none',
+    slotCapacity: parseInt(document.getElementById('f-slot-capacity')?.value)||0,
+    availability: parseAvailability(document.getElementById('f-availability')?.value||''),
     flashRequested: isFlash,
     flashDuration:  flashDur,
     flashSuggestedTime: flashTime,
