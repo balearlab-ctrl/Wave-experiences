@@ -1773,19 +1773,117 @@ function renderAdminOffers(){
   let list=offers;if(adminOffersFilter!=='all')list=offers.filter(o=>o.status===adminOffersFilter);
   const pc=offers.filter(o=>o.status==='pending').length;
   document.getElementById('adm-tab-pending-count').textContent=pc?`(${pc})`:'';
-  const tbody=document.getElementById('admin-offers-table');
-  if(!list.length){tbody.innerHTML=`<tr><td colspan="7"><div class="empty" style="padding:30px">No offers in this status</div></td></tr>`;return;}
-  tbody.innerHTML=list.map(o=>`<tr>
-    <td><div class="td-primary">${o.title}</div><div style="font-size:10px;color:var(--text3)">${o.desc.substring(0,55)}...</div></td>
-    <td style="color:var(--text2)">${o.biz}</td>
-    <td><span class="badge badge-cat">${o.category}</span></td>
-    <td style="font-size:11px;color:var(--text3)">${getScheduleLabel(o)}</td>
-    <td style="text-align:center">${o.max||'∞'}</td>
-    <td>${statusBadge(o.status)}</td>
-    <td><div class="action-row">
-      ${o.status==='pending'?`<button class="btn btn-success btn-sm" onclick="approveOffer(${o.id})"><i class="ti ti-check"></i> Approve</button><button class="btn btn-danger btn-sm" onclick="rejectOffer(${o.id})"><i class="ti ti-x"></i> Reject</button>`
-      :`<div class="action-row"><button class="btn btn-ghost btn-sm" onclick="openOfferDetail(${o.id})"><i class="ti ti-eye"></i></button><button class="btn btn-ghost btn-sm" onclick="editOffer(${o.id})"><i class="ti ti-edit"></i></button></div>`}
-    </div></td></tr>`).join('');
+  const container=document.getElementById('admin-offers-table').closest('.table-wrap');
+
+  if(!list.length){
+    container.innerHTML=`<div class="empty" style="padding:40px;text-align:center;color:var(--text3)">
+      <i class="ti ti-files" style="font-size:40px;display:block;margin-bottom:12px"></i>
+      No offers in this status</div>`;
+    return;
+  }
+
+  // Pending: show full detail cards for proper review
+  if(adminOffersFilter === 'pending'){
+    container.innerHTML = `<div style="display:flex;flex-direction:column;gap:16px;padding:4px 0">` +
+      list.map(o => `
+        <div style="background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r2);overflow:hidden">
+          <!-- Header -->
+          <div style="background:var(--bg3);border-bottom:1px solid var(--border);padding:14px 18px;
+            display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+            <div style="display:flex;align-items:center;gap:12px">
+              ${o.bizLogo ? `<img src="${o.bizLogo}" style="width:40px;height:40px;object-fit:contain;
+                border-radius:8px;border:1px solid var(--border);background:#fff;padding:3px;flex-shrink:0">` :
+                `<div style="width:40px;height:40px;border-radius:8px;background:var(--ocean);
+                color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0">
+                ${o.biz.charAt(0)}</div>`}
+              <div>
+                <div style="font-size:15px;font-weight:800;color:var(--navy)">${o.title}</div>
+                <div style="font-size:12px;color:var(--ocean);font-weight:600">${o.biz} · 
+                  <span class="badge badge-cat" style="font-size:10px">${o.category}</span>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-success btn-sm" onclick="approveOffer(${o.id})">
+                <i class="ti ti-check"></i> Approve
+              </button>
+              <button class="btn btn-danger btn-sm" onclick="rejectOffer(${o.id})">
+                <i class="ti ti-x"></i> Reject
+              </button>
+            </div>
+          </div>
+
+          <!-- Content -->
+          <div style="display:grid;grid-template-columns:${o.cover?'200px 1fr':'1fr'};gap:0">
+            ${o.cover ? `<div style="background:#f0f0f0;min-height:160px;overflow:hidden">
+              <img src="${o.cover}" style="width:100%;height:100%;object-fit:cover;display:block">
+            </div>` : ''}
+            <div style="padding:16px 18px">
+              <!-- Description -->
+              <div style="font-size:13px;line-height:1.7;color:var(--text2);margin-bottom:14px;
+                background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:12px">
+                <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;
+                  letter-spacing:.06em;margin-bottom:6px">Description</div>
+                ${o.desc}
+              </div>
+
+              ${o.conditions ? `<div style="font-size:12px;color:var(--warning);background:var(--warning-bg);
+                border:1px solid var(--warning-border);border-radius:var(--r);padding:10px 12px;margin-bottom:14px">
+                <strong>Conditions:</strong> ${o.conditions}
+              </div>` : ''}
+
+              <!-- Details grid -->
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
+                <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:10px">
+                  <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Schedule</div>
+                  <div style="font-size:12px;font-weight:700;color:var(--navy)">${getScheduleLabel(o)}</div>
+                </div>
+                <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:10px">
+                  <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Max. people</div>
+                  <div style="font-size:12px;font-weight:700;color:var(--navy)">${o.max || 'Unlimited'}</div>
+                </div>
+                <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:10px">
+                  <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Distribution</div>
+                  <div style="font-size:12px;font-weight:700;color:var(--navy)">
+                    ${o.sendWA?'<i class="ti ti-brand-whatsapp" style="color:var(--success)"></i> ':''}
+                    ${o.sendEmail?'<i class="ti ti-mail" style="color:var(--ocean)"></i> ':''}
+                    ${!o.sendWA&&!o.sendEmail?'—':''}
+                  </div>
+                </div>
+              </div>
+
+              <div style="font-size:11px;color:var(--text3)">
+                Submitted by <strong style="color:var(--text2)">${o.biz}</strong> · 
+                Created: ${o.createdAt||'—'}
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('') + `</div>`;
+    return;
+  }
+
+  // Other statuses: compact table view
+  container.innerHTML = `<table width="100%" cellpadding="0" cellspacing="0">
+    <thead><tr>
+      <th>Offer</th><th>Business</th><th>Category</th>
+      <th>Schedule</th><th>Max.</th><th>Status</th><th>Actions</th>
+    </tr></thead>
+    <tbody>` +
+    list.map(o=>`<tr>
+      <td><div class="td-primary">${o.title}</div>
+        <div style="font-size:10px;color:var(--text3)">${o.desc.substring(0,60)}...</div></td>
+      <td style="color:var(--text2)">${o.biz}</td>
+      <td><span class="badge badge-cat">${o.category}</span></td>
+      <td style="font-size:11px;color:var(--text3)">${getScheduleLabel(o)}</td>
+      <td style="text-align:center">${o.max||'∞'}</td>
+      <td>${statusBadge(o.status)}</td>
+      <td><div class="action-row">
+        <button class="btn btn-ghost btn-sm" onclick="openOfferDetail(${o.id})"><i class="ti ti-eye"></i></button>
+        <button class="btn btn-ghost btn-sm" onclick="editOffer(${o.id})"><i class="ti ti-edit"></i></button>
+      </div></td>
+    </tr>`).join('') +
+    `</tbody></table>`;
 }
 
 function approveOffer(id){const o=offers.find(x=>x.id===id);o.status='active';showToast(`"${o.title}" aprobada`,'success');renderAdminOffers();updatePendingIndicator();}
