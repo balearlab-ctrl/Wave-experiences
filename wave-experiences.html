@@ -1864,9 +1864,18 @@ function confirmReservation(id){
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({_action:'sendQR',to:email,
       cliente:{name,phone,email},
-      oferta:{title:o.title,biz:o.biz,schedule:o.schedule,
-              scheduleDay:o.scheduleDay||'',scheduleTime:o.scheduleTime||'',
-              scheduleDate:o.scheduleDate||'',conditions:o.conditions||''},
+      oferta:{
+        title:o.title, biz:o.biz,
+        includes:o.includes||'',
+        desc:o.desc||'',
+        price:o.price||'',
+        conditions:o.conditions||'',
+        schedule:o.schedule,
+        scheduleDay:o.scheduleDay||'', scheduleTime:o.scheduleTime||'',
+        scheduleDate:o.scheduleDate||'',
+        validUntil:o.validUntil||'',
+        max:o.max||0
+      },
       qrCode:qrId})
   }).catch(()=>{});
   const qrContainer=document.getElementById(`booking-confirm-${id}`);

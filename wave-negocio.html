@@ -324,115 +324,217 @@ select.form-control option{background:#fff}
 
       <!-- NEW OFFER -->
       <div class="view" id="view-new-offer">
-        <div class="page-header">
-          <h1>New Offer</h1>
-          <p>Your offer will be reviewed by Wave Experiences before publishing.</p>
+  <div class="page-header">
+    <h1>Create New Offer</h1>
+    <p>Fill in all the details — our team will review and publish within 24 hours.</p>
+  </div>
+
+  <div class="alert alert-info" style="margin-bottom:20px">
+    <i class="ti ti-info-circle"></i>
+    <span>Customers will receive the offer details by <strong>email</strong> and can show it at your venue to redeem.</span>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start">
+
+    <!-- LEFT: FORM -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+
+      <!-- BLOCK 1: Basic info -->
+      <div class="card">
+        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:16px;display:flex;align-items:center;gap:8px">
+          <div style="width:24px;height:24px;border-radius:6px;background:var(--ocean);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800">1</div>
+          Offer Information
         </div>
-        <div class="alert alert-info">
-          <i class="ti ti-info-circle"></i>
-          We review every offer within 24h to ensure catalogue quality.
+        <div class="form-group">
+          <label class="form-label">Offer title *</label>
+          <input class="form-control" id="f-title" placeholder="E.g. 2-for-1 cocktails every Wednesday" oninput="updatePreview()">
         </div>
-        <div style="display:grid;grid-template-columns:1fr 360px;gap:20px">
-          <div class="card">
-            <h3 style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:16px">Offer Information</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Category *</label>
+            <select class="form-control" id="f-cat" onchange="updatePreview()">
+              <option value="">Select...</option>
+              <option>Food &amp; Drink</option>
+              <option>Leisure &amp; Adventure</option>
+              <option>Health &amp; Wellness</option>
+              <option>Fashion &amp; Lifestyle</option>
+              <option>Travel &amp; Tours</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Price / Value</label>
+            <input class="form-control" id="f-price" placeholder="E.g. €15 per person · Normally €25">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">What does the offer include? *</label>
+          <textarea class="form-control" id="f-includes" rows="3" 
+            placeholder="List exactly what is included:&#10;- 2 cocktails of your choice&#10;- Selection of tapas&#10;- Welcome drink"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Full description</label>
+          <textarea class="form-control" id="f-desc" rows="3" 
+            placeholder="Describe the experience, atmosphere, what makes it special..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Conditions &amp; restrictions</label>
+          <textarea class="form-control" id="f-cond" rows="2" 
+            placeholder="E.g. Not combinable with other offers. Reservation required. Valid for groups of 2+"></textarea>
+        </div>
+      </div>
+
+      <!-- BLOCK 2: Availability -->
+      <div class="card">
+        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:16px;display:flex;align-items:center;gap:8px">
+          <div style="width:24px;height:24px;border-radius:6px;background:var(--ocean);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800">2</div>
+          Availability &amp; Schedule
+        </div>
+        <div class="form-group">
+          <label class="form-label">When is this offer available? *</label>
+          <select class="form-control" id="f-sched" onchange="updateSchedFields();updatePreview()">
+            <option value="">Select type...</option>
+            <option value="always">Always available</option>
+            <option value="weekly">Specific days of the week</option>
+            <option value="date">Single specific date</option>
+            <option value="limited">Limited capacity (until sold out)</option>
+          </select>
+        </div>
+        <div id="sched-fields"></div>
+        <div class="form-row" style="margin-top:4px">
+          <div class="form-group">
+            <label class="form-label">Max. people <span style="color:var(--text3);font-weight:400;text-transform:none">(0 = unlimited)</span></label>
+            <input class="form-control" id="f-max" type="number" min="0" value="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Valid until (optional)</label>
+            <input class="form-control" id="f-valid-until" type="date">
+            <div class="form-hint">Leave empty if always valid</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BLOCK 3: Flash offer -->
+      <div class="card" style="border:1.5px solid rgba(255,107,0,.2);background:linear-gradient(135deg,rgba(255,107,0,.03),transparent)">
+        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;display:flex;align-items:center;gap:8px">
+          <div style="width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#FF6B00,#FF3D00);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px">&#9889;</div>
+          Flash Offer <span style="font-size:10px;font-weight:400;color:var(--text3);margin-left:4px">(optional — activated by admin on approval)</span>
+        </div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:14px">Request this offer to be a time-limited Flash offer with countdown. Gold members will be notified by email before it goes live.</p>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:14px">
+          <input type="checkbox" id="f-flash" style="accent-color:#FF6B00;width:16px;height:16px" onchange="toggleFlashFields()">
+          <span style="font-size:13px;font-weight:600;color:var(--navy)">Request as Flash offer</span>
+        </label>
+        <div id="flash-fields" style="display:none">
+          <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Title *</label>
-              <input class="form-control" id="f-title" placeholder="E.g. 2-for-1 seasonal cocktails">
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Category *</label>
-                <select class="form-control" id="f-cat">
-                  <option value="">Select...</option>
-                  <option>Food &amp; Drink</option><option>Leisure &amp; Adventure</option>
-                  <option>Health &amp; Wellness</option><option>Fashion &amp; Lifestyle</option>
-                  <option>Travel &amp; Tours</option><option>Other</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Max. people <span style="color:var(--text3);font-weight:400;text-transform:none">(0 = unlimited)</span></label>
-                <input class="form-control" id="f-max" type="number" min="0" value="0">
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Description *</label>
-              <textarea class="form-control" id="f-desc" rows="4" placeholder="Describe your offer in detail..."></textarea>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Conditions</label>
-              <textarea class="form-control" id="f-cond" rows="2" placeholder="Not combinable with other offers..."></textarea>
-            </div>
-            <div class="divider"></div>
-            <div class="form-group">
-              <label class="form-label">Availability *</label>
-              <select class="form-control" id="f-sched" onchange="updateSchedFields()">
-                <option value="">Select...</option>
-                <option value="always">Always available</option>
-                <option value="date">Specific date</option>
-                <option value="weekly">Weekly (day &amp; time)</option>
-                <option value="limited">Limited capacity (until sold out)</option>
+              <label class="form-label">Suggested duration</label>
+              <select class="form-control" id="f-flash-dur">
+                <option value="4">4 hours</option>
+                <option value="6">6 hours</option>
+                <option value="8">8 hours</option>
+                <option value="12">12 hours</option>
+                <option value="24">24 hours</option>
               </select>
             </div>
-            <div id="sched-fields"></div>
-            <div class="divider"></div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Offer image</label>
-                <div class="upload-area" onclick="document.getElementById('f-img').click()">
-                  <input type="file" id="f-img" accept="image/*" onchange="previewImg(this)">
-                  <img id="f-img-preview" style="display:none;width:100%;height:80px;object-fit:cover;border-radius:6px">
-                  <div id="f-img-placeholder"><i class="ti ti-photo" style="font-size:22px;color:var(--text3)"></i>
-                    <div style="font-size:11px;color:var(--text3);margin-top:4px">Upload photo</div></div>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Business logo</label>
-                <div class="upload-area" onclick="document.getElementById('f-logo').click()">
-                  <input type="file" id="f-logo" accept="image/*" onchange="previewLogo(this)">
-                  <img id="f-logo-preview" style="display:none;width:56px;height:56px;object-fit:contain;
-                    border-radius:var(--r);border:1px solid var(--border);background:#fff;padding:4px;margin:0 auto">
-                  <div id="f-logo-placeholder"><i class="ti ti-building-store" style="font-size:22px;color:var(--text3)"></i>
-                    <div style="font-size:11px;color:var(--text3);margin-top:4px">Business logo</div></div>
-                </div>
-              </div>
-            </div>
             <div class="form-group">
-              <label class="form-label">Send QR via:</label>
-              <div style="display:flex;gap:14px">
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--text2)">
-                  <input type="checkbox" id="f-wa" checked style="accent-color:var(--ocean)">
-                  <i class="ti ti-brand-whatsapp" style="color:var(--success)"></i> WhatsApp
-                </label>
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--text2)">
-                  <input type="checkbox" id="f-email" style="accent-color:var(--ocean)">
-                  <i class="ti ti-mail" style="color:var(--ocean)"></i> Email
-                </label>
+              <label class="form-label">Suggested launch time</label>
+              <input class="form-control" id="f-flash-time" type="time" value="20:00">
+            </div>
+          </div>
+          <div class="alert alert-warning" style="font-size:11px">
+            <i class="ti ti-star"></i> Gold &amp; Platinum members will receive an exclusive preview email 30 minutes before launch.
+          </div>
+        </div>
+      </div>
+
+      <!-- BLOCK 4: Media -->
+      <div class="card">
+        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:16px;display:flex;align-items:center;gap:8px">
+          <div style="width:24px;height:24px;border-radius:6px;background:var(--ocean);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800">3</div>
+          Photos
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Offer photo</label>
+            <div class="upload-area" onclick="document.getElementById('f-img').click()">
+              <input type="file" id="f-img" accept="image/*" onchange="previewImg(this)">
+              <img id="f-img-preview" style="display:none;width:100%;height:80px;object-fit:cover;border-radius:6px">
+              <div id="f-img-placeholder">
+                <i class="ti ti-photo" style="font-size:22px;color:var(--text3)"></i>
+                <div style="font-size:11px;color:var(--text3);margin-top:4px">Click to upload photo</div>
               </div>
             </div>
-            <button class="btn btn-primary" onclick="submitOffer()">
-              <i class="ti ti-send"></i> Submit for review
-            </button>
           </div>
-          <!-- PREVIEW -->
-          <div>
-            <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;
-              letter-spacing:.06em;margin-bottom:10px">Preview</div>
-            <div class="offer-card" style="cursor:default">
-              <div class="offer-card-img cat-leisure" id="prev-img">
-                <div class="offer-cat-badge" id="prev-cat">Category</div>
-                <div style="font-size:44px" id="prev-emoji">🎁</div>
-              </div>
-              <div class="offer-card-body">
-                <div class="offer-card-title" id="prev-title">Offer title</div>
-                <div class="offer-card-meta" id="prev-meta">Always available</div>
+          <div class="form-group">
+            <label class="form-label">Your logo</label>
+            <div class="upload-area" onclick="document.getElementById('f-logo').click()">
+              <input type="file" id="f-logo" accept="image/*" onchange="previewLogo(this)">
+              <img id="f-logo-preview" style="display:none;width:56px;height:56px;object-fit:contain;
+                border-radius:var(--r);border:1px solid var(--border);background:#fff;padding:4px;margin:0 auto">
+              <div id="f-logo-placeholder">
+                <i class="ti ti-building-store" style="font-size:22px;color:var(--text3)"></i>
+                <div style="font-size:11px;color:var(--text3);margin-top:4px">Business logo</div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- SCANNER -->
-      <div class="view" id="view-scanner">
+      <!-- SUBMIT -->
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost" onclick="showView('my-offers')" style="flex:0">
+          <i class="ti ti-arrow-left"></i> Cancel
+        </button>
+        <button class="btn btn-primary" onclick="submitOffer()" style="flex:1">
+          <i class="ti ti-send"></i> Submit for review
+        </button>
+      </div>
+    </div>
+
+    <!-- RIGHT: PREVIEW -->
+    <div style="position:sticky;top:76px">
+      <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Live preview</div>
+      <div class="offer-card" style="cursor:default;margin-bottom:16px">
+        <div class="offer-card-img cat-leisure" id="prev-img" style="position:relative">
+          <img id="prev-cover" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+          <div class="offer-cat-badge" id="prev-cat">Category</div>
+          <div style="font-size:40px;position:relative;z-index:1" id="prev-emoji">🎁</div>
+        </div>
+        <div class="offer-card-body">
+          <div class="offer-card-title" id="prev-title">Your offer title</div>
+          <div style="font-size:11px;color:var(--ocean);font-weight:600;margin-bottom:4px" id="prev-biz"></div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:6px" id="prev-sched">Always available</div>
+          <div style="font-size:12px;font-weight:700;color:var(--navy)" id="prev-price"></div>
+        </div>
+      </div>
+
+      <!-- Email preview -->
+      <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Customer email preview</div>
+      <div style="background:#F2F8FC;border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;font-size:12px">
+        <div style="background:linear-gradient(135deg,#060E20,#0E2D5F);padding:14px;text-align:center;color:#fff">
+          <div style="font-size:16px;margin-bottom:4px">Your booking is confirmed!</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.6)" id="email-prev-title">Offer title</div>
+        </div>
+        <div style="padding:14px;background:#fff">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:8px">What's included:</div>
+          <div style="font-size:12px;color:var(--text2);white-space:pre-line;margin-bottom:10px" id="email-prev-includes">—</div>
+          <div style="background:var(--bg3);border-radius:8px;padding:10px;font-size:11px;color:var(--text3)">
+            <div id="email-prev-sched">—</div>
+            <div id="email-prev-price" style="font-weight:700;color:var(--navy);margin-top:4px"></div>
+          </div>
+          <div style="margin-top:10px;background:linear-gradient(135deg,#060E20,#0E2D5F);border-radius:8px;padding:12px;text-align:center;color:#fff;font-size:12px">
+            <div style="font-size:9px;color:rgba(255,255,255,.5);margin-bottom:4px">YOUR QR CODE</div>
+            <div style="font-family:monospace;font-size:16px;font-weight:800;letter-spacing:.1em;color:#5AAFC8">QR-XXXX-ABCD</div>
+            <div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:4px">Show this at the venue</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="view" id="view-scanner">
         <div class="page-header"><h1>Validate QR</h1><p>Scan customer QR codes to register redemptions</p></div>
         <div style="max-width:460px;margin:0 auto">
           <div class="card" style="text-align:center;padding:36px 28px">
@@ -700,6 +802,11 @@ function renderBookings() {
 }
 
 // ── NEW OFFER FORM ────────────────────────────────────────────────────────
+function toggleFlashFields(){
+  const show = document.getElementById('f-flash').checked;
+  document.getElementById('flash-fields').style.display = show ? 'block' : 'none';
+}
+
 function updateSchedFields() {
   const type = document.getElementById('f-sched').value;
   const c = document.getElementById('sched-fields');
@@ -718,18 +825,40 @@ function updateSchedFields() {
 }
 
 function updatePreview() {
-  const title = document.getElementById('f-title').value || 'Offer title';
-  const sched = document.getElementById('f-sched').value;
-  const cat   = document.getElementById('f-cat').value || 'Category';
-  document.getElementById('prev-title').textContent = title;
-  document.getElementById('prev-cat').textContent   = cat;
-  document.getElementById('prev-emoji').textContent = getCatEmoji(cat);
-  document.getElementById('prev-img').className     = 'offer-card-img ' + getCatClass(cat);
-  const schedLabel = sched === 'always' ? 'Always available' :
-    sched === 'weekly' ? (document.getElementById('f-day')?.value || 'Weekly') :
-    sched === 'date'   ? (document.getElementById('f-date')?.value || 'Specific date') :
-    sched === 'limited'? 'Until sold out' : '—';
-  document.getElementById('prev-meta').textContent = schedLabel;
+  const title    = document.getElementById('f-title')?.value || 'Your offer title';
+  const cat      = document.getElementById('f-cat')?.value   || 'Category';
+  const sched    = document.getElementById('f-sched')?.value || '';
+  const price    = document.getElementById('f-price')?.value || '';
+  const includes = document.getElementById('f-includes')?.value || '';
+
+  // Card preview
+  if(document.getElementById('prev-title')) document.getElementById('prev-title').textContent = title;
+  if(document.getElementById('prev-cat'))   document.getElementById('prev-cat').textContent = cat;
+  if(document.getElementById('prev-biz'))   document.getElementById('prev-biz').textContent = currentUser?.name||'';
+  if(document.getElementById('prev-emoji')) document.getElementById('prev-emoji').textContent = getCatEmoji(cat);
+  if(document.getElementById('prev-img'))   document.getElementById('prev-img').className = 'offer-card-img ' + getCatClass(cat);
+  if(document.getElementById('prev-price')) document.getElementById('prev-price').textContent = price;
+
+  const schedLabel = sched==='always' ? 'Always available' :
+    sched==='weekly'  ? (document.getElementById('f-day')?.value||'Weekly') :
+    sched==='date'    ? (document.getElementById('f-date')?.value||'Specific date') :
+    sched==='limited' ? 'Until sold out' : '—';
+  if(document.getElementById('prev-sched')) document.getElementById('prev-sched').textContent = schedLabel;
+
+  // Email preview
+  if(document.getElementById('email-prev-title'))   document.getElementById('email-prev-title').textContent = title;
+  if(document.getElementById('email-prev-includes'))document.getElementById('email-prev-includes').textContent = includes||'—';
+  if(document.getElementById('email-prev-sched'))   document.getElementById('email-prev-sched').textContent = schedLabel;
+  if(document.getElementById('email-prev-price'))   document.getElementById('email-prev-price').textContent = price;
+
+  // Photo preview
+  const imgInput = document.getElementById('f-img-preview');
+  const prevCover = document.getElementById('prev-cover');
+  if(prevCover && imgInput && imgInput.style.display!=='none'){
+    prevCover.src = imgInput.src;
+    prevCover.style.display = 'block';
+    if(document.getElementById('prev-emoji')) document.getElementById('prev-emoji').style.display='none';
+  }
 }
 
 function previewImg(input) {
@@ -755,57 +884,80 @@ function previewLogo(input) {
 }
 
 function submitOffer() {
-  const title = document.getElementById('f-title').value.trim();
-  const cat   = document.getElementById('f-cat').value;
-  const desc  = document.getElementById('f-desc').value.trim();
-  const sched = document.getElementById('f-sched').value;
-  if (!title || !cat || !desc || !sched) { showToast('Please fill all required fields','warning'); return; }
+  const title    = document.getElementById('f-title').value.trim();
+  const cat      = document.getElementById('f-cat').value;
+  const includes = document.getElementById('f-includes').value.trim();
+  const desc     = document.getElementById('f-desc').value.trim();
+  const sched    = document.getElementById('f-sched').value;
+  const price    = document.getElementById('f-price').value.trim();
+  const cond     = document.getElementById('f-cond').value.trim();
+  const max      = parseInt(document.getElementById('f-max').value) || 0;
+  const validUntil = document.getElementById('f-valid-until').value;
+  const isFlash  = document.getElementById('f-flash').checked;
+  const flashDur = isFlash ? parseInt(document.getElementById('f-flash-dur').value) : 0;
+  const flashTime= isFlash ? document.getElementById('f-flash-time').value : '';
 
-  const imgPreview  = document.getElementById('f-img-preview');
-  const logoPreview = document.getElementById('f-logo-preview');
+  if (!title || !cat || !includes || !sched) {
+    showToast('Please fill in all required fields', 'warning');
+    return;
+  }
+
+  const imgPrev  = document.getElementById('f-img-preview');
+  const logoPrev = document.getElementById('f-logo-preview');
 
   const offer = {
-    id:         Date.now(),
+    id:           Date.now(),
     title,
-    biz:        currentUser.name,
-    category:   cat,
+    biz:          currentUser.name,
+    category:     cat,
+    includes,
     desc,
-    conditions: document.getElementById('f-cond').value,
-    schedule:   sched,
+    conditions:   cond,
+    price,
+    schedule:     sched,
     scheduleDay:  document.getElementById('f-day')?.value  || '',
     scheduleTime: document.getElementById('f-time')?.value || '',
     scheduleDate: document.getElementById('f-date')?.value || '',
-    max:        parseInt(document.getElementById('f-max').value) || 0,
-    enrolled:   [],
-    scanned:    [],
-    sent:       0,
-    status:     'pending',
-    sendWA:     document.getElementById('f-wa').checked,
-    sendEmail:  document.getElementById('f-email').checked,
-    cover:      imgPreview.style.display !== 'none'  ? imgPreview.src  : '',
-    bizLogo:    logoPreview.style.display !== 'none' ? logoPreview.src : '',
-    createdAt:  new Date().toLocaleDateString('en-GB'),
+    max,
+    validUntil,
+    enrolled:     [],
+    scanned:      [],
+    sent:         0,
+    status:       'pending',
+    sendEmail:    true,
+    flashRequested: isFlash,
+    flashDuration:  flashDur,
+    flashSuggestedTime: flashTime,
+    cover:    imgPrev?.style.display !== 'none'  ? imgPrev?.src  : '',
+    bizLogo:  logoPrev?.style.display !== 'none' ? logoPrev?.src : '',
+    createdAt: new Date().toLocaleDateString('en-GB'),
   };
 
   myOffers.push(offer);
   saveMyOffers();
 
   // Save to Google Sheets for admin review
-  fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {
+  fetch(SCRIPT_URL, {
     method: 'POST', mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ _action: 'saveOffer', ...offer })
-  }).catch(()=>{});
+  }).catch(() => {});
 
-  showToast('Offer submitted for review! ✓', 'success');
   // Reset form
-  ['f-title','f-desc','f-cond','f-max'].forEach(id => document.getElementById(id).value = '');
+  ['f-title','f-includes','f-desc','f-cond','f-price','f-max','f-valid-until'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.value = id==='f-max'?'0':'';
+  });
   document.getElementById('f-sched').value = '';
+  document.getElementById('f-flash').checked = false;
+  document.getElementById('flash-fields').style.display = 'none';
   document.getElementById('sched-fields').innerHTML = '';
   document.getElementById('f-img-preview').style.display = 'none';
   document.getElementById('f-img-placeholder').style.display = 'block';
   document.getElementById('f-logo-preview').style.display = 'none';
   document.getElementById('f-logo-placeholder').style.display = 'block';
+
+  showToast('Offer submitted for review! ✓', 'success');
   showView('my-offers');
 }
 
