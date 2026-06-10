@@ -399,6 +399,25 @@ tr:last-child td{border-bottom:none}
 .count-badge.green{background:var(--success-bg);color:var(--success);border-color:var(--success-border)}
 .count-badge.red{background:var(--danger-bg);color:var(--danger);border-color:var(--danger-border)}
 
+
+/* FLASH OFFERS */
+.flash-badge{position:absolute;top:8px;right:8px;background:linear-gradient(135deg,#FF6B00,#FF3D00);
+  color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;
+  display:flex;align-items:center;gap:4px;animation:flash-pulse 1.5s ease-in-out infinite;z-index:2}
+@keyframes flash-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,61,0,.4)}50%{box-shadow:0 0 0 6px rgba(255,61,0,0)}}
+.flash-timer{background:linear-gradient(135deg,#1a0a00,#2d1000);border:1px solid rgba(255,107,0,.3);
+  border-radius:var(--r);padding:8px 10px;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px}
+.flash-unit{text-align:center}
+.flash-label{font-size:9px;color:rgba(255,107,0,.7);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.flash-digits{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:#FF6B00;line-height:1}
+.flash-sep{font-size:16px;font-weight:800;color:rgba(255,107,0,.4);animation:sep-blink .8s ease-in-out infinite}
+@keyframes sep-blink{0%,100%{opacity:1}50%{opacity:.2}}
+.offer-card.flash{border-color:rgba(255,107,0,.4) !important;box-shadow:0 4px 20px rgba(255,61,0,.12)}
+.badge-gold{background:linear-gradient(135deg,#B8860B,#FFD700);color:#3d2800;font-size:10px;
+  font-weight:800;padding:2px 8px;border-radius:20px;display:inline-flex;align-items:center;gap:3px}
+.badge-platinum{background:linear-gradient(135deg,#4A4A6A,#A8A8D0);color:#fff;font-size:10px;
+  font-weight:800;padding:2px 8px;border-radius:20px;display:inline-flex;align-items:center;gap:3px}
+
 /* SCROLLBAR */
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:var(--bg)}
@@ -1578,6 +1597,33 @@ function getViewTitles(){
   };
 }
 
+// FLASH TIMERS
+var _flashInterval = null;
+function startFlashTimers(){
+  if(_flashInterval) clearInterval(_flashInterval);
+  _flashInterval = setInterval(tickFlash, 1000);
+  tickFlash();
+}
+function tickFlash(){
+  var now = new Date();
+  var expired = false;
+  offers.forEach(function(o){
+    if(!o.flash || !o.flashEnd) return;
+    var end = new Date(o.flashEnd);
+    var diff = end - now;
+    var hEl = document.getElementById('timer-'+o.id+'-h');
+    var mEl = document.getElementById('timer-'+o.id+'-m');
+    var sEl = document.getElementById('timer-'+o.id+'-s');
+    if(!hEl) return;
+    if(diff <= 0){ hEl.textContent=mEl.textContent=sEl.textContent='00'; o.status='expired'; expired=true; return; }
+    var h=Math.floor(diff/3600000), m=Math.floor((diff%3600000)/60000), s=Math.floor((diff%60000)/1000);
+    hEl.textContent=String(h).padStart(2,'0');
+    mEl.textContent=String(m).padStart(2,'0');
+    sEl.textContent=String(s).padStart(2,'0');
+  });
+  if(expired) renderPublicOffers();
+}
+
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec';
 let sheetsUsers = [];
 let offers=[
@@ -1610,14 +1656,21 @@ let offers=[
    conditions:'Groups of 4-12 people. Duration approx. 2.5 hours.',
    schedule:'weekly',scheduleDay:'Tuesday & Friday',scheduleTime:'10:00',max:12,
    enrolled:[],scanned:[],sent:31,status:'active',sendWA:true,sendEmail:true,
-   cover:'',bizLogo:'',createdAt:'02/06/2025'},
+   cover:'',bizLogo:'',createdAt:'02/06/2025',flash:false,flashEnd:null,scheduledAt:null},
+  {id:6,title:'Flash: Champagne and Oysters',biz:'La Taberna del Puerto',category:'Food & Drink',
+   desc:'Half dozen fresh oysters plus a glass of champagne at an unbeatable price. Tonight only!',
+   conditions:'While stocks last. One per person.',
+   schedule:'always',max:20,enrolled:[],scanned:[],sent:0,status:'active',
+   sendWA:true,sendEmail:true,cover:'',bizLogo:'',createdAt:'10/06/2025',
+   flash:true,flashDuration:4,
+   flashEnd:new Date(Date.now()+4*60*60*1000).toISOString(),scheduledAt:null},
 ];
 
 let users=[
-  {id:1,name:'La Taberna del Puerto',email:'info@tabernapuerto.com',phone:'+34 971 234 567',category:'Food &amp; Drink',active:true,status:'active',plan:'pro'},
-  {id:2,name:'Spa Oasis Palma',email:'reservas@oasispalma.com',phone:'+34 971 345 678',category:'Salud',active:true},
+  {id:1,name:'La Taberna del Puerto',email:'info@tabernapuerto.com',tier:'gold',phone:'+34 971 234 567',category:'Food &amp; Drink',active:true,status:'active',plan:'pro'},
+  {id:2,name:'Spa Oasis Palma',email:'reservas@oasispalma.com',tier:'platinum',phone:'+34 971 345 678',category:'Salud',active:true},
   {id:3,name:'Restaurante Tramuntana',email:'hola@tramuntana.es',phone:'+34 971 456 789',category:'Food &amp; Drink',active:true},
-  {id:4,name:'Wave Adventures',email:'info@waveadventures.com',phone:'+34 600 123 456',category:'Ocio',active:true},
+  {id:4,name:'Wave Adventures',email:'info@waveadventures.com',tier:'gold',phone:'+34 600 123 456',category:'Ocio',active:true},
   {id:5,name:'Boutique Isla Style',email:'info@islastyle.com',phone:'+34 971 567 890',category:'Moda',active:true},
   {id:6,name:'Centro Holístico Zen',email:'zen@holistico.com',phone:'+34 600 234 567',category:'Salud',active:true},
   {id:7,name:'La Bóveda del Sol',email:'reservas@bovedadelsol.com',phone:'+34 971 678 901',category:'Food &amp; Drink',active:false},
@@ -1686,7 +1739,8 @@ function renderPublicOffers(){
     grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><i class="ti ti-mood-empty"></i><h3>No offers available</h3><p>Check back soon!</p></div>`;
     return;
   }
-  grid.innerHTML=list.map(o=>offerCardHTML(o)).join('');
+  grid.innerHTML=list.map(o=>offerCardHTML(o)).join('').replace(/^,|,$/g,'');
+  startFlashTimers();
 }
 
 function offerCardHTML(o){
@@ -1697,17 +1751,29 @@ function offerCardHTML(o){
     :`<span class="offer-spots" style="color:var(--success)"><i class="ti ti-infinity" style="font-size:10px"></i> ${T('offer.unlimited')}</span>`;
   const coverHTML=o.cover?`<img class="offer-cover" src="${o.cover}">` :'';
   const bizLogoHTML=o.bizLogo?`<img class="offer-biz-logo" src="${o.bizLogo}">` :'';
-  return`<div class="offer-card" onclick="openOfferDetail(${o.id})">
-    <div class="offer-card-img ${catCls}">
+  // expire check
+  if(o.flash && o.flashEnd && new Date(o.flashEnd) < new Date()){ o.status='expired'; return ''; }
+  const isFlash = o.flash && o.flashEnd && new Date(o.flashEnd) > new Date();
+  const timerId = 'timer-' + o.id;
+  return`<div class="offer-card${isFlash?' flash':''}" onclick="openOfferDetail(${o.id})">
+    <div class="offer-card-img ${catCls}" style="position:relative">
       ${coverHTML}
       <div class="offer-cat-badge">${o.category}</div>
-      ${!o.cover?`<div style="font-size:44px">${getCatEmoji(o.category)}</div>`:''}
+      ${isFlash ? '<div class="flash-badge"><i class="ti ti-bolt" style="font-size:10px"></i> FLASH</div>' : ''}
+      ${!o.cover?`<div style="font-size:44px;position:relative;z-index:1">${getCatEmoji(o.category)}</div>`:''}
     </div>
     <div class="offer-card-body">
       ${bizLogoHTML?`<div style="margin-bottom:8px">${bizLogoHTML}</div>`:''}
       <div class="offer-card-title">${o.title}</div>
       <div class="offer-card-biz">${o.biz}</div>
       <div class="offer-card-meta">${getScheduleLabel(o)}</div>
+      ${isFlash ? `<div class="flash-timer" id="${timerId}">
+        <div class="flash-unit"><div class="flash-label">H</div><div class="flash-digits" id="${timerId}-h">--</div></div>
+        <div class="flash-sep">:</div>
+        <div class="flash-unit"><div class="flash-label">M</div><div class="flash-digits" id="${timerId}-m">--</div></div>
+        <div class="flash-sep">:</div>
+        <div class="flash-unit"><div class="flash-label">S</div><div class="flash-digits" id="${timerId}-s">--</div></div>
+      </div>` : ''}
       <div class="offer-card-footer">${spotsHTML}</div>
     </div>
   </div>`;
@@ -2442,7 +2508,102 @@ function doApproveOffer(id) {
 
   updateOfferCounts();
   renderOfferReview();
-  showToast(`"${o['Título']}" approved ✓`, 'success');
+  setTimeout(function(){
+    if(confirm('Make this a FLASH offer with countdown timer?\nGold users will get an email preview.')) {
+      showFlashModal(String(id));
+    } else {
+      showToast('"' + (o['T\u00edtulo']||'Offer') + '" approved', 'success');
+    }
+  }, 300);
+}
+
+function showFlashModal(oid){
+  var o = sheetsOffers.find(function(x){ return String(x['ID'])===String(oid); });
+  var lo = offers.find(function(x){ return String(x.id)===String(oid); });
+  var title = (o&&o['T\u00edtulo'])||(lo&&lo.title)||'Offer';
+  document.getElementById('modal-offer-title').textContent = 'Flash Offer Setup';
+  document.getElementById('modal-offer-body').innerHTML =
+    '<div style="background:#1a0800;border:1px solid rgba(255,107,0,.3);border-radius:12px;' +
+    'padding:16px;margin-bottom:16px;text-align:center">' +
+    '<div style="font-size:32px;margin-bottom:8px">&#9889;</div>' +
+    '<div style="font-size:14px;font-weight:700;color:#FF6B00">' + title + '</div>' +
+    '<div style="font-size:12px;color:rgba(255,150,50,.6);margin-top:4px">Set flash duration and activation</div></div>' +
+    '<div class="form-group"><label class="form-label">Duration</label>' +
+    '<select class="form-control" id="fl-dur">' +
+    '<option value="4">4 hours</option><option value="6">6 hours</option>' +
+    '<option value="8">8 hours</option><option value="12">12 hours</option>' +
+    '<option value="24">24 hours</option></select></div>' +
+    '<div class="form-group"><label class="form-label">Activation</label>' +
+    '<select class="form-control" id="fl-act" onchange="toggleFlashTime()">' +
+    '<option value="now">Activate immediately</option>' +
+    '<option value="later">Schedule for specific time</option></select></div>' +
+    '<div id="fl-time-wrap" style="display:none" class="form-group">' +
+    '<label class="form-label">Date & time</label>' +
+    '<input class="form-control" id="fl-time" type="datetime-local">' +
+    '<div class="form-hint">Gold users notified 30 min before</div></div>' +
+    '<div class="alert alert-warning"><i class="ti ti-star"></i> Gold & Platinum users will receive an exclusive preview email.</div>';
+  document.getElementById('modal-offer-footer').innerHTML =
+    '<button class="btn btn-ghost" onclick="var m=document.getElementById(\u0022offer-modal\u0022);if(m)m.style.display=\u0022none\u0022">Skip</button>' +
+    '<button class="btn" style="background:linear-gradient(135deg,#FF6B00,#FF3D00);color:#fff" onclick="activateFlash(\'' + oid + '\')">' +
+    'Activate Flash</button>';
+  document.getElementById('offer-modal').style.display = 'flex';
+}
+
+function toggleFlashTime(){
+  var v = document.getElementById('fl-act').value;
+  document.getElementById('fl-time-wrap').style.display = v==='later'?'block':'none';
+}
+
+function activateFlash(oid){
+  var dur = parseInt(document.getElementById('fl-dur').value)||4;
+  var act = document.getElementById('fl-act').value;
+  var ti  = document.getElementById('fl-time');
+  var start = act==='later'&&ti&&ti.value ? new Date(ti.value) : new Date();
+  var end   = new Date(start.getTime() + dur*3600000);
+  var lo = offers.find(function(x){ return String(x.id)===String(oid); });
+  if(lo){ lo.flash=true; lo.flashDuration=dur; lo.flashEnd=end.toISOString();
+    lo.scheduledAt=act==='later'?start.toISOString():null;
+    lo.status=act==='now'?'active':'scheduled'; }
+  document.getElementById('offer-modal').style.display='none';
+  notifyGold(oid, dur, start);
+  showToast('Flash offer activated! ' + dur + 'h countdown', 'success');
+  renderPublicOffers();
+}
+
+function notifyGold(oid, dur, startTime){
+  var o = sheetsOffers.find(function(x){ return String(x['ID'])===String(oid); }) ||
+    offers.find(function(x){ return String(x.id)===String(oid); });
+  if(!o) return;
+  var title = o['T\u00edtulo']||o.title||'Flash Offer';
+  var biz   = o['Negocio']||o.biz||'';
+  var gold  = users.filter(function(u){ return u.tier==='gold'||u.tier==='platinum'; });
+  var at    = startTime.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  var subj  = 'Exclusive preview: ' + title + ' - live in ' + dur + 'h';
+  var html  = '<div style="font-family:Arial,sans-serif;max-width:540px;margin:0 auto">' +
+    '<div style="background:linear-gradient(135deg,#1a0800,#FF3D00);padding:28px;text-align:center;border-radius:14px 14px 0 0">' +
+    '<div style="font-size:36px;margin-bottom:10px">&#9889;</div>' +
+    '<h1 style="color:#FF6B00;font-size:20px;margin:0 0 6px">FLASH OFFER - GOLD PREVIEW</h1>' +
+    '<p style="color:rgba(255,200,100,.7);font-size:12px;margin:0">Early access for Gold members</p></div>' +
+    '<div style="background:#fff;padding:24px">' +
+    '<h2 style="color:#1a0800;font-size:17px;margin:0 0 6px">' + title + '</h2>' +
+    '<p style="color:#5A7898;font-size:13px;margin:0 0 14px">' + biz + '</p>' +
+    '<div style="background:#FFF8E8;border:1px solid #F5DFA0;border-radius:8px;padding:12px;margin-bottom:14px">' +
+    '<strong style="color:#A86800">Goes live at ' + at + ' - ' + dur + ' hours only!</strong></div>' +
+    '<p style="font-size:13px;color:#3A5270;margin-bottom:16px">Be ready - this exclusive offer is only available for a limited time.</p>' +
+    '<a href="https://balearlab-ctrl.github.io/Wave-experiences/wave-experiences.html" ' +
+    'style="display:inline-block;background:linear-gradient(135deg,#FF6B00,#FF3D00);color:#fff;' +
+    'padding:12px 24px;border-radius:50px;font-size:13px;font-weight:700;text-decoration:none">' +
+    'View Flash Offer</a></div>' +
+    '<div style="background:#F2F7FA;padding:14px;text-align:center;font-size:11px;color:#8BAECE;border-radius:0 0 14px 14px">' +
+    'Wave Experiences Mallorca</div></div>';
+  gold.forEach(function(u){
+    if(!u.email) return;
+    fetch(GOOGLE_SCRIPT_URL,{method:'POST',mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({_action:'sendEmail',to:u.email,subject:subj,html:html})
+    }).catch(function(){});
+  });
+  if(gold.length>0) showToast(gold.length + ' Gold/Platinum users notified', 'success');
 }
 
 function doRejectOffer(id) {
@@ -2498,6 +2659,22 @@ function updatePendingIndicator(){
 }
 
 let userTabFilter = 'active';
+
+function changeTier(id){
+  var u = users.find(function(x){ return x.id == id; });
+  if(!u) return;
+  var tiers = ['standard','gold','platinum'];
+  var idx = tiers.indexOf(u.tier||'standard');
+  u.tier = tiers[(idx+1) % tiers.length];
+  try{
+    var ls=JSON.parse(localStorage.getItem('wave_pending_users')||'[]');
+    var lu=ls.find(function(x){ return x.id==id||x.email===u.email; });
+    if(lu) lu.tier=u.tier;
+    localStorage.setItem('wave_pending_users', JSON.stringify(ls));
+  }catch(e){}
+  showToast(u.name + ' is now ' + u.tier.charAt(0).toUpperCase()+u.tier.slice(1), 'success');
+  renderUsersTable();
+}
 
 function switchUserTab(tab){
   userTabFilter = tab;
@@ -2657,10 +2834,17 @@ function renderAdminUsers(){
     <td><span class="badge badge-cat">${u.category}</span></td>
     <td style="text-align:center">${offers.filter(o=>o.biz===u.name).length}</td>
     <td>${u.status==='pending'?'<span class="badge badge-pending-user">Pending</span>':u.active?'<span class="badge badge-active">Activo</span>':'<span class="badge badge-rejected">Inactivo</span>'}</td>
-    <td><span class="badge badge-cat" style="font-size:10px">${u.plan||'básico'}</span></td>
+    <td>
+      <span class="badge badge-cat" style="font-size:10px">${u.plan||'basic'}</span>
+      ${u.tier==='gold'?'<span class="badge-gold" style="margin-left:4px;font-size:10px">Gold</span>':
+        u.tier==='platinum'?'<span class="badge-platinum" style="margin-left:4px;font-size:10px">Platinum</span>':''}
+    </td>
     <td><div class="action-row">
       ${u.status==='pending'?`<button class="btn btn-success btn-sm" onclick="approveUser(${u.id})"><i class="ti ti-check"></i> Approve</button>`:''}
       <button class="btn btn-ghost btn-sm" onclick="resendWelcome(event,${u.id})" title="Resend welcome email"><i class="ti ti-mail-forward"></i></button>
+      <button class="btn btn-ghost btn-sm" onclick="changeTier(${u.id})" title="Change tier: ${u.tier||'standard'}" style="font-size:10px">
+        <i class="ti ti-${u.tier==='gold'?'star':u.tier==='platinum'?'diamond':'user'}" style="color:${u.tier==='gold'?'#FFD700':u.tier==='platinum'?'#A8A8D0':'var(--text3)'}"></i>
+      </button>
       <button class="btn btn-ghost btn-sm" onclick="toggleUser(${u.id})" title="${u.active?'Deactivate':'Activate'}" style="${u.active?'':'color:var(--success)'}">
         ${u.active?'<i class="ti ti-lock"></i>':'<i class="ti ti-lock-open"></i>'}
       </button>
