@@ -2551,7 +2551,10 @@ function renderAdminUsers(){
     <td><div class="action-row">
       ${u.status==='pending'?`<button class="btn btn-success btn-sm" onclick="approveUser(${u.id})"><i class="ti ti-check"></i> Approve</button>`:''}
       <button class="btn btn-ghost btn-sm" onclick="resendWelcome(event,${u.id})" title="Resend welcome email"><i class="ti ti-mail-forward"></i></button>
-      <button class="btn btn-ghost btn-sm" onclick="toggleUser(${u.id})" title="${u.active?'Deactivate':'Activate'}">${u.active?'<i class="ti ti-lock"></i>':'<i class="ti ti-lock-open"></i>'}</button>
+      <button class="btn btn-ghost btn-sm" onclick="toggleUser(${u.id})" title="${u.active?'Deactivate':'Activate'}" style="${u.active?'':'color:var(--success)'}">
+        ${u.active?'<i class="ti ti-lock"></i>':'<i class="ti ti-lock-open"></i>'}
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="deleteUser(${u.id})" title="Delete user" style="color:var(--danger)"><i class="ti ti-trash"></i></button>
     </div></td></tr>`).join('');
 }
 
@@ -2604,6 +2607,34 @@ function resendWelcome(evt, id){
     .finally(() => {
       if(btn){ btn.innerHTML = '<i class="ti ti-mail-forward"></i>'; btn.disabled = false; }
     });
+}
+
+function deleteUser(id){
+  const u = users.find(x => x.id == id);
+  if(!u) return;
+  if(!confirm(`Delete "${u.name}"? This cannot be undone.`)) return;
+
+  // Remove from users array
+  const idx = users.findIndex(x => x.id == id);
+  if(idx > -1) users.splice(idx, 1);
+
+  // Remove from localStorage
+  try {
+    const ls = JSON.parse(localStorage.getItem('wave_pending_users') || '[]');
+    const filtered = ls.filter(x => x.id != id && x.email !== u.email);
+    localStorage.setItem('wave_pending_users', JSON.stringify(filtered));
+  } catch(e){}
+
+  // Update Sheets status to 'Eliminado'
+  fetch(GOOGLE_SCRIPT_URL, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ _action:'updateStatus', id: u.id, email: u.email, status:'Eliminado' })
+  }).catch(()=>{});
+
+  showToast(`${u.name} deleted`, 'warning');
+  renderAdminUsers();
+  updatePendingIndicator();
 }
 
 function toggleUser(id){const u=users.find(x=>x.id===id);u.active=!u.active;showToast(`${u.name} ${u.active?'activated':'desactivated'}`,'success');renderAdminUsers();}
