@@ -825,7 +825,7 @@ function submitForm() {
   btn.disabled = true;
 
   // Enviar a Google Sheets
-  fetch('https://script.google.com/macros/s/AKfycbwxMm2yqm4xNrPoPNrTh8B2D8ZV5CQL73WK1tasSUlpggiffKEioRO-FBbaBKwM4PHt8Q/exec', {
+  fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {
     method: 'POST',
     mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
@@ -1024,12 +1024,17 @@ const FROM_EMAIL  = 'hello@waveexperiences.com';
 
 async function sendEmail(to, subject, html) {
   try {
-    await fetch('https://api.resend.com/emails', {
+    const res = await fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {
       method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + RESEND_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: FROM_EMAIL, to, subject, html })
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ _action: 'sendEmail', to, subject, html })
     });
-  } catch(e) { console.warn('Email failed:', e); }
+    return { id: 'sent' };
+  } catch(e) {
+    console.warn('Email send failed:', e);
+    return null;
+  }
 }
 
 function emailBase(content) {

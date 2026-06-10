@@ -1300,18 +1300,17 @@ const BRAND        = 'Wave Experiences Mallorca';
 
 async function sendEmail(to, subject, html) {
   try {
-    const res = await fetch('https://api.resend.com/emails', {
+    const res = await fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {
       method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + RESEND_KEY,
-        'Content-Type':  'application/json'
-      },
-      body: JSON.stringify({ from: FROM_EMAIL, to, subject, html })
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ _action: 'sendEmail', to, subject, html })
     });
-    const data = await res.json();
-    if(!res.ok) console.warn('Resend error:', data);
-    return data;
-  } catch(e) { console.warn('Email send failed:', e); }
+    return { id: 'sent' };
+  } catch(e) {
+    console.warn('Email send failed:', e);
+    return null;
+  }
 }
 
 function emailBase(content) {
@@ -1343,7 +1342,7 @@ function emailBase(content) {
     ${content}
     <div class="footer">
       <p>${BRAND} · Mallorca<br>
-      <a href="https://waveexperiences.com">waveexperiences.com</a> · 
+      <a href="https://balearlab-ctrl.github.io/Wave-experiences">waveexperiences.com</a> · 
       <a href="mailto:balearlab@gmail.com">balearlab@gmail.com</a></p>
     </div>
   </div>
@@ -1395,7 +1394,7 @@ async function emailNotifAdmin(biz) {
         <div class="info-row"><span class="info-key">Description</span><span class="info-val">${biz.desc}</span></div>
       </div>
       <p>Go to the admin panel to approve or reject this request.</p>
-      <a href="https://waveexperiences.com/wave-experiences.html" class="btn">🔑 Go to the admin panel</a>
+      <a href="https://balearlab-ctrl.github.io/Wave-experiences/wave-experiences.html" class="btn">🔑 Go to the admin panel</a>
     </div>
   `);
   await sendEmail(ADMIN_EMAIL, `🔔 New registration: ${biz.name} — ${BRAND}`, html);
@@ -1421,7 +1420,7 @@ async function emailNegocioAprobado(u) {
       <p>1. Log in to your dashboard with your email and password<br>
          2. Create your first offer (photo, description, schedule)<br>
          3. Customers will receive their QR automatically via WhatsApp</p>
-      <a href="https://waveexperiences.com/wave-experiences.html" class="btn">🚀 Go to my dashboard</a>
+      <a href="https://balearlab-ctrl.github.io/Wave-experiences/wave-experiences.html" class="btn">🚀 Go to my dashboard</a>
     </div>
   `);
   await sendEmail(u.email, `🎉 Your account is now active! — ${BRAND}`, html);
@@ -1473,13 +1472,13 @@ async function emailQRCanjeado(oferta, cliente) {
         <div class="info-row"><span class="info-key">Total redeemed</span><span class="info-val">${oferta.scanned.length} / ${oferta.sent} enviados</span></div>
       </div>
       <p>Access your dashboard to see all your offer statistics.</p>
-      <a href="https://waveexperiences.com/wave-experiences.html" class="btn">📊 View my dashboard</a>
+      <a href="https://balearlab-ctrl.github.io/Wave-experiences/wave-experiences.html" class="btn">📊 View my dashboard</a>
     </div>
   `);
   await sendEmail(bizUser.email, `✅ QR redeemed at ${oferta.biz} — ${BRAND}`, html);
 }
 
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxMm2yqm4xNrPoPNrTh8B2D8ZV5CQL73WK1tasSUlpggiffKEioRO-FBbaBKwM4PHt8Q/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec';
 let sheetsUsers = [];
 let offers=[
   {id:1,title:'2x1 en cócteles artesanales',biz:'La Taberna del Puerto',category:'Food &amp; Drink',desc:'Pide un cóctel de nuestra carta y el segundo te lo ponemos gratis. Elaborados con destilados premium y frutas de tembyada. Válido para mesa de mínimo 2 personas.',conditions:'No acumulable. Min 2 personas. No incluye botella.',schedule:'weekly',scheduleDay:'Wednesday',scheduleTime:'20:00-22:00',max:40,enrolled:[],scanned:[],sent:87,status:'active',sendWA:true,sendEmail:false},
@@ -1894,7 +1893,7 @@ function resendWelcome(evt, id){
 
   const statusText = u.status === 'active' ? '✅ Active' : '⏳ Pending approval';
   const actionBlock = u.status === 'active'
-    ? '<p>You can now log in to your dashboard and publish your first offer.</p><a href="https://waveexperiences.com/wave-experiences.html" class="btn">🚀 Go to my dashboard</a>'
+    ? '<p>You can now log in to your dashboard and publish your first offer.</p><a href="https://balearlab-ctrl.github.io/Wave-experiences/wave-experiences.html" class="btn">🚀 Go to my dashboard</a>'
     : '<p>Our team will review your application and contact you within 24 hours.</p><a href="https://wa.me/34600000000" class="btn">💬 Contact us on WhatsApp</a>';
 
   const html = emailBase(`
