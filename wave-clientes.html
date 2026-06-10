@@ -1223,37 +1223,78 @@ function openModal(id, tab){
 }
 
 function renderProfile(){
-  if(!currentUser){closeModal('profile-modal');return;}
-  const bookings = JSON.parse(localStorage.getItem('wave_bookings_'+currentUser.email)||'[]');
-  const tierBadge = currentUser.tier==='gold'
-    ? '<span style="background:linear-gradient(135deg,#B8860B,#FFD700);color:#3d2800;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px">⭐ Gold</span>'
-    : currentUser.tier==='platinum'
-    ? '<span style="background:linear-gradient(135deg,#4A4A6A,#A8A8D0);color:#fff;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px">💎 Platinum</span>'
-    : '<span style="background:var(--bg2);color:var(--text3);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">Standard</span>';
+  if(!currentUser){ closeModal('profile-modal'); return; }
+  const bookings = JSON.parse(localStorage.getItem('wave_bookings_' + currentUser.email) || '[]');
 
-  document.getElementById('profile-content').innerHTML = `
-    <div style="background:linear-gradient(135deg,var(--navy),var(--ocean));border-radius:var(--r2);padding:18px;margin-bottom:16px;color:#fff">
-      <div style="font-size:16px;font-weight:700">${currentUser.name}</div>
-      <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:8px">${currentUser.email}</div>
-      ${tierBadge}
-      ${!currentUser.verified ? '<div style="background:rgba(255,200,0,.15);border:1px solid rgba(255,200,0,.3);border-radius:8px;padding:8px 12px;margin-top:10px;font-size:11px;color:#FFD700">⚠️ Email not verified — <button onclick="resendVerification()" style="background:none;border:none;color:#FFD700;cursor:pointer;font-size:11px;text-decoration:underline">Resend verification</button></div>' : ''}
-    </div>
+  const tierConfig = {
+    gold:     { label:'⭐ Gold',     bg:'linear-gradient(135deg,#B8860B,#FFD700)', color:'#3d2800' },
+    platinum: { label:'💎 Platinum', bg:'linear-gradient(135deg,#4A4A6A,#A8A8D0)', color:'#fff'   },
+    standard: { label:'Standard',   bg:'rgba(255,255,255,.15)',                    color:'rgba(255,255,255,.8)' }
+  };
+  const tier = tierConfig[currentUser.tier||'standard'];
+  const initials = (currentUser.name||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
 
-    <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px">My bookings (${bookings.length})</div>
-    ${bookings.length ? bookings.slice().reverse().map(b => `
-      <div class="booking-item">
-        <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:700;color:var(--navy)">${b.offerTitle}</div>
-          <div style="font-size:11px;color:var(--text3)">${b.biz} · ${b.date}</div>
-        </div>
-        <div class="booking-qr">${b.qr}</div>
-        <span class="badge badge-${b.status||'active'}">${b.status||'active'}</span>
-      </div>`).join('')
-    : '<div class="empty" style="padding:28px"><i class="ti ti-ticket" style="font-size:32px"></i><h3>No bookings yet</h3><p>Browse offers and book your first experience</p></div>'}
+  document.getElementById('profile-content').innerHTML =
+    // Hero banner
+    '<div style="background:linear-gradient(135deg,#0A0520,#1A0840,#2D0E6E,#E91E8C);' +
+    'margin:-24px -24px 20px;padding:28px 24px 24px;border-radius:var(--r3) var(--r3) 0 0;text-align:center">' +
+    '<div style="width:64px;height:64px;border-radius:50%;' +
+    'background:linear-gradient(135deg,var(--fuchsia),var(--cyan));' +
+    'display:flex;align-items:center;justify-content:center;' +
+    'font-size:22px;font-weight:800;color:#fff;margin:0 auto 12px;' +
+    'box-shadow:0 4px 20px rgba(233,30,140,.4)">' + initials + '</div>' +
+    '<div style="font-size:17px;font-weight:800;color:#fff;margin-bottom:3px">' + (currentUser.name||'') + '</div>' +
+    '<div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:10px">' + (currentUser.email||'') + '</div>' +
+    '<span style="display:inline-block;background:' + tier.bg + ';color:' + tier.color + ';' +
+    'font-size:11px;font-weight:700;padding:4px 14px;border-radius:50px">' + tier.label + '</span>' +
+    (!currentUser.verified ?
+      '<div style="background:rgba(255,180,0,.15);border:1px solid rgba(255,180,0,.3);' +
+      'border-radius:10px;padding:10px 14px;margin-top:14px;font-size:12px;color:#FFD060;text-align:left">' +
+      '⚠️ Email not verified &nbsp;—&nbsp; ' +
+      '<span onclick="resendVerification()" style="cursor:pointer;text-decoration:underline;font-weight:700">Resend link</span>' +
+      '</div>' : '') +
+    '</div>' +
 
-    <button class="btn btn-ghost" style="width:100%;margin-top:14px" onclick="doLogout();closeModal('profile-modal')">
-      <i class="ti ti-logout"></i> Sign out
-    </button>`;
+    // Bookings section
+    '<div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px">' +
+    'My bookings <span style="color:var(--text3);font-weight:400">(' + bookings.length + ')</span></div>' +
+
+    (bookings.length ? bookings.slice().reverse().map(b => {
+      const statusColors = {
+        active:   { bg:'var(--success-bg)',  color:'var(--success)',  label:'Active'    },
+        pending:  { bg:'#FFF8D0',            color:'#806000',         label:'Pending'   },
+        redeemed: { bg:'var(--fuchsia-light)',color:'var(--fuchsia)', label:'Redeemed'  },
+      };
+      const s = statusColors[b.status||'active'] || statusColors.active;
+      return '<div style="background:#fff;border:1px solid var(--border);border-radius:var(--r2);' +
+        'padding:13px 15px;margin-bottom:10px">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">' +
+        '<div style="font-size:13px;font-weight:700;color:var(--navy);flex:1;min-width:0;' +
+        'white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (b.offerTitle||'') + '</div>' +
+        '<span style="background:' + s.bg + ';color:' + s.color + ';font-size:10px;font-weight:700;' +
+        'padding:3px 9px;border-radius:20px;flex-shrink:0">' + s.label + '</span>' +
+        '</div>' +
+        '<div style="font-size:11px;color:var(--text3);margin-bottom:6px">' +
+        (b.biz||'') + (b.date?' &nbsp;·&nbsp; '+b.date:'') + '</div>' +
+        '<div style="background:var(--fuchsia-light);border:1px solid rgba(233,30,140,.2);' +
+        'border-radius:8px;padding:7px 12px;font-family:monospace;font-size:13px;' +
+        'font-weight:800;color:var(--fuchsia);letter-spacing:.08em;text-align:center">' +
+        (b.qr||'') + '</div>' +
+        '</div>';
+    }).join('') :
+      '<div style="text-align:center;padding:32px 16px;color:var(--text3)">' +
+      '<i class="ti ti-ticket" style="font-size:40px;display:block;margin-bottom:10px;color:var(--border2)"></i>' +
+      '<div style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:4px">No bookings yet</div>' +
+      '<div style="font-size:12px">Browse offers and book your first experience</div></div>'
+    ) +
+
+    // Sign out button
+    '<button onclick="doLogout();var m=document.getElementById(&quot;profile-modal&quot;);if(m)m.style.display=&quot;none&quot;" style="' +
+    'width:100%;margin-top:8px;padding:12px;border-radius:50px;border:none;cursor:pointer;' +
+    'background:linear-gradient(135deg,#E91E8C,#FF4DB8);color:#fff;' +
+    'font-size:13px;font-weight:700;font-family:Inter,sans-serif;' +
+    'box-shadow:0 4px 16px rgba(233,30,140,.3);transition:all .15s">' +
+    '<i class="ti ti-logout"></i> Sign out</button>';
 }
 
 // ── UTILS ─────────────────────────────────────────────────────────────────
