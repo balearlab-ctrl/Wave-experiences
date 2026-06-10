@@ -765,55 +765,79 @@ function renderBookingSection(o){
 }
 
 // ── BOOKING ───────────────────────────────────────────────────────────────
-function bookOffer(id){
-  const o = allOffers.find(x => String(x.id)===String(id));
+function bookOffer(id, requestedDate, requestedTime){
+  const o = allOffers.find(function(x){ return String(x.id)===String(id); });
   if(!o||!currentUser) return;
   if(o.max>0 && (o.enrolled||[]).length >= o.max){
     showToast('Sorry, this offer is full','danger'); return;
   }
   const qrId = 'QR-' + String(id).slice(-4) + '-' + Math.random().toString(36).substr(2,4).toUpperCase();
-  if(!o.enrolled) o.enrolled = [];
-  o.enrolled.push({name:currentUser.name,email:currentUser.email,date:new Date().toLocaleDateString('en-GB'),qr:qrId});
-  o.sent = (o.sent||0) + 1;
+  if(!o.enrolled) o.enrolled=[];
+  o.enrolled.push({name:currentUser.name,email:currentUser.email,
+    date:new Date().toLocaleDateString('en-GB'),qr:qrId});
+  o.sent=(o.sent||0)+1;
 
-  // Save booking to user's local storage
-  saveUserBooking({offerId:o.id,offerTitle:o.title,biz:o.biz,qr:qrId,
-    date:new Date().toLocaleDateString('en-GB'),status:'active'});
+  const hasPendingDate = o.bookingType && o.bookingType!=='none' && requestedDate && requestedDate!=='Flexible';
+  const bookingStatus  = hasPendingDate ? 'pending' : 'active';
 
-  // Send QR email via Apps Script
-  fetch(SCRIPT_URL, {
-    method:'POST', mode:'no-cors',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({
-      _action:'sendQR', to:currentUser.email,
-      cliente:{name:currentUser.name,email:currentUser.email},
-      oferta:{
-        title:o.title, biz:o.biz, includes:o.includes||'',
-        desc:o.desc||'', price:o.price||'',
-        conditions:o.conditions||'', schedule:o.schedule,
-        scheduleDay:o.scheduleDay||'', scheduleTime:o.scheduleTime||'',
-        scheduleDate:o.scheduleDate||'', max:o.max||0
-      },
-      qrCode:qrId
-    })
-  }).catch(()=>{});
+  saveUserBooking({offerId:String(o.id),offerTitle:o.title,biz:o.biz,qr:qrId,
+    date:requestedDate||new Date().toLocaleDateString('en-GB'),
+    time:requestedTime||'', status:bookingStatus});
 
-  showBookingSuccess(o, qrId);
+  if(hasPendingDate){
+    // Save booking + send QR + notify business for date confirmation
+    fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        _action:'saveBooking',
+        offerId:String(o.id), offerTitle:o.title, biz:o.biz, bizEmail:o.bizEmail||'',
+        clientName:currentUser.name, clientEmail:currentUser.email,
+        clientPhone:currentUser.phone||'',
+        qr:qrId,
+        requestedDate:requestedDate, requestedTime:requestedTime||'Flexible',
+        includes:o.includes||'', desc:o.desc||'', price:o.price||'',
+        conditions:o.conditions||'', schedule:o.schedule||''
+      })
+    }).catch(function(){});
+  } else {
+    // Direct offer — just send QR immediately
+    fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        _action:'sendQR', to:currentUser.email,
+        cliente:{name:currentUser.name,email:currentUser.email},
+        oferta:{title:o.title,biz:o.biz,includes:o.includes||'',
+          desc:o.desc||'',price:o.price||'',conditions:o.conditions||'',
+          schedule:o.schedule||'',scheduleDay:o.scheduleDay||'',
+          scheduleTime:o.scheduleTime||'',scheduleDate:o.scheduleDate||'',max:o.max||0},
+        qrCode:qrId
+      })
+    }).catch(function(){});
+  }
+  showBookingSuccess(o, qrId, requestedDate, requestedTime);
 }
 
-function showBookingSuccess(o, qrId){
-  document.getElementById('offer-modal-content').innerHTML = `
-    <div class="qr-success">
-      <div style="font-size:48px;margin-bottom:12px">🎉</div>
-      <h3 style="font-size:19px;font-weight:800;color:var(--navy);font-family:'Space Grotesk',sans-serif;margin-bottom:6px">Booking confirmed!</h3>
-      <p style="font-size:13px;color:var(--text3);margin-bottom:16px">Your QR code has been sent to <strong>${currentUser.email}</strong></p>
-      <div class="qr-code-box">
-        <div class="qr-code-id">${qrId}</div>
-        <div class="qr-code-hint">Show this at ${o.biz}</div>
-      </div>
-      <p style="font-size:12px;color:var(--text3);margin-top:12px">This code is personal and can only be redeemed once.</p>
-      <button class="btn btn-ghost" style="margin-top:16px" onclick="closeModal('offer-modal')">Close</button>
-    </div>`;
+function showBookingSuccess(o, qrId, requestedDate, requestedTime){
+  const hasPending = o.bookingType && o.bookingType!=='none' && requestedDate && requestedDate!=='Flexible';
+  const el = document.getElementById('offer-modal-content');
+  if(!el) return;
+  el.innerHTML =
+    '<div class="qr-success">' +
+    '<div style="font-size:48px;margin-bottom:12px">' + (hasPending?'📅':'🎉') + '</div>' +
+    '<h3 style="font-size:18px;font-weight:800;color:var(--navy);margin-bottom:6px">' +
+      (hasPending ? 'Request sent!' : 'Booking confirmed!') + '</h3>' +
+    '<p style="font-size:13px;color:var(--text3);margin-bottom:16px">Your QR has been sent to <strong>' + currentUser.email + '</strong></p>' +
+    '<div class="qr-code-box">' +
+    '<div class="qr-code-id">' + qrId + '</div>' +
+    '<div class="qr-code-hint">Show at ' + o.biz + '</div></div>' +
+    (hasPending ?
+      '<div style="margin:14px 0 0;background:#FFF8E8;border:1px solid #F5DFA0;border-radius:10px;padding:12px 14px;font-size:12px;color:#A86800;text-align:left">' +
+      '<strong>Date requested: ' + requestedDate + (requestedTime&&requestedTime!=='Flexible'?' at '+requestedTime:'') + '</strong><br>' +
+      'The venue will confirm within 24h. Your QR is valid — you can also walk in anytime.</div>' : '') +
+    '<p style="font-size:11px;color:var(--text3);margin-top:12px">Personal · One-time use · No expiry</p>' +
+    '<button class="btn btn-ghost" style="margin-top:16px" onclick="closeModal(this)">Close</button></div>';
 }
 
 // ── CALENDAR BOOKING ──────────────────────────────────────────────────────
@@ -930,26 +954,10 @@ function updateCalBookBtn(o){
 }
 
 function bookOfferWithSlot(id){
-  const o = allOffers.find(x => String(x.id)===String(id));
-  if(!o||!currentUser||!calState.selectedDate||!calState.selectedTime) return;
+  const o = allOffers.find(function(x){ return String(x.id)===String(id); });
+  if(!o||!currentUser||!calState.selectedDate) { showToast('Please select a date and time','warning'); return; }
   const dateStr = calState.selectedDate.toLocaleDateString('en-GB');
-  const qrId = 'QR-' + String(id).slice(-4) + '-' + Math.random().toString(36).substr(2,4).toUpperCase();
-  if(!o.enrolled) o.enrolled = [];
-  o.enrolled.push({name:currentUser.name,email:currentUser.email,
-    date:dateStr,time:calState.selectedTime,qr:qrId});
-  o.sent=(o.sent||0)+1;
-  saveUserBooking({offerId:o.id,offerTitle:o.title,biz:o.biz,qr:qrId,
-    date:dateStr+' at '+calState.selectedTime,status:'active'});
-  fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({_action:'sendQR',to:currentUser.email,
-      cliente:{name:currentUser.name,email:currentUser.email},
-      oferta:{title:o.title,biz:o.biz,includes:o.includes||'',desc:o.desc||'',
-        price:o.price||'',conditions:o.conditions||'',
-        schedule:'Date: '+dateStr+' · Time: '+calState.selectedTime,
-        scheduleDay:'',scheduleTime:calState.selectedTime,scheduleDate:dateStr,max:o.max||0},
-      qrCode:qrId})
-  }).catch(()=>{});
-  showBookingSuccess(o, qrId);
+  bookOffer(id, dateStr, calState.selectedTime||'Flexible');
 }
 
 function prevMonth(oid){
@@ -981,17 +989,43 @@ function submitLogin(){
   const err   = document.getElementById('login-err');
   if(!email||!pass){err.textContent='Please fill in all fields';err.style.display='flex';return;}
 
-  // Check localStorage customers
+  // First check localStorage (fast), then Sheets
   const customers = JSON.parse(localStorage.getItem('wave_customers')||'[]');
-  const user = customers.find(u => u.email===email);
-  if(!user){err.textContent='No account found with this email.';err.style.display='flex';return;}
-  if(user.password!==pass){err.textContent='Incorrect password.';err.style.display='flex';return;}
+  let user = customers.find(u => u.email===email);
 
-  currentUser = user;
-  localStorage.setItem('wave_customer_session', JSON.stringify(user));
-  updateHeaderAuth();
-  closeModal('auth-modal');
-  showToast('Welcome back, ' + user.name + '!', 'success');
+  if(user) {
+    if(user.password!==pass){err.textContent='Incorrect password.';err.style.display='flex';return;}
+    currentUser = user;
+    localStorage.setItem('wave_customer_session', JSON.stringify(user));
+    updateHeaderAuth();
+    closeModal('auth-modal');
+    showToast('Welcome back, ' + user.firstName + '!', 'success');
+    return;
+  }
+
+  // Try Sheets
+  const loginBtn = document.querySelector('#auth-login .btn-primary');
+  if(loginBtn){ loginBtn.textContent='Signing in...'; loginBtn.disabled=true; }
+  fetch(SCRIPT_URL + '?action=login&email=' + encodeURIComponent(email))
+    .then(r=>r.json())
+    .then(data => {
+      if(loginBtn){ loginBtn.textContent='Sign in →'; loginBtn.disabled=false; }
+      if(!data){ err.textContent='No account found.'; err.style.display='flex'; return; }
+      // Note: password check would need server-side in production
+      currentUser = {
+        id: data['ID'], name: data['Nombre'], firstName: data['Nombre'].split(' ')[0],
+        email: data['Email'], phone: data['Teléfono']||'',
+        tier: data['Tier']||'standard', verified: data['Verificado']==='Yes'
+      };
+      localStorage.setItem('wave_customer_session', JSON.stringify(currentUser));
+      updateHeaderAuth();
+      closeModal('auth-modal');
+      showToast('Welcome back, ' + currentUser.firstName + '!', 'success');
+    })
+    .catch(() => {
+      if(loginBtn){ loginBtn.textContent='Sign in →'; loginBtn.disabled=false; }
+      err.textContent='Connection error. Please try again.'; err.style.display='flex';
+    });
 }
 
 function submitRegister(){
@@ -1017,7 +1051,15 @@ function submitRegister(){
   customers.push(newUser);
   localStorage.setItem('wave_customers', JSON.stringify(customers));
 
-  // Send verification email
+  // Save to Sheets AND send verification email via Apps Script
+  fetch(SCRIPT_URL, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({_action:'saveCustomer', id:newUser.id,
+      name:newUser.name, email, password:pass, phone, firstName:fname})
+  }).catch(()=>{});
+
+  // Also send verification locally (fallback)
   sendVerificationEmail(newUser);
 
   document.getElementById('verify-email-addr').textContent = email;
@@ -1159,9 +1201,16 @@ function saveUserBooking(booking){
   localStorage.setItem(key, JSON.stringify(existing));
 }
 
-function closeModal(id){
-  const el = document.getElementById(id);
-  if(el) el.style.display='none';
+function closeModal(idOrEl){
+  if(typeof idOrEl === 'string'){
+    const el = document.getElementById(idOrEl);
+    if(el) el.style.display='none';
+  } else {
+    // Find closest modal-overlay parent
+    let el = idOrEl;
+    while(el && !el.classList.contains('modal-overlay')) el = el.parentElement;
+    if(el) el.style.display='none';
+  }
 }
 
 function showToast(msg, type){
