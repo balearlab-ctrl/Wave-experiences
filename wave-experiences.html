@@ -1560,16 +1560,7 @@ function getViewTitles(){
 
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec';
 let sheetsUsers = [];
-let offers=[
-  {id:1,title:'2x1 en cócteles artesanales',biz:'La Taberna del Puerto',category:'Food &amp; Drink',desc:'Pide un cóctel de nuestra carta y el segundo te lo ponemos gratis. Elaborados con destilados premium y frutas de tembyada. Válido para mesa de mínimo 2 personas.',conditions:'No acumulable. Min 2 personas. No incluye botella.',schedule:'weekly',scheduleDay:'Wednesday',scheduleTime:'20:00-22:00',max:40,enrolled:[],scanned:[],sent:87,status:'active',sendWA:true,sendEmail:false},
-  {id:2,title:'Masaje relajante 60 min -30%',biz:'Spa Oasis Palma',category:'Salud',desc:'Disfruta de un masaje relajante de 60 minutos con un descuento exclusivo del 30%. Incluye aromaterapia y sesión de relajación guiada.',conditions:'Cita previa obligatoria. Sujeto a disponibilidad.',schedule:'always',scheduleDay:'',scheduleTime:'',max:20,enrolled:[{name:'María García',date:'2025-06-15',qr:'QR-0002-MAGG'},{name:'Carlos Pérez',date:'2025-06-18',qr:'QR-0002-CAPE'}],scanned:[{name:'María García',date:'2025-06-15',qr:'QR-0002-MAGG'}],sent:34,status:'active',sendWA:true,sendEmail:true},
-  {id:3,title:'Menú degustación 5 platos -40%',biz:'Restaurante Tramuntana',category:'Food &amp; Drink',desc:'Nuestro menú degustación de 5 platos con maridaje incluido a un precio especial. Cocina mediterránea de autor con ingredientes de Km0.',conditions:'Reserva mínima 2 días antes. Grupos máximo 6 personas.',schedule:'date',scheduleDate:'2025-06-28',scheduleDay:'',scheduleTime:'',max:16,enrolled:[{name:'Ana Martín',date:'2025-06-28',qr:'QR-0003-ANMA'},{name:'Luis Torres',date:'2025-06-28',qr:'QR-0003-LUTO'}],scanned:[],sent:52,status:'active',sendWA:false,sendEmail:true},
-  {id:4,title:'Ruta en kayak al atardecer',biz:'Wave Adventures',category:'Ocio',desc:'Ruta guiada en kayak by las calas de Mallorca al atardecer. 2 horas de actividad incluyendo equipo completo y guía certificado.',conditions:'Mínimo 18 años. Saber nadar. Grupo máximo 8.',schedule:'weekly',scheduleDay:'Saturday',scheduleTime:'18:30-20:30',max:8,enrolled:[{name:'Pedro Sánchez',date:'2025-06-21',qr:'QR-0004-PESA'},{name:'Laura Jiménez',date:'2025-06-21',qr:'QR-0004-LAJI'}],scanned:[{name:'Pedro Sánchez',date:'2025-06-21',qr:'QR-0004-PESA'},{name:'Laura Jiménez',date:'2025-06-21',qr:'QR-0004-LAJI'}],sent:19,status:'active',sendWA:true,sendEmail:true},
-  {id:5,title:'20% en colección primavera-verano',biz:'Boutique Isla Style',category:'Moda',desc:'Descuento especial del 20% en toda la nueva colección primavera-verano. Prendas de diseñadores locales y marcas internacionales selectas.',conditions:'No aplicable a artículos en rebajas previas. Una sola vez.',schedule:'limited',scheduleDay:'',scheduleTime:'',max:50,enrolled:[],scanned:[],sent:23,status:'active',sendWA:true,sendEmail:false},
-  {id:6,title:'Clase de yoga + smoothie gratis',biz:'Centro Holístico Zen',category:'Salud',desc:'Asiste a cualquiera de nuestras clases de yoga y te invitamos a un smoothie energético elaborado con superalimentos.',conditions:'Primera visita únicamente. Reserva by WhatsApp.',schedule:'weekly',scheduleDay:'Monday and Thursday',scheduleTime:'09:00-10:30',max:12,enrolled:[],scanned:[],sent:41,status:'pending',sendWA:true,sendEmail:false},
-  {id:7,title:'Cena romántica para 2 -50€',biz:'La Bóveda del Sol',category:'Food &amp; Drink',desc:'Cena para dos con entrante, plato principal, postre y botella de vino incluida. Ambiente exclusivo con vistas al mar.',conditions:'Sólo fines de semana. Reserva 48h antes.',schedule:'weekly',scheduleDay:'Friday and Saturday',scheduleTime:'20:00-23:00',max:6,enrolled:[],scanned:[],sent:0,status:'pending',sendWA:true,sendEmail:true},
-  {id:8,title:'Tour fotográfico Palma Antigua',biz:'Mallorca Photo Tours',category:'Ocio',desc:'Descubre los rincones más fotogénicos del casco antiguo de Palma con un fotógrafo profesional. Incluye edición de tus 5 mejores fotos.',conditions:'Grupo máximo 6. Duración 3 horas.',schedule:'date',scheduleDate:'2025-07-05',scheduleDay:'',scheduleTime:'',max:6,enrolled:[],scanned:[],sent:0,status:'rejected',sendWA:false,sendEmail:true}
-];
+let offers=[];
 
 let users=[
   {id:1,name:'La Taberna del Puerto',email:'info@tabernapuerto.com',phone:'+34 971 234 567',category:'Food &amp; Drink',active:true,status:'active',plan:'pro'},
@@ -2282,6 +2273,8 @@ function renderOfferReview() {
           <td style="font-size:12px;color:var(--text3)">${sched}</td>
           <td>${badge}</td>
           <td><div class="action-row">
+            <button class="btn btn-ghost btn-sm" onclick="viewOfferDetail('${o['ID']}')" title="View detail">
+              <i class="ti ti-eye"></i></button>
             ${estado !== 'Approved' ? `<button class="btn btn-success btn-sm" onclick="doApproveOffer('${o['ID']}')">
               <i class="ti ti-check"></i></button>` : ''}
             ${estado !== 'Rejected' ? `<button class="btn btn-danger btn-sm" onclick="doRejectOffer('${o['ID']}')">
@@ -2291,6 +2284,85 @@ function renderOfferReview() {
       }).join('') +
       `</tbody></table></div>`;
   }
+}
+
+function viewOfferDetail(id) {
+  const o = sheetsOffers.find(x => String(x['ID']) === String(id));
+  if(!o) { showToast('Offer not found','danger'); return; }
+
+  const cover    = o['Cover URL'] || o['cover'] || '';
+  const logo     = o['Logo URL']  || o['bizLogo'] || '';
+  const title    = o['Título']    || o['title'] || '';
+  const biz      = o['Negocio']   || o['biz'] || '';
+  const cat      = o['Categoría'] || o['category'] || '';
+  const desc     = o['Descripción']|| o['desc'] || '';
+  const cond     = o['Condiciones']|| o['conditions'] || '';
+  const sched    = o['Horario']   || o['schedule'] || '';
+  const day      = o['Día']       || o['scheduleDay'] || '';
+  const time     = o['Hora']      || o['scheduleTime'] || '';
+  const date     = o['Fecha Evento']||o['scheduleDate']|| '';
+  const max      = o['Máx']       || o['max'] || 0;
+  const created  = o['Fecha']     || o['createdAt'] || '';
+  const estado   = o['Estado']    || 'Pending';
+
+  const schedLabel = sched==='always' ? 'Always available' :
+    sched==='weekly'  ? (day+' · '+time) :
+    sched==='date'    ? date :
+    sched==='limited' ? 'Until sold out' : sched||'—';
+
+  const statusColor = estado==='Approved' ? 'var(--success)' :
+    estado==='Rejected' ? 'var(--danger)' : 'var(--warning)';
+
+  document.getElementById('modal-offer-title').textContent = title;
+  document.getElementById('modal-offer-body').innerHTML = `
+    ${cover ? `<img src="${cover}" style="width:100%;max-height:220px;object-fit:cover;border-radius:var(--r);margin-bottom:16px;display:block">` : ''}
+
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      ${logo ? `<img src="${logo}" style="width:48px;height:48px;object-fit:contain;border-radius:8px;border:1px solid var(--border);background:#fff;padding:4px;flex-shrink:0">` :
+        `<div style="width:48px;height:48px;border-radius:8px;background:var(--ocean);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;flex-shrink:0">${biz.charAt(0)}</div>`}
+      <div>
+        <div style="font-size:16px;font-weight:800;color:var(--navy)">${biz}</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+          <span class="badge badge-cat">${cat}</span>
+          <span style="font-size:11px;padding:2px 8px;border-radius:20px;font-weight:700;background:${statusColor}22;color:${statusColor};border:1px solid ${statusColor}44">${estado}</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:12px">
+      <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Full Description</div>
+      <div style="font-size:13px;line-height:1.75;color:var(--text2)">${desc || '—'}</div>
+    </div>
+
+    ${cond ? `<div style="background:var(--warning-bg);border:1px solid var(--warning-border);border-radius:var(--r);padding:12px;margin-bottom:12px">
+      <div style="font-size:10px;font-weight:700;color:var(--warning);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Conditions</div>
+      <div style="font-size:13px;color:var(--warning)">${cond}</div>
+    </div>` : ''}
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px">
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:10px">
+        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Schedule</div>
+        <div style="font-size:12px;font-weight:700;color:var(--navy)">${schedLabel}</div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:10px">
+        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Max. people</div>
+        <div style="font-size:12px;font-weight:700;color:var(--navy)">${max||'Unlimited'}</div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:10px">
+        <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Submitted</div>
+        <div style="font-size:12px;font-weight:700;color:var(--navy)">${created||'—'}</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('modal-offer-footer').innerHTML = `
+    <button class="btn btn-ghost" onclick="closeModal('offer-modal')">Close</button>
+    ${estado !== 'Approved' ? `<button class="btn btn-success" onclick="doApproveOffer('${id}');closeModal('offer-modal')">
+      <i class="ti ti-check"></i> Approve</button>` : ''}
+    ${estado !== 'Rejected' ? `<button class="btn btn-danger" onclick="doRejectOffer('${id}');closeModal('offer-modal')">
+      <i class="ti ti-x"></i> Reject</button>` : ''}
+  `;
+  document.getElementById('offer-modal').style.display = 'flex';
 }
 
 function doApproveOffer(id) {
