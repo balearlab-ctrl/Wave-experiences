@@ -1013,6 +1013,26 @@ tr:last-child td{border-bottom:none}
         <div class="page-header" style="margin:0"><h1>Usuarios / Negocios</h1><p>Manage businesses registered on the platform</p></div>
         <button class="btn btn-primary" onclick="showNewUserModal()"><i class="ti ti-plus"></i> Nuevo negocio</button>
       </div>
+      <!-- User status tabs -->
+      <div class="tab-bar" style="margin-bottom:0">
+        <button class="tab-btn active" id="utab-active" onclick="switchUserTab('active')">
+          <i class="ti ti-circle-check" style="color:var(--success)"></i> Active
+          <span class="count-badge green" id="ucnt-active">0</span>
+        </button>
+        <button class="tab-btn" id="utab-archived" onclick="switchUserTab('archived')">
+          <i class="ti ti-archive" style="color:var(--text3)"></i> Archived
+          <span class="count-badge" style="background:var(--bg3);color:var(--text3);border-color:var(--border)" id="ucnt-archived">0</span>
+        </button>
+        <button class="tab-btn" id="utab-pending" onclick="switchUserTab('pending')">
+          <i class="ti ti-clock" style="color:var(--warning)"></i> Pending
+          <span class="count-badge" id="ucnt-pending-users">0</span>
+        </button>
+        <button class="tab-btn" id="utab-all" onclick="switchUserTab('all')">
+          <i class="ti ti-list"></i> All
+          <span class="count-badge" style="background:var(--bg3);color:var(--text3);border-color:var(--border)" id="ucnt-all-users">0</span>
+        </button>
+      </div>
+
       <div id="pending-reg-alert" style="display:none" class="alert alert-warning" style="margin-bottom:16px">
         <i class="ti ti-user-plus"></i>
         <span id="pending-reg-text">There are registration requests pending approval.</span>
@@ -2365,10 +2385,21 @@ function doApproveOffer(id) {
   const o = sheetsOffers.find(x => String(x['ID']) === String(id));
   if (!o) return;
   o['Estado'] = 'Approved';
-
-  // Update local offer too
   const local = offers.find(x => String(x.id) === String(id));
   if (local) local.status = 'active';
+  // Auto-activate archived business that now has an approved offer
+  var bizName = o['Negocio'] || o['biz'] || '';
+  var biz = users.find(function(u){ return u.name === bizName; });
+  if(biz && biz.status === 'archived'){
+    biz.status = 'active'; biz.active = true;
+    try {
+      var ls2 = JSON.parse(localStorage.getItem('wave_pending_users')||'[]');
+      var lu2 = ls2.find(function(x){ return x.email===biz.email; });
+      if(lu2){ lu2.status='active'; lu2.active=true; }
+      localStorage.setItem('wave_pending_users', JSON.stringify(ls2));
+    } catch(e){}
+    showToast(bizName + ' auto-activated ✓', 'success');
+  }
 
   // Save to Sheets
   fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {
@@ -2434,6 +2465,54 @@ function updatePendingIndicator(){
     if(pendingDot) pendingDot.style.display = pendingCount ? 'inline-block' : 'none';
   } catch(e) {}
 }
+
+let userTabFilter = 'active';
+
+function switchUserTab(tab){
+  userTabFilter = tab;
+  ['active','archived','pending','all'].forEach(function(t){
+    var el = document.getElementById('utab-' + t);
+    if(el) el.classList.toggle('active', t === tab);
+  });
+  renderUsersTable();
+}
+
+function updateUserCounts(){
+  var active   = users.filter(function(u){ return u.status === 'active'; }).length;
+  var archived = users.filter(function(u){ return u.status === 'archived'; }).length;
+  var pending  = users.filter(function(u){ return u.status === 'pending'; }).length;
+  function setEl(id,v){ var el=document.getElementById(id); if(el) el.textContent=v; }
+  setEl('ucnt-active',   active);
+  setEl('ucnt-archived', archived);
+  setEl('ucnt-pending-users', pending);
+  setEl('ucnt-all-users', users.length);
+}
+
+function archiveUser(id){
+  var u = users.find(function(x){ return x.id == id; });
+  if(!u) return;
+  var wasArchived = u.status === 'archived';
+  u.status = wasArchived ? 'active' : 'archived';
+  u.active = wasArchived;
+  u._locallyApproved = true;
+  try {
+    var ls = JSON.parse(localStorage.getItem('wave_pending_users') || '[]');
+    var lu = ls.find(function(x){ return x.id==id || x.email===u.email; });
+    if(lu){ lu.active=u.active; lu.status=u.status; }
+    localStorage.setItem('wave_pending_users', JSON.stringify(ls));
+  } catch(e){}
+  fetch(GOOGLE_SCRIPT_URL, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ _action:'updateStatus', id: u.id, email: u.email,
+      status: wasArchived ? 'Activo' : 'Archivado' })
+  }).catch(function(){});
+  showToast(u.name + (wasArchived ? ' restored ✓' : ' archived'), wasArchived ? 'success' : 'warning');
+  updateUserCounts();
+  renderUsersTable();
+  updatePendingIndicator();
+}
+
 
 function renderUsersTable(){ renderAdminUsers(); }
 
@@ -2538,7 +2617,7 @@ function renderAdminUsers(){
       ? '1 registration request pending approval.'
       : pendingRegCount + ' registration requests pending approval.';
   }
-  document.getElementById('admin-users-table').innerHTML=users.map(u=>`<tr>
+  document.getElementById('admin-users-table').innerHTML=filteredUsers.map(u=>`<tr>
     <td><div style="display:flex;align-items:center;gap:10px">
       ${u.logo?`<img src="${u.logo}" style="width:32px;height:32px;object-fit:contain;border-radius:6px;border:1px solid var(--border);background:#fff;padding:2px;flex-shrink:0">`:`<div class="avatar" style="background:var(--bg3);color:var(--ocean);font-size:12px">${u.name.charAt(0)}</div>`}
       <div><div class="td-primary">${u.name}</div><div style="font-size:10px;color:var(--text3)">${u.address||u.phone||''}</div></div>
@@ -2554,7 +2633,11 @@ function renderAdminUsers(){
       <button class="btn btn-ghost btn-sm" onclick="toggleUser(${u.id})" title="${u.active?'Deactivate':'Activate'}" style="${u.active?'':'color:var(--success)'}">
         ${u.active?'<i class="ti ti-lock"></i>':'<i class="ti ti-lock-open"></i>'}
       </button>
-      <button class="btn btn-ghost btn-sm" onclick="deleteUser(${u.id})" title="Delete user" style="color:var(--danger)"><i class="ti ti-trash"></i></button>
+      <button class="btn btn-ghost btn-sm" onclick="archiveUser(${u.id})" 
+        title="${u.status==='archived'?'Restore':'Archive'}" 
+        style="color:${u.status==='archived'?'var(--success)':'var(--text3)'}">
+        <i class="ti ti-${u.status==='archived'?'restore':'archive'}"></i>
+      </button>
     </div></td></tr>`).join('');
 }
 
