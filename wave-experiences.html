@@ -2146,7 +2146,7 @@ function approveUser(id){
     method:'POST', mode:'no-cors',
     headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ _action:'approveUser',
-      name: u.name, email: u.email, contact: u.contact||'',
+      id: u.id, name: u.name, email: u.email, contact: u.contact||'',
       category: u.category||'', plan: u.plan||'Basic' })
   }).catch(()=>{});
   showToast(`${u.name} ${T('toast.user-approved')}`, 'success');
