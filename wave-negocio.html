@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business Panel · Wave Experiences Mallorca</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#060E20;--ocean:#0E2D5F;--blue:#2A5080;--cyan:#5AAFC8;--cyan2:#7CCADE;
+  --white:#fff;--bg:#F2F8FC;--bg2:#fff;--bg3:#E4F0F6;--bg4:#C8E0EE;
+  --border:#B8D4E4;--border2:#90B8D0;
+  --text:#060E20;--text2:#1A3050;--text3:#5A7898;
+  --success:#0A8A4A;--success-bg:#E8F7EF;--success-border:#A8DFC1;
+  --danger:#C8341A;--danger-bg:#FEF0ED;--danger-border:#F5B8AE;
+  --warning:#A86800;--warning-bg:#FFF8E8;--warning-border:#F5DFA0;
+  --r:8px;--r2:12px;--r3:16px;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── LOGIN ── */
+.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(160deg,#060E20 0%,#0E2D5F 55%,#1A4A8A 100%);padding:24px;position:relative;overflow:hidden}
+.login-page::before{content:'';position:absolute;right:-100px;top:-100px;width:500px;height:500px;
+  border-radius:50%;background:radial-gradient(circle,rgba(90,175,200,.15),transparent 65%);pointer-events:none}
+.login-box{background:#fff;border-radius:24px;padding:40px;width:100%;max-width:420px;
+  box-shadow:0 24px 64px rgba(0,0,0,.3)}
+.login-logo{text-align:center;margin-bottom:28px;margin-top:16px;display:flex;justify-content:center;align-items:center}
+.login-logo img{width:260px;max-width:100%;height:auto;display:block;margin:0 auto;image-rendering:crisp-edges}
+.login-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--navy);
+  margin-bottom:6px;text-align:center}
+.login-sub{font-size:13px;color:var(--text3);text-align:center;margin-bottom:28px}
+.fg{margin-bottom:14px}
+.fl{display:block;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:5px;
+  text-transform:uppercase;letter-spacing:.05em}
+.fc{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);
+  color:var(--text);padding:11px 14px;font-size:14px;font-family:'Inter',sans-serif;transition:border-color .2s}
+.fc:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(90,175,200,.12)}
+.fc::placeholder{color:var(--text3)}
+.btn-login{width:100%;padding:13px;background:linear-gradient(135deg,var(--ocean),var(--blue));
+  color:#fff;border:none;border-radius:50px;font-size:14px;font-weight:800;font-family:'Inter',sans-serif;
+  cursor:pointer;transition:all .2s;margin-top:6px}
+.btn-login:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(14,45,95,.25)}
+.login-err{background:var(--danger-bg);border:1px solid var(--danger-border);border-radius:var(--r);
+  padding:10px 14px;font-size:13px;color:var(--danger);margin-bottom:14px;display:none}
+
+/* ── APP LAYOUT ── */
+.app{display:none;min-height:100vh}
+.sidebar{width:220px;background:var(--navy);position:fixed;height:100vh;z-index:100;
+  display:flex;flex-direction:column}
+.sidebar-logo{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.95);border-radius:0}
+.sidebar-logo img{width:190px;max-width:100%;height:auto;display:block;margin:0 auto}
+.sidebar-user{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.08);
+  display:flex;align-items:center;gap:10px}
+.user-av{width:32px;height:32px;border-radius:50%;background:var(--cyan);display:flex;
+  align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--navy);flex-shrink:0}
+.user-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+.user-plan{font-size:10px;color:rgba(255,255,255,.4)}
+.sidebar-nav{flex:1;padding:12px 8px;overflow-y:auto}
+.nav-section{font-size:9px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:.1em;
+  text-transform:uppercase;padding:8px 10px 4px;margin-top:6px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:var(--r);
+  cursor:pointer;font-size:13px;color:rgba(255,255,255,.6);transition:all .15s;margin-bottom:2px;
+  border:none;background:none;width:100%;text-align:left;font-family:'Inter',sans-serif}
+.nav-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9)}
+.nav-item.active{background:var(--cyan);color:var(--navy);font-weight:700}
+.nav-item i{font-size:16px;flex-shrink:0;color:rgba(255,255,255,.4)}
+.nav-item.active i{color:var(--navy)}
+.sidebar-bottom{padding:12px 8px;border-top:1px solid rgba(255,255,255,.1)}
+.sidebar-bottom .nav-item{background:rgba(255,255,255,.06);color:rgba(255,255,255,.6)}
+.main{margin-left:220px;min-height:100vh}
+.topbar{background:#fff;border-bottom:2px solid transparent;
+  border-image:linear-gradient(90deg,var(--navy),var(--ocean),var(--cyan)) 1;
+  padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50}
+.topbar-title{font-size:15px;font-weight:700;color:var(--navy)}
+.content{padding:24px}
+
+/* ── COMPONENTS ── */
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--r2);padding:20px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.stat-card{background:#fff;border:1px solid var(--border);border-top:3px solid var(--ocean);
+  border-radius:var(--r2);padding:16px}
+.stat-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;
+  margin-bottom:6px;font-weight:500}
+.stat-value{font-size:28px;font-weight:800;font-family:'Space Grotesk',sans-serif;line-height:1}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:4px}
+.stat-blue{color:var(--ocean)}
+.stat-green{color:var(--success)}
+.stat-warn{color:var(--warning)}
+.page-header{margin-bottom:22px}
+.page-header h1{font-size:22px;font-weight:800;font-family:'Space Grotesk',sans-serif;color:var(--navy)}
+.page-header p{font-size:13px;color:var(--text3);margin-top:4px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.section-title{font-size:17px;font-weight:700;color:var(--navy)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 12px;font-size:10px;font-weight:700;color:var(--ocean);
+  text-transform:uppercase;letter-spacing:.07em;border-bottom:2px solid var(--ocean);background:var(--bg3)}
+td{padding:11px 12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:middle}
+tr:hover td{background:var(--bg3)}
+tr:last-child td{border-bottom:none}
+.td-primary{color:var(--navy);font-weight:600}
+.table-wrap{overflow-x:auto}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-active{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)}
+.badge-pending{background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border)}
+.badge-rejected{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r);
+  border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;transition:all .15s}
+.btn-primary{background:linear-gradient(135deg,var(--ocean),var(--blue));color:#fff}
+.btn-primary:hover{background:linear-gradient(135deg,var(--navy),var(--ocean))}
+.btn-ghost{background:transparent;color:var(--text2);border:1.5px solid var(--border)}
+.btn-ghost:hover{background:var(--bg3);border-color:var(--ocean)}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-danger{background:var(--danger);color:#fff}
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:5px;
+  text-transform:uppercase;letter-spacing:.05em}
+.form-control{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);
+  color:var(--text);padding:10px 13px;font-size:13px;font-family:'Inter',sans-serif;transition:border-color .2s}
+.form-control:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(90,175,200,.12)}
+.form-control::placeholder{color:var(--text3)}
+textarea.form-control{resize:vertical;min-height:80px}
+select.form-control option{background:#fff}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-hint{font-size:11px;color:var(--text3);margin-top:4px}
+.divider{border:none;border-top:1px solid var(--border);margin:16px 0}
+.alert{padding:11px 14px;border-radius:var(--r);font-size:12px;margin-bottom:14px;
+  display:flex;align-items:flex-start;gap:9px}
+.alert-info{background:var(--bg3);border:1px solid var(--border);color:var(--ocean)}
+.alert-warning{background:var(--warning-bg);border:1px solid var(--warning-border);color:var(--warning)}
+.alert-success{background:var(--success-bg);border:1px solid var(--success-border);color:var(--success)}
+.modal-overlay{position:fixed;inset:0;background:rgba(6,14,32,.6);z-index:500;
+  display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:#fff;border:1px solid var(--border);border-radius:var(--r3);
+  width:100%;max-width:560px;max-height:90vh;overflow-y:auto}
+.modal-header{padding:18px 22px 14px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:16px;font-weight:700;color:var(--navy)}
+.modal-body{padding:22px}
+.modal-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+.modal-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:20px}
+.offer-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.offer-card{background:#fff;border:1px solid var(--border);border-radius:var(--r3);overflow:hidden;
+  transition:transform .2s,border-color .2s}
+.offer-card:hover{transform:translateY(-2px);border-color:var(--cyan);box-shadow:0 6px 20px rgba(14,45,95,.1)}
+.offer-card-img{height:140px;display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden}
+.cat-food{background:linear-gradient(135deg,#FFF0E8,#FFE0CC)}
+.cat-leisure{background:linear-gradient(135deg,var(--bg3),var(--bg4))}
+.cat-health{background:linear-gradient(135deg,#E8F8F0,#C8F0DC)}
+.cat-fashion{background:linear-gradient(135deg,#F8E8F4,#F0D0EC)}
+.cat-travel{background:linear-gradient(135deg,#E4F0F6,#C8DFF0)}
+.offer-cat-badge{position:absolute;top:8px;left:8px;background:var(--navy);color:#fff;
+  font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px}
+.offer-card-body{padding:14px}
+.offer-card-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:3px}
+.offer-card-meta{font-size:11px;color:var(--text3);margin-bottom:10px}
+.offer-card-footer{display:flex;align-items:center;justify-content:space-between;
+  padding-top:10px;border-top:1px solid var(--border)}
+.upload-area{border:2px dashed var(--border);border-radius:var(--r2);padding:18px;
+  text-align:center;cursor:pointer;transition:all .2s;background:#fff}
+.upload-area:hover{border-color:var(--cyan);background:var(--bg)}
+.upload-area input{display:none}
+.progress{background:var(--bg4);border-radius:4px;height:5px;overflow:hidden;margin-top:8px}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--ocean),var(--cyan));border-radius:4px;transition:width .3s}
+.empty{text-align:center;padding:56px 20px;color:var(--text3)}
+.empty i{font-size:44px;margin-bottom:12px;display:block;color:var(--border2)}
+.empty h3{font-size:15px;color:var(--text2);margin-bottom:6px}
+.view{display:none}.view.active{display:block}
+.qr-wrapper{background:#fff;padding:10px;border-radius:var(--r);border:2px solid var(--border);display:inline-block}
+.action-row{display:flex;gap:6px;flex-wrap:wrap}
+#toast{position:fixed;bottom:22px;right:22px;z-index:9999;display:none}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.grid-4{grid-template-columns:repeat(2,1fr)}.form-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="login-page" class="login-page">
+  <div class="login-box">
+    <div class="login-logo">
+      <img src="https://balearlab-ctrl.github.io/Wave-experiences/LOGO%20WAVE%20EXPERIENCES%20azul%20ok.png" alt="Wave Experiences">
+    </div>
+    <div class="login-title">Business Panel</div>
+    <div class="login-sub">Sign in to manage your offers</div>
+    <div class="login-err" id="login-err"></div>
+    <div class="fg">
+      <label class="fl">Email</label>
+      <input class="fc" id="login-email" type="email" placeholder="your@business.com" autocomplete="email">
+    </div>
+    <div class="fg">
+      <label class="fl">Password</label>
+      <input class="fc" id="login-pass" type="password" placeholder="Your password"
+        onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-login" onclick="doLogin()">Sign in →</button>
+    <p style="text-align:center;font-size:11px;color:var(--text3);margin-top:16px">
+      Not registered yet? 
+      <a href="https://balearlab-ctrl.github.io/Wave-experiences/wave-registro.html" 
+         style="color:var(--ocean);font-weight:600">Register your business</a>
+    </p>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app" class="app">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="https://balearlab-ctrl.github.io/Wave-experiences/LOGO%20WAVE%20EXPERIENCES%20azul%20ok.png" alt="Wave Experiences">
+    </div>
+    <div class="sidebar-user">
+      <div class="user-av" id="user-av">?</div>
+      <div>
+        <div class="user-name" id="user-biz-name">My Business</div>
+        <div class="user-plan" id="user-plan-label">Basic plan</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">My Business</div>
+      <button class="nav-item active" onclick="showView('dashboard')" data-view="dashboard">
+        <i class="ti ti-chart-bar"></i> Dashboard
+      </button>
+      <button class="nav-item" onclick="showView('my-offers')" data-view="my-offers">
+        <i class="ti ti-tag"></i> My Offers
+      </button>
+      <button class="nav-item" onclick="showView('new-offer')" data-view="new-offer">
+        <i class="ti ti-plus"></i> New Offer
+      </button>
+      <button class="nav-item" onclick="showView('scanner')" data-view="scanner">
+        <i class="ti ti-scan"></i> Validate QR
+      </button>
+      <button class="nav-item" onclick="showView('bookings')" data-view="bookings">
+        <i class="ti ti-users"></i> Bookings
+      </button>
+    </nav>
+    <div class="sidebar-bottom">
+      <button class="nav-item" onclick="doLogout()" style="color:rgba(255,255,255,.5)">
+        <i class="ti ti-logout"></i> Sign out
+      </button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <span class="topbar-title" id="topbar-title">Dashboard</span>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)">
+        <div class="user-av" id="topbar-av" style="width:28px;height:28px;font-size:11px">?</div>
+        <span id="topbar-biz" style="font-weight:600">My Business</span>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="view active" id="view-dashboard">
+        <div class="page-header">
+          <h1 id="dash-title">Welcome back!</h1>
+          <p>Here's how your offers are performing</p>
+        </div>
+        <div class="grid-4" style="margin-bottom:20px">
+          <div class="stat-card">
+            <div class="stat-label">Active Offers</div>
+            <div class="stat-value stat-blue" id="stat-active">0</div>
+            <div class="stat-sub">published</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">QRs Sent</div>
+            <div class="stat-value" id="stat-sent">0</div>
+            <div class="stat-sub">total distributed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Redeemed</div>
+            <div class="stat-value stat-green" id="stat-redeemed">0</div>
+            <div class="stat-sub">at your venue</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Conversion</div>
+            <div class="stat-value stat-warn" id="stat-conv">0%</div>
+            <div class="stat-sub">redeemed / sent</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-header">
+            <div class="section-title">My Offers</div>
+            <button class="btn btn-primary btn-sm" onclick="showView('new-offer')">
+              <i class="ti ti-plus"></i> New offer
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th>Offer</th><th>Status</th><th>Bookings</th>
+                <th>Max.</th><th>Redeemed</th><th>Actions</th>
+              </tr></thead>
+              <tbody id="dash-offers-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MY OFFERS -->
+      <div class="view" id="view-my-offers">
+        <div class="section-header">
+          <div class="page-header" style="margin:0">
+            <h1>My Offers</h1>
+            <p>Manage all your published offers</p>
+          </div>
+          <button class="btn btn-primary" onclick="showView('new-offer')">
+            <i class="ti ti-plus"></i> New offer
+          </button>
+        </div>
+        <div class="offer-grid" id="my-offers-grid"></div>
+      </div>
+
+      <!-- NEW OFFER -->
+      <div class="view" id="view-new-offer">
+        <div class="page-header">
+          <h1>New Offer</h1>
+          <p>Your offer will be reviewed by Wave Experiences before publishing.</p>
+        </div>
+        <div class="alert alert-info">
+          <i class="ti ti-info-circle"></i>
+          We review every offer within 24h to ensure catalogue quality.
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 360px;gap:20px">
+          <div class="card">
+            <h3 style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:16px">Offer Information</h3>
+            <div class="form-group">
+              <label class="form-label">Title *</label>
+              <input class="form-control" id="f-title" placeholder="E.g. 2-for-1 seasonal cocktails">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Category *</label>
+                <select class="form-control" id="f-cat">
+                  <option value="">Select...</option>
+                  <option>Food &amp; Drink</option><option>Leisure &amp; Adventure</option>
+                  <option>Health &amp; Wellness</option><option>Fashion &amp; Lifestyle</option>
+                  <option>Travel &amp; Tours</option><option>Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Max. people <span style="color:var(--text3);font-weight:400;text-transform:none">(0 = unlimited)</span></label>
+                <input class="form-control" id="f-max" type="number" min="0" value="0">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Description *</label>
+              <textarea class="form-control" id="f-desc" rows="4" placeholder="Describe your offer in detail..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Conditions</label>
+              <textarea class="form-control" id="f-cond" rows="2" placeholder="Not combinable with other offers..."></textarea>
+            </div>
+            <div class="divider"></div>
+            <div class="form-group">
+              <label class="form-label">Availability *</label>
+              <select class="form-control" id="f-sched" onchange="updateSchedFields()">
+                <option value="">Select...</option>
+                <option value="always">Always available</option>
+                <option value="date">Specific date</option>
+                <option value="weekly">Weekly (day &amp; time)</option>
+                <option value="limited">Limited capacity (until sold out)</option>
+              </select>
+            </div>
+            <div id="sched-fields"></div>
+            <div class="divider"></div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Offer image</label>
+                <div class="upload-area" onclick="document.getElementById('f-img').click()">
+                  <input type="file" id="f-img" accept="image/*" onchange="previewImg(this)">
+                  <img id="f-img-preview" style="display:none;width:100%;height:80px;object-fit:cover;border-radius:6px">
+                  <div id="f-img-placeholder"><i class="ti ti-photo" style="font-size:22px;color:var(--text3)"></i>
+                    <div style="font-size:11px;color:var(--text3);margin-top:4px">Upload photo</div></div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Business logo</label>
+                <div class="upload-area" onclick="document.getElementById('f-logo').click()">
+                  <input type="file" id="f-logo" accept="image/*" onchange="previewLogo(this)">
+                  <img id="f-logo-preview" style="display:none;width:56px;height:56px;object-fit:contain;
+                    border-radius:var(--r);border:1px solid var(--border);background:#fff;padding:4px;margin:0 auto">
+                  <div id="f-logo-placeholder"><i class="ti ti-building-store" style="font-size:22px;color:var(--text3)"></i>
+                    <div style="font-size:11px;color:var(--text3);margin-top:4px">Business logo</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Send QR via:</label>
+              <div style="display:flex;gap:14px">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--text2)">
+                  <input type="checkbox" id="f-wa" checked style="accent-color:var(--ocean)">
+                  <i class="ti ti-brand-whatsapp" style="color:var(--success)"></i> WhatsApp
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--text2)">
+                  <input type="checkbox" id="f-email" style="accent-color:var(--ocean)">
+                  <i class="ti ti-mail" style="color:var(--ocean)"></i> Email
+                </label>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="submitOffer()">
+              <i class="ti ti-send"></i> Submit for review
+            </button>
+          </div>
+          <!-- PREVIEW -->
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;
+              letter-spacing:.06em;margin-bottom:10px">Preview</div>
+            <div class="offer-card" style="cursor:default">
+              <div class="offer-card-img cat-leisure" id="prev-img">
+                <div class="offer-cat-badge" id="prev-cat">Category</div>
+                <div style="font-size:44px" id="prev-emoji">🎁</div>
+              </div>
+              <div class="offer-card-body">
+                <div class="offer-card-title" id="prev-title">Offer title</div>
+                <div class="offer-card-meta" id="prev-meta">Always available</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCANNER -->
+      <div class="view" id="view-scanner">
+        <div class="page-header"><h1>Validate QR</h1><p>Scan customer QR codes to register redemptions</p></div>
+        <div style="max-width:460px;margin:0 auto">
+          <div class="card" style="text-align:center;padding:36px 28px">
+            <div style="width:72px;height:72px;background:var(--bg3);border-radius:50%;
+              display:flex;align-items:center;justify-content:center;margin:0 auto 18px;border:2px solid var(--border)">
+              <i class="ti ti-scan" style="font-size:32px;color:var(--ocean)" id="scan-icon"></i>
+            </div>
+            <h3 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:6px">Enter QR code</h3>
+            <p style="font-size:12px;color:var(--text3);margin-bottom:22px">Enter the unique ID to validate the customer's redemption</p>
+            <div style="display:flex;gap:8px;margin-bottom:14px">
+              <input class="form-control" id="qr-input" placeholder="E.g. QR-0001-ABCD" style="flex:1">
+              <button class="btn btn-primary" onclick="validateQR()"><i class="ti ti-scan"></i> Validate</button>
+            </div>
+          </div>
+          <div id="scan-result" style="display:none;margin-top:14px" class="card"></div>
+        </div>
+      </div>
+
+      <!-- BOOKINGS -->
+      <div class="view" id="view-bookings">
+        <div class="page-header"><h1>Bookings</h1><p>All customers signed up for your offers</p></div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Customer</th><th>Offer</th><th>Date</th><th>Status</th></tr></thead>
+              <tbody id="bookings-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- OFFER DETAIL MODAL -->
+<div class="modal-overlay" id="offer-modal" style="display:none" onclick="if(event.target===this)document.getElementById('offer-modal').style.display='none'">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Edit Offer</span>
+      <button class="modal-close" onclick="document.getElementById('offer-modal').style.display='none'">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast">
+  <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:11px 16px;
+    font-size:13px;display:flex;align-items:center;gap:8px;min-width:260px;
+    box-shadow:0 6px 20px rgba(6,14,32,.12)" id="toast-inner"></div>
+</div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec';
+const RESEND_KEY  = 're_ZuL8u4pu_9WG1xPkHisQQSBULEP3AKqxj';
+
+// ── DATA (localStorage keyed by business email) ───────────────────────────
+let currentUser = null;
+let myOffers    = [];
+
+// ── AUTH ──────────────────────────────────────────────────────────────────
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const err   = document.getElementById('login-err');
+
+  if (!email || !pass) {
+    showLoginErr('Please enter your email and password.');
+    return;
+  }
+
+  // Load users from localStorage (registered via wave-registro.html)
+  const users = JSON.parse(localStorage.getItem('wave_pending_users') || '[]');
+  const user  = users.find(u => u.email === email);
+
+  if (!user) {
+    showLoginErr('No account found with this email. Please register first.');
+    return;
+  }
+  if (user.status !== 'active') {
+    showLoginErr('Your account is pending approval. We will contact you within 24 hours.');
+    return;
+  }
+  // Simple password check (stored at registration)
+  // In production this would be server-side
+  if (user.password && user.password !== pass) {
+    showLoginErr('Incorrect password.');
+    return;
+  }
+
+  currentUser = user;
+  localStorage.setItem('wave_biz_session', JSON.stringify(user));
+  loadApp();
+}
+
+function doLogout() {
+  currentUser = null;
+  localStorage.removeItem('wave_biz_session');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-page').style.display = 'flex';
+}
+
+function showLoginErr(msg) {
+  const el = document.getElementById('login-err');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function loadApp() {
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  // Set user info in sidebar
+  const av = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : '?';
+  document.getElementById('user-av').textContent     = av;
+  document.getElementById('topbar-av').textContent   = av;
+  document.getElementById('user-biz-name').textContent = currentUser.name;
+  document.getElementById('topbar-biz').textContent    = currentUser.name;
+  document.getElementById('user-plan-label').textContent = (currentUser.plan || 'Basic') + ' plan';
+  document.getElementById('dash-title').textContent = 'Welcome, ' + (currentUser.contact || currentUser.name) + '!';
+
+  // Load offers
+  loadMyOffers();
+  showView('dashboard');
+}
+
+// ── OFFERS ────────────────────────────────────────────────────────────────
+function loadMyOffers() {
+  const stored = JSON.parse(localStorage.getItem('wave_offers_' + currentUser.email) || '[]');
+  myOffers = stored;
+  renderDashboard();
+  renderMyOffers();
+  renderBookings();
+}
+
+function saveMyOffers() {
+  localStorage.setItem('wave_offers_' + currentUser.email, JSON.stringify(myOffers));
+}
+
+function renderDashboard() {
+  const active   = myOffers.filter(o => o.status === 'active').length;
+  const sent     = myOffers.reduce((a,o) => a + (o.sent||0), 0);
+  const redeemed = myOffers.reduce((a,o) => a + (o.scanned||[]).length, 0);
+  const conv     = sent ? Math.round(redeemed/sent*100) : 0;
+
+  document.getElementById('stat-active').textContent   = active;
+  document.getElementById('stat-sent').textContent     = sent;
+  document.getElementById('stat-redeemed').textContent = redeemed;
+  document.getElementById('stat-conv').textContent     = conv + '%';
+
+  const tbody = document.getElementById('dash-offers-table');
+  if (!myOffers.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text3)">
+      No offers yet. <button class="btn btn-primary btn-sm" onclick="showView('new-offer')" style="margin-left:8px">
+      <i class="ti ti-plus"></i> Create your first offer</button></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = myOffers.map(o => `<tr>
+    <td class="td-primary">${o.title}</td>
+    <td>${statusBadge(o.status)}</td>
+    <td>${(o.enrolled||[]).length}</td>
+    <td>${o.max || '∞'}</td>
+    <td style="color:var(--success);font-weight:600">${(o.scanned||[]).length}</td>
+    <td><div class="action-row">
+      <button class="btn btn-ghost btn-sm" onclick="editOffer(${o.id})"><i class="ti ti-edit"></i></button>
+      <button class="btn btn-ghost btn-sm" onclick="deleteOffer(${o.id})" style="color:var(--danger)"><i class="ti ti-trash"></i></button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function renderMyOffers() {
+  const grid = document.getElementById('my-offers-grid');
+  if (!myOffers.length) {
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1">
+      <i class="ti ti-tag"></i><h3>No offers yet</h3>
+      <p>Create your first offer to start attracting customers.</p>
+      <button class="btn btn-primary" onclick="showView('new-offer')" style="margin-top:12px">
+        <i class="ti ti-plus"></i> New offer</button></div>`;
+    return;
+  }
+  grid.innerHTML = myOffers.map(o => `
+    <div class="offer-card">
+      <div class="offer-card-img ${getCatClass(o.category)}" style="position:relative">
+        ${o.cover ? `<img src="${o.cover}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">` : ''}
+        <div class="offer-cat-badge">${o.category || 'Offer'}</div>
+        <div style="font-size:36px;position:relative;z-index:1;${o.cover?'display:none':''}">${getCatEmoji(o.category)}</div>
+      </div>
+      <div class="offer-card-body">
+        <div class="offer-card-title">${o.title}</div>
+        <div class="offer-card-meta">${getSchedLabel(o)} · ${(o.enrolled||[]).length} bookings</div>
+        <div class="offer-card-footer">
+          ${statusBadge(o.status)}
+          <div class="action-row">
+            <button class="btn btn-ghost btn-sm" onclick="editOffer(${o.id})"><i class="ti ti-edit"></i></button>
+            <button class="btn btn-ghost btn-sm" onclick="deleteOffer(${o.id})" style="color:var(--danger)"><i class="ti ti-trash"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function renderBookings() {
+  const tbody = document.getElementById('bookings-table');
+  const all = myOffers.flatMap(o => (o.enrolled||[]).map(e => ({...e, offerTitle: o.title})));
+  if (!all.length) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--text3)">No bookings yet</td></tr>';
+    return;
+  }
+  tbody.innerHTML = all.map(e => `<tr>
+    <td class="td-primary">${e.name}</td>
+    <td style="color:var(--text2)">${e.offerTitle}</td>
+    <td style="color:var(--text3)">${e.date||'—'}</td>
+    <td>${e.qr ? `<span class="badge" style="background:var(--bg3);color:var(--ocean);border:1px solid var(--border)">${e.qr}</span>` : '—'}</td>
+  </tr>`).join('');
+}
+
+// ── NEW OFFER FORM ────────────────────────────────────────────────────────
+function updateSchedFields() {
+  const type = document.getElementById('f-sched').value;
+  const c = document.getElementById('sched-fields');
+  if (type === 'date') {
+    c.innerHTML = `<div class="form-group"><label class="form-label">Event date *</label>
+      <input class="form-control" id="f-date" type="date"></div>`;
+  } else if (type === 'weekly') {
+    c.innerHTML = `<div class="form-row">
+      <div class="form-group"><label class="form-label">Day(s) *</label>
+        <input class="form-control" id="f-day" placeholder="E.g. Wednesday, Thursday"></div>
+      <div class="form-group"><label class="form-label">Time *</label>
+        <input class="form-control" id="f-time" placeholder="E.g. 20:00-22:00"></div>
+    </div>`;
+  } else { c.innerHTML = ''; }
+  updatePreview();
+}
+
+function updatePreview() {
+  const title = document.getElementById('f-title').value || 'Offer title';
+  const sched = document.getElementById('f-sched').value;
+  const cat   = document.getElementById('f-cat').value || 'Category';
+  document.getElementById('prev-title').textContent = title;
+  document.getElementById('prev-cat').textContent   = cat;
+  document.getElementById('prev-emoji').textContent = getCatEmoji(cat);
+  document.getElementById('prev-img').className     = 'offer-card-img ' + getCatClass(cat);
+  const schedLabel = sched === 'always' ? 'Always available' :
+    sched === 'weekly' ? (document.getElementById('f-day')?.value || 'Weekly') :
+    sched === 'date'   ? (document.getElementById('f-date')?.value || 'Specific date') :
+    sched === 'limited'? 'Until sold out' : '—';
+  document.getElementById('prev-meta').textContent = schedLabel;
+}
+
+function previewImg(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('f-img-preview').src = e.target.result;
+    document.getElementById('f-img-preview').style.display = 'block';
+    document.getElementById('f-img-placeholder').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function previewLogo(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('f-logo-preview').src = e.target.result;
+    document.getElementById('f-logo-preview').style.display = 'block';
+    document.getElementById('f-logo-placeholder').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function submitOffer() {
+  const title = document.getElementById('f-title').value.trim();
+  const cat   = document.getElementById('f-cat').value;
+  const desc  = document.getElementById('f-desc').value.trim();
+  const sched = document.getElementById('f-sched').value;
+  if (!title || !cat || !desc || !sched) { showToast('Please fill all required fields','warning'); return; }
+
+  const imgPreview  = document.getElementById('f-img-preview');
+  const logoPreview = document.getElementById('f-logo-preview');
+
+  const offer = {
+    id:         Date.now(),
+    title,
+    biz:        currentUser.name,
+    category:   cat,
+    desc,
+    conditions: document.getElementById('f-cond').value,
+    schedule:   sched,
+    scheduleDay:  document.getElementById('f-day')?.value  || '',
+    scheduleTime: document.getElementById('f-time')?.value || '',
+    scheduleDate: document.getElementById('f-date')?.value || '',
+    max:        parseInt(document.getElementById('f-max').value) || 0,
+    enrolled:   [],
+    scanned:    [],
+    sent:       0,
+    status:     'pending',
+    sendWA:     document.getElementById('f-wa').checked,
+    sendEmail:  document.getElementById('f-email').checked,
+    cover:      imgPreview.style.display !== 'none'  ? imgPreview.src  : '',
+    bizLogo:    logoPreview.style.display !== 'none' ? logoPreview.src : '',
+    createdAt:  new Date().toLocaleDateString('en-GB'),
+  };
+
+  myOffers.push(offer);
+  saveMyOffers();
+  showToast('Offer submitted for review!', 'success');
+  // Reset form
+  ['f-title','f-desc','f-cond','f-max'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-sched').value = '';
+  document.getElementById('sched-fields').innerHTML = '';
+  document.getElementById('f-img-preview').style.display = 'none';
+  document.getElementById('f-img-placeholder').style.display = 'block';
+  document.getElementById('f-logo-preview').style.display = 'none';
+  document.getElementById('f-logo-placeholder').style.display = 'block';
+  showView('my-offers');
+}
+
+// ── EDIT / DELETE ─────────────────────────────────────────────────────────
+function editOffer(id) {
+  const o = myOffers.find(x => x.id === id);
+  if (!o) return;
+  document.getElementById('modal-title').textContent = 'Edit Offer';
+  document.getElementById('modal-body').innerHTML = `
+    <div class="form-group"><label class="form-label">Title *</label>
+      <input class="form-control" id="e-title" value="${escHtml(o.title)}"></div>
+    <div class="form-group"><label class="form-label">Description *</label>
+      <textarea class="form-control" id="e-desc" rows="3">${escHtml(o.desc)}</textarea></div>
+    <div class="form-group"><label class="form-label">Conditions</label>
+      <textarea class="form-control" id="e-cond" rows="2">${escHtml(o.conditions||'')}</textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Category</label>
+        <select class="form-control" id="e-cat">
+          ${['Food & Drink','Leisure & Adventure','Health & Wellness','Fashion & Lifestyle','Travel & Tours','Other']
+            .map(c => `<option${c===o.category?' selected':''}>${c}</option>`).join('')}
+        </select></div>
+      <div class="form-group"><label class="form-label">Max. people</label>
+        <input class="form-control" id="e-max" type="number" value="${o.max||0}"></div>
+    </div>`;
+  document.getElementById('modal-footer').innerHTML = `
+    <button class="btn btn-ghost" onclick="document.getElementById('offer-modal').style.display='none'">Cancel</button>
+    <button class="btn btn-primary" onclick="saveEditOffer(${id})"><i class="ti ti-device-floppy"></i> Save</button>`;
+  document.getElementById('offer-modal').style.display = 'flex';
+}
+
+function saveEditOffer(id) {
+  const o = myOffers.find(x => x.id === id);
+  if (!o) return;
+  o.title      = document.getElementById('e-title').value.trim();
+  o.desc       = document.getElementById('e-desc').value.trim();
+  o.conditions = document.getElementById('e-cond').value;
+  o.category   = document.getElementById('e-cat').value;
+  o.max        = parseInt(document.getElementById('e-max').value) || 0;
+  if (o.status === 'rejected') o.status = 'pending';
+  saveMyOffers();
+  document.getElementById('offer-modal').style.display = 'none';
+  showToast('Offer updated!', 'success');
+  renderMyOffers();
+  renderDashboard();
+}
+
+function deleteOffer(id) {
+  if (!confirm('Delete this offer? This cannot be undone.')) return;
+  myOffers = myOffers.filter(x => x.id !== id);
+  saveMyOffers();
+  showToast('Offer deleted', 'warning');
+  renderMyOffers();
+  renderDashboard();
+}
+
+// ── QR SCANNER ────────────────────────────────────────────────────────────
+function validateQR() {
+  const qrVal = document.getElementById('qr-input').value.trim();
+  if (!qrVal) { showToast('Enter a QR code', 'warning'); return; }
+
+  const icon = document.getElementById('scan-icon');
+  icon.style.animation = 'spin 1s linear infinite';
+
+  setTimeout(() => {
+    icon.style.animation = '';
+    let found = null, foundOffer = null;
+    for (const o of myOffers) {
+      const e = (o.enrolled||[]).find(en => en.qr === qrVal);
+      if (e) { found = e; foundOffer = o; break; }
+    }
+    const res = document.getElementById('scan-result');
+    res.style.display = 'block';
+    if (!found) {
+      res.innerHTML = `<div class="alert alert-warning"><i class="ti ti-alert-triangle"></i> QR not found. Please check the code.</div>`;
+      return;
+    }
+    const already = (foundOffer.scanned||[]).find(s => s.qr === qrVal);
+    if (already) {
+      res.innerHTML = `<div class="alert alert-warning"><i class="ti ti-alert-triangle"></i> 
+        This QR was already redeemed on ${already.date} by ${already.name}.</div>`;
+      return;
+    }
+    res.innerHTML = `
+      <div class="alert alert-success" style="margin-bottom:14px"><i class="ti ti-circle-check"></i> Valid QR — ready to redeem</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--ocean);color:#fff;
+          display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700">
+          ${found.name.charAt(0)}</div>
+        <div>
+          <div style="font-weight:700;color:var(--navy)">${found.name}</div>
+          <div style="font-size:12px;color:var(--text3)">${foundOffer.title} · ${found.date||''}</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="confirmScan('${qrVal}',${foundOffer.id})">
+        <i class="ti ti-check"></i> Confirm redemption at venue</button>`;
+  }, 1000);
+}
+
+function confirmScan(qrVal, offerId) {
+  const o = myOffers.find(x => x.id === offerId);
+  const e = (o.enrolled||[]).find(en => en.qr === qrVal);
+  if (!o.scanned) o.scanned = [];
+  o.scanned.push({ name: e.name, date: new Date().toLocaleDateString('en-GB'), qr: qrVal });
+  saveMyOffers();
+  document.getElementById('scan-result').innerHTML =
+    `<div class="alert alert-success"><i class="ti ti-circle-check"></i> 
+      Redemption registered for <strong>${e.name}</strong>.</div>`;
+  document.getElementById('qr-input').value = '';
+  showToast('Redemption registered!', 'success');
+  renderDashboard();
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────
+const VIEW_TITLES = {
+  'dashboard':'Dashboard', 'my-offers':'My Offers', 'new-offer':'New Offer',
+  'scanner':'Validate QR', 'bookings':'Bookings'
+};
+
+function showView(v) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('view-' + v).classList.add('active');
+  const btn = document.querySelector(`[data-view="${v}"]`);
+  if (btn) btn.classList.add('active');
+  document.getElementById('topbar-title').textContent = VIEW_TITLES[v] || '';
+  if (v === 'my-offers') renderMyOffers();
+  if (v === 'dashboard') renderDashboard();
+  if (v === 'bookings')  renderBookings();
+  if (v === 'new-offer') setupNewOffer();
+}
+
+function setupNewOffer() {
+  ['f-title','f-desc','f-cat','f-sched'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', updatePreview);
+    if (el) el.addEventListener('change', updatePreview);
+  });
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────
+function getCatClass(cat) {
+  const m = {'Food & Drink':'cat-food','Leisure & Adventure':'cat-leisure',
+    'Health & Wellness':'cat-health','Fashion & Lifestyle':'cat-fashion','Travel & Tours':'cat-travel'};
+  return m[cat] || 'cat-leisure';
+}
+function getCatEmoji(cat) {
+  const m = {'Food & Drink':'🍽️','Leisure & Adventure':'🎭','Health & Wellness':'💆',
+    'Fashion & Lifestyle':'👗','Travel & Tours':'✈️'};
+  return m[cat] || '🎁';
+}
+function getSchedLabel(o) {
+  if (o.schedule === 'always')  return 'Always available';
+  if (o.schedule === 'weekly')  return (o.scheduleDay||'') + ' · ' + (o.scheduleTime||'');
+  if (o.schedule === 'date')    return o.scheduleDate || 'Specific date';
+  if (o.schedule === 'limited') return 'Until sold out';
+  return '—';
+}
+function statusBadge(s) {
+  const m = { pending:'badge-pending', active:'badge-active', rejected:'badge-rejected' };
+  const l = { pending:'Pending', active:'Active', rejected:'Rejected' };
+  return `<span class="badge ${m[s]||'badge-pending'}">${l[s]||s}</span>`;
+}
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function showToast(msg, type='success') {
+  const icons = {success:'ti-circle-check',warning:'ti-alert-triangle',danger:'ti-alert-circle'};
+  const colors = {success:'var(--success)',warning:'var(--warning)',danger:'var(--danger)'};
+  const t = document.getElementById('toast');
+  document.getElementById('toast-inner').innerHTML =
+    `<i class="ti ${icons[type]}" style="color:${colors[type]};font-size:16px"></i> ${msg}`;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3000);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+// Check for existing session
+const session = JSON.parse(localStorage.getItem('wave_biz_session') || 'null');
+if (session && session.status === 'active') {
+  currentUser = session;
+  loadApp();
+}
+
+// Wire preview inputs
+setTimeout(() => {
+  ['f-title','f-desc','f-cat','f-sched'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', updatePreview);
+    if (el) el.addEventListener('change', updatePreview);
+  });
+}, 200);
+</script>
+</body>
+</html>
