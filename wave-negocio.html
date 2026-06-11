@@ -685,12 +685,38 @@ let currentUser = null;
 let myOffers    = [];
 
 // ── AUTH ──────────────────────────────────────────────────────────────────
+
+// ── i18n ────────────────────────────────────────────────────────────────
+var LANG_NEG = localStorage.getItem('wave_lang') || 'en';
+var I18N_NEG = {
+  'login.err.fill':    {en:'Please enter your email and password.',es:'Introduce tu email y contraseña.'},
+  'login.err.notfound':{en:'No account found with this email.',es:'No se encontró ninguna cuenta.'},
+  'login.err.pass':    {en:'Incorrect password.',es:'Contraseña incorrecta.'},
+  'login.err.inactive':{en:'Account not active. Contact support.',es:'Cuenta no activa. Contacta soporte.'},
+  'wiz.type.title':    {en:'What kind of offer is it?',es:'¿Qué tipo de oferta es?'},
+  'wiz.preview.title': {en:'Looking good! Ready to submit?',es:'¡Tiene buena pinta! ¿Listo para enviar?'},
+  'wiz.submit':        {en:'Submit for review',es:'Enviar para revisión'},
+  'book.confirm.btn':  {en:'Confirm',es:'Confirmar'},
+  'book.other.btn':    {en:'Other times',es:'Otras horas'},
+};
+function TN(k){ return (I18N_NEG[k]&&I18N_NEG[k][LANG_NEG]) || (I18N_NEG[k]&&I18N_NEG[k].en) || k; }
+function setLangNeg(lang){
+  LANG_NEG = lang;
+  localStorage.setItem('wave_lang', lang);
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(I18N_NEG[key]) el.textContent = I18N_NEG[key][LANG_NEG] || I18N_NEG[key].en;
+  });
+  document.querySelectorAll('.lang-btn').forEach(function(btn){
+    btn.classList.toggle('active', btn.dataset.lang === LANG_NEG);
+  });
+}
 function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass  = document.getElementById('login-pass').value;
 
   if (!email || !pass) {
-    showLoginErr('Please enter your email and password.');
+    showLoginErr(TN('login.err.fill'));
     return;
   }
 
@@ -707,7 +733,7 @@ function doLogin() {
       btn.disabled = false;
 
       if (!data || data.error) {
-        showLoginErr('Connection error. Please try again.');
+        showLoginErr(TN('login.err.connection')||'Connection error. Please try again.');
         return;
       }
 
@@ -715,20 +741,20 @@ function doLogin() {
       const user = Array.isArray(data) ? data.find(u => u['Email'] === email) : null;
 
       if (!user) {
-        showLoginErr('No account found with this email. Please register first.');
+        showLoginErr(TN('login.err.notfound'));
         return;
       }
       if (user['Estado'] !== 'Activo') {
-        showLoginErr('Your account is pending approval. We will contact you within 24 hours.');
+        showLoginErr(TN('login.err.inactive'));
         return;
       }
       const storedPass = user['Contraseña'] || '';
       if (storedPass && storedPass !== pass) {
-        showLoginErr('Incorrect password.');
+        showLoginErr(TN('login.err.pass'));
         return;
       }
       if (!storedPass) {
-        showLoginErr('No password set. Please contact hello@waveexperiences.com');
+        showLoginErr(TN('login.err.pass'));
         return;
       }
 
@@ -756,9 +782,9 @@ function doLogin() {
       // Fallback to localStorage if Sheets unreachable
       const users = JSON.parse(localStorage.getItem('wave_pending_users') || '[]');
       const user  = users.find(u => u.email === email);
-      if (!user) { showLoginErr('Connection error. Please try again.'); return; }
-      if (user.status !== 'active') { showLoginErr('Your account is pending approval.'); return; }
-      if (user.password && user.password !== pass) { showLoginErr('Incorrect password.'); return; }
+      if (!user) { showLoginErr(TN('login.err.connection')||'Connection error. Please try again.'); return; }
+      if (user.status !== 'active') { showLoginErr(TN('login.err.inactive')); return; }
+      if (user.password && user.password !== pass) { showLoginErr(TN('login.err.pass')); return; }
       localStorage.setItem('wave_biz_session', JSON.stringify(user));
       window.currentUser = user;
       loadApp();
