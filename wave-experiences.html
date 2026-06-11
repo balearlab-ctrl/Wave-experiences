@@ -1067,7 +1067,34 @@ tr:last-child td{border-bottom:none}
     </div>
 
     <!-- ADMIN BILLING -->
-    <div class="view" id="view-admin-billing">
+    <div class="view" id="view-admin-customers">
+  <div class="section-header">
+    <div class="page-header" style="margin:0">
+      <h1>Customers</h1>
+      <p>Registered users on wave-clientes.html</p>
+    </div>
+    <button class="btn btn-ghost" onclick="loadCustomers()">
+      <i class="ti ti-refresh"></i> Refresh
+    </button>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Name</th><th>Email</th><th>Phone</th>
+          <th>Verified</th><th>Tier</th><th>Registered</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="customers-table">
+          <tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text3)">
+            Click Refresh to load customers
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="view" id="view-admin-billing">
       <div class="page-header"><h1>Billing</h1><p>Comisiones by QRs canjeados at the venues</p></div>
       <div class="alert alert-info"><i class="ti ti-info-circle"></i> Comisión de <strong>€3.50</strong> by cada QR escaneado y validado en el negocio.</div>
       <div class="card">
@@ -1719,6 +1746,7 @@ function renderView(v){
     case 'admin-dashboard':  renderAdminDashboard(); break;
     case 'admin-offers':     loadAdminOffers(); break;
     case 'admin-users':      loadSheetsUsers(); break;
+    case 'admin-customers':  loadCustomers(); break;
     case 'admin-billing':    renderAdminBilling(); break;
   }
 }
@@ -2101,6 +2129,80 @@ function renderAdminDashboard(){
 // ══════════════════════════════════════════════════
 //  ADMIN BILLING
 // ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+//  CUSTOMERS MANAGEMENT
+// ══════════════════════════════════════════════════
+var allCustomers = [];
+
+function loadCustomers(){
+  const tbody = document.getElementById('customers-table');
+  if(tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px"><i class="ti ti-loader" style="animation:spin 1s linear infinite"></i> Loading...</td></tr>';
+
+  fetch(GOOGLE_SCRIPT_URL + '?action=getCustomers&t=' + Date.now())
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      allCustomers = Array.isArray(data) ? data : [];
+      renderCustomers();
+    })
+    .catch(function(){
+      // Fallback: load from localStorage wave_customers key
+      allCustomers = [];
+      if(tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text3)">Could not load — check Apps Script getCustomers action</td></tr>';
+    });
+}
+
+function renderCustomers(){
+  const tbody = document.getElementById('customers-table');
+  if(!tbody) return;
+  if(!allCustomers.length){
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text3)"><i class="ti ti-users" style="font-size:32px;display:block;margin-bottom:8px"></i>No customers yet</td></tr>';
+    return;
+  }
+  tbody.innerHTML = allCustomers.map(function(u){
+    var name     = u['Nombre']||u.name||'—';
+    var email    = u['Email']||u.email||'—';
+    var phone    = u['Teléfono']||u.phone||'—';
+    var verified = u['Verificado']==='Yes'||u.verified===true;
+    var tier     = u['Tier']||u.tier||'standard';
+    var date     = u['Fecha']||u.createdAt||'—';
+    var tierBadge = tier==='gold'
+      ? '<span class="badge-gold">⭐ Gold</span>'
+      : tier==='platinum'
+      ? '<span class="badge-platinum">💎 Platinum</span>'
+      : '<span style="font-size:11px;color:var(--text3)">Standard</span>';
+    return '<tr>' +
+      '<td class="td-primary">' + name + '</td>' +
+      '<td style="font-size:12px;color:var(--text2)">' + email + '</td>' +
+      '<td style="font-size:12px;color:var(--text3)">' + phone + '</td>' +
+      '<td>' + (verified
+        ? '<span class="badge badge-active">✓ Verified</span>'
+        : '<span class="badge badge-pending">Pending</span>') + '</td>' +
+      '<td>' + tierBadge + '</td>' +
+      '<td style="font-size:11px;color:var(--text3)">' + date + '</td>' +
+      '<td><div class="action-row">' +
+      '<button class="btn btn-ghost btn-sm" data-email="'+email+'" data-name="'+name+'" ' +
+      'onclick="var e=this.dataset.email,n=this.dataset.name;deleteCustomer(e,n)" ' +
+      'title="Delete customer" style="color:var(--danger)"><i class="ti ti-trash"></i></button>' +
+      '</div></td></tr>';
+  }).join('');
+}
+
+function deleteCustomer(email, name){
+  if(!confirm('Delete customer ' + name + ' (' + email + ')? This cannot be undone.')) return;
+
+  // Delete from Sheets via Apps Script
+  fetch(GOOGLE_SCRIPT_URL, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ _action:'deleteCustomer', email: email })
+  }).catch(function(){});
+
+  // Remove from local allCustomers
+  allCustomers = allCustomers.filter(function(u){ return (u['Email']||u.email) !== email; });
+  renderCustomers();
+  showToast(name + ' deleted', 'warning');
+}
+
 function renderAdminBilling(){
   const tbody=document.getElementById('billing-table');
   if(!tbody) return;
