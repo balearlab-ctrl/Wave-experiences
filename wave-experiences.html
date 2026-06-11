@@ -11,37 +11,17 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  /* Paleta Wave Mallorca — mismo que registro */
-  --navy:    #060E20;
-  --ocean:   #0E2D5F;
-  --blue:    #2A5080;
-  --cyan:    #5AAFC8;
-  --cyan2:   #7CCADE;
-  --cyan3:   #B0DCE8;
-  --white:   #FFFFFF;
-  /* Page */
-  --bg:      #F2F8FC;
-  --bg2:     #FFFFFF;
-  --bg3:     #E4F0F6;
-  --bg4:     #C8E0EE;
-  --border:  #B8D4E4;
-  --border2: #90B8D0;
-  --text:    #060E20;
-  --text2:   #1A3050;
-  --text3:   #5A7898;
-  /* Semantic */
-  --success: #0A8A4A;
-  --success-bg: #E8F7EF;
-  --success-border: #A8DFC1;
-  --danger:  #C8341A;
-  --danger-bg:#FEF0ED;
-  --danger-border:#F5B8AE;
-  --warning: #A86800;
-  --warning-bg:#FFF8E8;
-  --warning-border:#F5DFA0;
-  --radius:  8px;
-  --radius2: 12px;
-  --radius3: 16px;
+  --navy:#0A0520;--ocean:#1A0840;--blue:#2D0E6E;
+  --fuchsia:#E91E8C;--fuchsia2:#FF4DB8;--fuchsia-light:rgba(233,30,140,.12);
+  --cyan:#00D4FF;--cyan2:#40E0FF;--cyan-light:rgba(0,212,255,.12);
+  --lime:#C8FF00;
+  --white:#fff;--bg:#F8F5FF;--bg2:#fff;--bg3:#F0ECFF;--bg4:#E4DCFF;
+  --border:#E0D8F8;--border2:#C8B8F0;
+  --text:#0A0520;--text2:#1A0840;--text3:#7868AA;
+  --success:#0A8A4A;--success-bg:#E8F7EF;--success-border:#A8DFC1;
+  --danger:#C8341A;--danger-bg:#FEF0ED;--danger-border:#F5B8AE;
+  --warning:#A86800;--warning-bg:#FFF8E8;--warning-border:#F5DFA0;
+  --r:8px;--r2:12px;--r3:16px;
 }
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 
@@ -3005,6 +2985,15 @@ function renderAdminUsers(){
       ? '1 registration request pending approval.'
       : pendingRegCount + ' registration requests pending approval.';
   }
+  // Apply tab filter
+  var filteredUsers = users;
+  if(typeof userTabFilter !== 'undefined'){
+    if(userTabFilter === 'active')   filteredUsers = users.filter(u => u.status === 'active');
+    if(userTabFilter === 'archived') filteredUsers = users.filter(u => u.status === 'archived');
+    if(userTabFilter === 'pending')  filteredUsers = users.filter(u => u.status === 'pending' || !u.active);
+  }
+  updateUserCounts();
+
   document.getElementById('admin-users-table').innerHTML=filteredUsers.map(u=>`<tr>
     <td><div style="display:flex;align-items:center;gap:10px">
       ${u.logo?`<img src="${u.logo}" style="width:32px;height:32px;object-fit:contain;border-radius:6px;border:1px solid var(--border);background:#fff;padding:2px;flex-shrink:0">`:`<div class="avatar" style="background:var(--bg3);color:var(--ocean);font-size:12px">${u.name.charAt(0)}</div>`}
