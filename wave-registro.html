@@ -66,7 +66,7 @@ body{background:var(--navy)}
 
 /* Logo area */
 .left-logo-wrap{margin-bottom:44px}
-.left-logo{height:120px;object-fit:contain;display:block}
+.left-logo{filter:brightness(0) invert(1);height:120px;object-fit:contain;display:block}
 
 /* Badge */
 .island-badge{
@@ -143,11 +143,8 @@ body{background:var(--navy)}
 .stat-l{font-size:10px;color:rgba(255,255,255,.35);line-height:1.4}
 
 /* Mallorca logo bottom-right */
-.mall-logo-wrap{
-  position:absolute;bottom:44px;right:44px;
-  z-index:2;opacity:.18;
-}
-.mall-logo{height:80px;object-fit:contain}
+.mall-logo-wrap{display:none}
+.mall-logo{filter:brightness(0) invert(1);height:80px;object-fit:contain}
 
 /* ═══════════════════════════════════════
    RIGHT PANEL  (form)
@@ -376,13 +373,13 @@ textarea.fc{resize:none}
 
   <!-- Mallorca logo watermark -->
   <div class="mall-logo-wrap">
-    <img class="mall-logo" src="https://balearlab-ctrl.github.io/Wave-experiences/LOGO_WAVE_EXPERIENCES_azul_ok.png?v=2" alt="">
+    <img class="mall-logo" src="https://balearlab-ctrl.github.io/Wave-experiences/LOGO_WAVE_EXPERIENCES_azul_ok.png?v=2" alt="" style="filter:brightness(0) invert(1)">
   </div>
 
   <div class="left-content">
     <!-- Wave Experiences logo -->
     <div class="left-logo-wrap">
-      <img class="left-logo" src="https://balearlab-ctrl.github.io/Wave-experiences/LOGO_WAVE_EXPERIENCES_azul_ok.png?v=2" alt="Wave Experiences">
+      <img class="left-logo" src="https://balearlab-ctrl.github.io/Wave-experiences/LOGO_WAVE_EXPERIENCES_azul_ok.png?v=2" alt="Wave Experiences" style="filter:brightness(0) invert(1)">
     </div>
 
     <div class="island-badge">
@@ -768,7 +765,7 @@ function fillSummary() {
   }
 }
 
-function submitForm() {
+async function submitForm() {
   const terms = document.getElementById('r-terms');
   if (!terms.checked) {
     terms.style.outline = '2px solid var(--danger)';
@@ -797,7 +794,7 @@ function submitForm() {
     plan:     'basico',
     active:   false,
     status:   'pending',
-    password: v('s2-pass'),
+    password: await hashPassword(v('s2-pass')),
     registeredAt: new Date().toLocaleDateString('es-ES')
   };
 
@@ -1049,6 +1046,25 @@ async function sendRegistroEmails(biz) {
   } catch(e) { console.warn('Email notification failed:', e); }
 }
 
+
+// ── Password hashing (SHA-256 via Web Crypto API) ────────────────────────
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password + 'wave_salt_2025');
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2,'0')).join('');
+}
+function hashPasswordSync(password) {
+  // Fallback simple hash for environments without crypto.subtle
+  var hash = 0, str = password + 'wave_salt_2025';
+  for(var i = 0; i < str.length; i++){
+    var char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return 'h' + Math.abs(hash).toString(16).padStart(8,'0');
+}
 </script>
 </body>
 </html>

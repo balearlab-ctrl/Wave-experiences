@@ -7,7 +7,26 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
+// ── Password hashing (SHA-256 via Web Crypto API) ────────────────────────
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password + 'wave_salt_2025');
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2,'0')).join('');
+}
+function hashPasswordSync(password) {
+  // Fallback simple hash for environments without crypto.subtle
+  var hash = 0, str = password + 'wave_salt_2025';
+  for(var i = 0; i < str.length; i++){
+    var char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return 'h' + Math.abs(hash).toString(16).padStart(8,'0');
+}
+</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -1176,12 +1195,27 @@ function selectTime(t, oid){
 function updateCalBookBtn(o){
   const btn = document.getElementById('cal-book-btn');
   if(!btn) return;
-  if(calState.selectedDate && calState.selectedTime){
-    const dateStr = calState.selectedDate.toLocaleDateString('en-GB');
-    btn.innerHTML = `<button class="btn btn-primary" style="width:100%;padding:12px" onclick="bookOfferWithSlot(${o.id})">
-      <i class="ti ti-ticket"></i> Book ${dateStr} at ${calState.selectedTime}
-    </button>`;
-  }
+  if(!calState.selectedDate || !calState.selectedTime) return;
+  const dateStr = calState.selectedDate.toLocaleDateString('en-GB');
+  // Check real availability from Sheets
+  btn.innerHTML = '<div style="text-align:center;padding:8px;color:var(--text3);font-size:12px">Checking availability...</div>';
+  fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec?action=getSlotAvailability&offerId=' + encodeURIComponent(String(o.id)) +
+    '&date=' + encodeURIComponent(dateStr) + '&time=' + encodeURIComponent(calState.selectedTime))
+    .then(r => r.json())
+    .then(data => {
+      if(data.available){
+        const spots = data.capacity > 0 ? ' — ' + data.remaining + ' spot' + (data.remaining!==1?'s':'') + ' left' : '';
+        btn.innerHTML = '<button class="btn btn-fuchsia" style="width:100%;padding:13px;font-size:14px" onclick="bookOfferWithSlot(' + o.id + ')">' +
+          '<i class="ti ti-ticket"></i> Book ' + dateStr + ' at ' + calState.selectedTime + spots + '</button>';
+      } else {
+        btn.innerHTML = '<div style="background:var(--danger-bg);border:1px solid rgba(200,50,26,.3);border-radius:var(--r);padding:12px;text-align:center;font-size:13px;color:var(--danger)">' +
+          '❌ This slot is fully booked. Please choose another time or date.</div>';
+      }
+    })
+    .catch(() => {
+      btn.innerHTML = '<button class="btn btn-fuchsia" style="width:100%;padding:13px;font-size:14px" onclick="bookOfferWithSlot(' + o.id + ')">' +
+        '<i class="ti ti-ticket"></i> Book ' + dateStr + ' at ' + calState.selectedTime + '</button>';
+    });
 }
 
 function bookOfferWithSlot(id){
@@ -1214,7 +1248,7 @@ function switchAuthTab(tab){
   document.getElementById('auth-modal-title').textContent = tab==='login'?'Welcome back':'Create account';
 }
 
-function submitLogin(){
+async function submitLogin(){
   const email = document.getElementById('login-email').value.trim();
   const pass  = document.getElementById('login-pass').value;
   const err   = document.getElementById('login-err');
@@ -1225,7 +1259,8 @@ function submitLogin(){
   let user = customers.find(u => u.email===email);
 
   if(user) {
-    if(user.password!==pass){err.textContent=T('err.wrongpass');err.style.display='flex';return;}
+    const hashedLoginPass = await hashPassword(pass);
+  if(user.password!==hashedLoginPass && user.password!==pass){err.textContent=T('err.wrongpass');err.style.display='flex';return;}
     currentUser = user;
     localStorage.setItem('wave_customer_session', JSON.stringify(user));
     updateHeaderAuth();
@@ -1237,7 +1272,7 @@ function submitLogin(){
   // Try Sheets
   const loginBtn = document.querySelector('#auth-login .btn-primary');
   if(loginBtn){ loginBtn.textContent='Signing in...'; loginBtn.disabled=true; }
-  fetch(SCRIPT_URL + '?action=login&email=' + encodeURIComponent(email))
+  fetch(SCRIPT_URL + '?action=login&email=' + encodeURIComponent(email) + '&pass=' + encodeURIComponent(hashedLoginPass))
     .then(r=>r.json())
     .then(data => {
       if(loginBtn){ loginBtn.textContent='Sign in →'; loginBtn.disabled=false; }
@@ -1259,7 +1294,7 @@ function submitLogin(){
     });
 }
 
-function submitRegister(){
+async function submitRegister(){
   const fname = document.getElementById('reg-fname').value.trim();
   const lname = document.getElementById('reg-lname').value.trim();
   const email = document.getElementById('reg-email').value.trim();
@@ -1275,7 +1310,7 @@ function submitRegister(){
 
   const newUser = {
     id: Date.now(), name: fname+' '+lname, firstName:fname, lastName:lname,
-    email, password:pass, phone, tier:'standard',
+    email, password:await hashPassword(pass), phone, tier:'standard',
     verified:false, createdAt:new Date().toLocaleDateString('en-GB'),
     bookings:[]
   };

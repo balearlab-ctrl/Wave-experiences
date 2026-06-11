@@ -7,7 +7,26 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
+// ── Password hashing (SHA-256 via Web Crypto API) ────────────────────────
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password + 'wave_salt_2025');
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2,'0')).join('');
+}
+function hashPasswordSync(password) {
+  // Fallback simple hash for environments without crypto.subtle
+  var hash = 0, str = password + 'wave_salt_2025';
+  for(var i = 0; i < str.length; i++){
+    var char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return 'h' + Math.abs(hash).toString(16).padStart(8,'0');
+}
+</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -940,7 +959,7 @@ function setLangNeg(lang){
     btn.classList.toggle('active', btn.dataset.lang === LANG_NEG);
   });
 }
-function doLogin() {
+async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass  = document.getElementById('login-pass').value;
 
@@ -954,8 +973,9 @@ function doLogin() {
   btn.textContent = 'Signing in...';
   btn.disabled = true;
 
+  const hashedPass = await hashPassword(pass);
   // Fetch user from Google Sheets
-  fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec?action=login&email=' + encodeURIComponent(email))
+  fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec?action=loginBusiness&email=' + encodeURIComponent(email) + '&pass=' + encodeURIComponent(hashedPass))
     .then(r => r.json())
     .then(data => {
       btn.textContent = 'Sign in →';
@@ -1965,45 +1985,76 @@ function deleteOffer(id) {
 
 // ── QR SCANNER ────────────────────────────────────────────────────────────
 function validateQR() {
-  const qrVal = document.getElementById('qr-input').value.trim();
+  const qrVal = document.getElementById('qr-input').value.trim().toUpperCase();
   if (!qrVal) { showToast('Enter a QR code', 'warning'); return; }
 
   const icon = document.getElementById('scan-icon');
-  icon.style.animation = 'spin 1s linear infinite';
+  if(icon) icon.style.animation = 'spin 1s linear infinite';
+  const resultEl = document.getElementById('scan-result');
+  if(resultEl) resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3)"><i class="ti ti-loader" style="animation:spin 1s linear infinite;font-size:24px"></i><div style="margin-top:8px;font-size:13px">Validating...</div></div>';
 
-  setTimeout(() => {
-    icon.style.animation = '';
-    let found = null, foundOffer = null;
-    for (const o of myOffers) {
-      const e = (o.enrolled||[]).find(en => en.qr === qrVal);
-      if (e) { found = e; foundOffer = o; break; }
-    }
-    const res = document.getElementById('scan-result');
-    res.style.display = 'block';
-    if (!found) {
-      res.innerHTML = `<div class="alert alert-warning"><i class="ti ti-alert-triangle"></i> QR not found. Please check the code.</div>`;
-      return;
-    }
-    const already = (foundOffer.scanned||[]).find(s => s.qr === qrVal);
-    if (already) {
-      res.innerHTML = `<div class="alert alert-warning"><i class="ti ti-alert-triangle"></i> 
-        This QR was already redeemed on ${already.date} by ${already.name}.</div>`;
-      return;
-    }
-    res.innerHTML = `
-      <div class="alert alert-success" style="margin-bottom:14px"><i class="ti ti-circle-check"></i> Valid QR — ready to redeem</div>
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
-        <div style="width:40px;height:40px;border-radius:50%;background:var(--ocean);color:#fff;
-          display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700">
-          ${found.name.charAt(0)}</div>
-        <div>
-          <div style="font-weight:700;color:var(--navy)">${found.name}</div>
-          <div style="font-size:12px;color:var(--text3)">${foundOffer.title} · ${found.date||''}</div>
-        </div>
-      </div>
-      <button class="btn btn-primary" style="width:100%" onclick="confirmScan('${qrVal}',${foundOffer.id})">
-        <i class="ti ti-check"></i> Confirm redemption at venue</button>`;
-  }, 1000);
+  // Validate against Sheets (real validation)
+  fetch(SCRIPT_URL + '?action=validateQR&qr=' + encodeURIComponent(qrVal) + '&biz=' + encodeURIComponent(currentUser?.email||''))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(icon) icon.style.animation = '';
+      if(data.valid){
+        if(resultEl) resultEl.innerHTML =
+          '<div style="background:var(--success-bg);border:2px solid var(--success-border);border-radius:var(--r2);padding:20px;text-align:center">' +
+          '<div style="font-size:40px;margin-bottom:10px">✅</div>' +
+          '<div style="font-size:16px;font-weight:800;color:var(--success);margin-bottom:8px">Valid QR — Redeemed!</div>' +
+          '<div style="font-size:13px;color:var(--text2);margin-bottom:4px"><strong>' + data.offer + '</strong></div>' +
+          '<div style="font-size:12px;color:var(--text3)">Customer: ' + data.client + '</div>' +
+          (data.date&&data.date!=='Flexible'?'<div style="font-size:12px;color:var(--text3)">Date: ' + data.date + (data.time?' at '+data.time:'') + '</div>':'') +
+          '<div style="font-family:monospace;font-size:11px;color:var(--success);margin-top:8px;opacity:.7">' + qrVal + '</div>' +
+          '</div>';
+        showToast('QR valid and redeemed ✓', 'success');
+        document.getElementById('qr-input').value = '';
+      } else {
+        var msgs = {
+          'not_found':   'QR code not found. Check the code and try again.',
+          'already_used':'This QR has already been redeemed.',
+          'pending':     'Booking is still pending confirmation.',
+        };
+        var msg = msgs[data.error] || data.message || 'Invalid QR code.';
+        if(resultEl) resultEl.innerHTML =
+          '<div style="background:var(--danger-bg);border:2px solid var(--danger-border);border-radius:var(--r2);padding:20px;text-align:center">' +
+          '<div style="font-size:40px;margin-bottom:10px">❌</div>' +
+          '<div style="font-size:15px;font-weight:700;color:var(--danger);margin-bottom:6px">Invalid QR</div>' +
+          '<div style="font-size:13px;color:var(--text2)">' + msg + '</div>' +
+          '</div>';
+        showToast(msg, 'danger');
+      }
+    })
+    .catch(function(){
+      if(icon) icon.style.animation = '';
+      // Fallback: check local myOffers
+      let found = false;
+      for(const o of myOffers){
+        const e = (o.enrolled||[]).find(function(x){ return x.qr===qrVal; });
+        if(e){
+          if((o.scanned||[]).find(function(x){ return x===qrVal; })){
+            showToast('QR already redeemed', 'danger'); found=true; break;
+          }
+          if(!o.scanned) o.scanned=[];
+          o.scanned.push(qrVal);
+          saveMyOffers();
+          if(resultEl) resultEl.innerHTML =
+            '<div style="background:var(--success-bg);border:2px solid var(--success-border);border-radius:var(--r2);padding:20px;text-align:center">' +
+            '<div style="font-size:40px;margin-bottom:10px">✅</div>' +
+            '<div style="font-size:15px;font-weight:700;color:var(--success)">Valid (offline mode)</div>' +
+            '<div style="font-size:13px;color:var(--text3)">'+o.title+' · '+e.name+'</div></div>';
+          showToast('QR valid ✓ (offline)', 'success');
+          found=true; break;
+        }
+      }
+      if(!found){
+        if(resultEl) resultEl.innerHTML =
+          '<div style="background:var(--danger-bg);border:2px solid var(--danger-border);border-radius:var(--r2);padding:20px;text-align:center">' +
+          '<div style="font-size:40px;margin-bottom:10px">❌</div>' +
+          '<div style="font-size:15px;font-weight:700;color:var(--danger)">QR not found</div></div>';
+      }
+    });
 }
 
 function confirmScan(qrVal, offerId) {
