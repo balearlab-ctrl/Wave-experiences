@@ -1105,13 +1105,21 @@ function renderCalendarGrid(o){
     const date = new Date(calState.year, calState.month, d);
     const isPast = date < today;
     const dateStr = date.toLocaleDateString('en-GB');
-    const isBlocked = (o.blockedDates||[]).indexOf(dateStr) > -1;
+    // Check offer blocked dates
+    const isBlockedByOffer = (o.blockedDates||[]).indexOf(dateStr) > -1;
+    // Check business opening hours (day of week)
+    const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const dayKey = dayNames[date.getDay()];
+    const hours = o.openingHours || {};
+    const dayHours = hours[dayKey];
+    const isClosedDay = dayHours && dayHours.open === false;
+    const isBlocked = isBlockedByOffer || isClosedDay;
     const isSelected = calState.selectedDate &&
       calState.selectedDate.toDateString()===date.toDateString();
     const isToday = date.toDateString()===today.toDateString();
     const dayCls = (isPast||isBlocked)?' disabled':isSelected?' selected':isToday?' today':'';
     html += '<div class="cal-day'+dayCls+'"'+
-      (isBlocked?' style="text-decoration:line-through;opacity:.35"':'')+
+      ((isBlockedByOffer||isClosedDay)?' style="text-decoration:line-through;opacity:.35" title="'+(isClosedDay?'Closed on '+dayNames[date.getDay()]:'Not available')+'"':'')+
       ' onclick="'+(isPast||isBlocked?'':'selectDate('+d+','+o.id+')')+'">'+d+'</div>';
   }
   grid.innerHTML = html;
