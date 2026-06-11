@@ -422,10 +422,31 @@ select.form-control option{background:#fff}
       <!-- Price -->
       <div class="wiz-field">
         <label class="wiz-label">
-          Price or value
-          <span class="wiz-tip">Show the saving — "€15 · Normally €25" is more persuasive than just "€15"</span>
+          Price
+          <span class="wiz-tip">Enter the normal price and the offer price — we'll calculate the saving automatically.</span>
         </label>
-        <input class="form-control" id="w-price" placeholder="e.g. €15 per person · Normally €25" oninput="updateWizPreview()">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px">
+          <div>
+            <label style="font-size:11px;color:var(--text3);font-weight:600;display:block;margin-bottom:4px">Normal price *</label>
+            <div style="position:relative">
+              <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);font-weight:700">€</span>
+              <input class="form-control" id="w-price-normal" type="number" min="0" step="0.01"
+                placeholder="25.00" style="padding-left:26px" oninput="calcPriceDiscount()">
+            </div>
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--fuchsia);font-weight:600;display:block;margin-bottom:4px">Offer price *</label>
+            <div style="position:relative">
+              <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--fuchsia);font-weight:700">€</span>
+              <input class="form-control" id="w-price-offer" type="number" min="0" step="0.01"
+                placeholder="15.00" style="padding-left:26px;border-color:var(--fuchsia)" oninput="calcPriceDiscount()">
+            </div>
+          </div>
+        </div>
+        <div id="price-preview" style="display:none;background:var(--fuchsia-light);border:1px solid rgba(233,30,140,.2);
+          border-radius:var(--r);padding:10px 14px;font-size:13px;color:var(--navy)">
+        </div>
+        <input type="hidden" id="w-price">
       </div>
 
       <!-- Description (optional) -->
@@ -1319,6 +1340,41 @@ function updateWizPreview(){
   if(emoji) emoji.textContent = emojis[cat]||'🎁';
   var catBadge = document.getElementById('wiz-prev-cat');
   if(catBadge) catBadge.textContent = cat;
+}
+
+function calcPriceDiscount(){
+  var normal = parseFloat(document.getElementById('w-price-normal').value)||0;
+  var offer  = parseFloat(document.getElementById('w-price-offer').value)||0;
+  var preview = document.getElementById('price-preview');
+  var hidden  = document.getElementById('w-price');
+
+  if(!normal && !offer){ 
+    if(preview) preview.style.display='none'; 
+    return; 
+  }
+
+  var priceStr = '';
+  if(offer && normal && normal > offer){
+    var saving = Math.round(((normal - offer) / normal) * 100);
+    priceStr = '\u20ac' + offer.toFixed(2) + ' per person \u00b7 Normally \u20ac' + normal.toFixed(2);
+    if(preview){
+      preview.style.display='block';
+      preview.innerHTML = 
+        '<span style="font-size:16px;font-weight:800;color:var(--fuchsia)">\u20ac' + offer.toFixed(2) + '</span>' +
+        ' &nbsp;<span style="text-decoration:line-through;color:var(--text3);font-size:13px">\u20ac' + normal.toFixed(2) + '</span>' +
+        ' &nbsp;<span style="background:var(--fuchsia);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px">-' + saving + '%</span>' +
+        '<div style="font-size:11px;color:var(--success);margin-top:3px">Saving: \u20ac' + (normal-offer).toFixed(2) + ' per person</div>';
+    }
+  } else if(offer){
+    priceStr = '\u20ac' + offer.toFixed(2) + ' per person';
+    if(preview){ preview.style.display='block'; preview.innerHTML = '<span style="font-size:16px;font-weight:800;color:var(--fuchsia)">\u20ac' + offer.toFixed(2) + ' per person</span>'; }
+  } else if(normal){
+    priceStr = '\u20ac' + normal.toFixed(2) + ' per person';
+    if(preview){ preview.style.display='none'; }
+  }
+
+  if(hidden) hidden.value = priceStr;
+  updateWizPreview();
 }
 
 function previewWizImg(input){
