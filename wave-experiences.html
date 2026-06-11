@@ -1050,8 +1050,8 @@ tr:last-child td{border-bottom:none}
     <div class="view" id="view-admin-customers">
   <div class="section-header">
     <div class="page-header" style="margin:0">
-      <h1>Customers</h1>
-      <p>Registered users on wave-clientes.html</p>
+      <h1>Clientes</h1>
+      <p>Users registered on wave-clientes.html who book offers</p>
     </div>
     <button class="btn btn-ghost" onclick="loadCustomers()">
       <i class="ti ti-refresh"></i> Refresh
@@ -1599,8 +1599,9 @@ function getViewTitles(){
     'new-offer':       typeof T==='function'?T('new.title'):'New Offer',
     'admin-dashboard': typeof T==='function'?T('adm.title'):'Control Panel',
     'admin-offers':    typeof T==='function'?T('adm.offers.title'):'Approve Offers',
-    'admin-users':     typeof T==='function'?T('usr.title'):'Users',
-    'admin-billing':   typeof T==='function'?T('bil.title'):'Billing',
+    'admin-users':     'Colaboradores',
+    'admin-billing':   'Billing',
+    'admin-customers': 'Clientes',
   };
 }
 
