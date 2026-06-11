@@ -10,28 +10,16 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  /* Palette del logo Wave Mallorca */
-  --navy:   #060E20;
-  --deep:   #04080F;
-  --ocean:  #0E2D5F;
-  --mid:    #2A5080;
-  --cyan:   #5AAFC8;
-  --cyan2:  #7CCADE;
-  --cyan3:  #B0DCE8;
-  --white:  #FFFFFF;
-  --offwhite:#F0F6FA;
-
-  /* Form side (light) */
-  --bg:     #F2F8FC;
-  --bg2:    #E4F0F6;
-  --border: #B8D4E4;
-  --text:   #0C1E3E;
-  --text2:  #2A4060;
-  --text3:  #5A7898;
-
-  --success:#0A8A4A;
-  --danger: #C83030;
-  --r:10px;--r2:16px;--r3:24px;
+  --navy:#0A0520;--ocean:#1A0840;--blue:#2D0E6E;
+  --fuchsia:#E91E8C;--fuchsia2:#FF4DB8;--fuchsia-light:rgba(233,30,140,.12);
+  --cyan:#00D4FF;--cyan2:#40E0FF;--cyan-light:rgba(0,212,255,.1);
+  --lime:#C8FF00;
+  --white:#fff;--bg:#F8F5FF;--bg2:#fff;--bg3:#F0ECFF;--bg4:#E4DCFF;
+  --border:#E0D8F8;--border2:#C8B8F0;
+  --text:#0A0520;--text2:#1A0840;--text3:#7868AA;
+  --success:#0A8A4A;--success-bg:#E8F7EF;
+  --danger:#C8341A;--danger-bg:#FEF0ED;
+  --r:8px;--r2:14px;--r3:20px;
 }
 html,body{height:100%;font-family:'Inter',sans-serif;overflow-x:hidden}
 body{background:var(--navy)}
@@ -225,7 +213,7 @@ textarea.fc{resize:none}
 /* Buttons */
 .btn-next{
   width:100%;padding:14px;
-  background:linear-gradient(135deg,#0E2D5F,#2A5080);
+  background:linear-gradient(135deg,#E91E8C,#FF4DB8);
   color:var(--white);border:none;border-radius:50px;
   font-size:14px;font-weight:800;font-family:'Inter',sans-serif;
   cursor:pointer;transition:all .25s;
@@ -1044,7 +1032,7 @@ function emailBase(content) {
     .box{background:#F2F8FC;border:1px solid #C8DFF0;border-radius:10px;padding:16px;margin:14px 0}
     .row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid #E4F0F6}
     .row:last-child{border:none} .k{color:#6B7E96} .v{color:#0C1E3E;font-weight:600}
-    .btn{display:inline-block;background:linear-gradient(135deg,#0E2D5F,#2A5080);color:#fff;padding:12px 28px;border-radius:50px;font-size:14px;font-weight:700;text-decoration:none;margin:14px 0}
+    .btn{display:inline-block;background:linear-gradient(135deg,#E91E8C,#FF4DB8);color:#fff;padding:12px 28px;border-radius:50px;font-size:14px;font-weight:700;text-decoration:none;margin:14px 0}
     .foot{background:#F2F8FC;padding:16px 32px;text-align:center;border-top:1px solid #C8DFF0;font-size:11px;color:#6B7E96}
   </style></head><body><div class="wrap">${content}<div class="foot">Wave Experiences Mallorca · waveexperiences.com</div></div></body></html>`;
 }
