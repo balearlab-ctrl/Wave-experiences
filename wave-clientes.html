@@ -1051,14 +1051,14 @@ function submitLogin(){
   const email = document.getElementById('login-email').value.trim();
   const pass  = document.getElementById('login-pass').value;
   const err   = document.getElementById('login-err');
-  if(!email||!pass){err.textContent='Please fill in all fields';err.style.display='flex';return;}
+  if(!email||!pass){err.textContent='Please enter your email and password.';err.style.display='flex';return;}
 
   // First check localStorage (fast), then Sheets
   const customers = JSON.parse(localStorage.getItem('wave_customers')||'[]');
   let user = customers.find(u => u.email===email);
 
   if(user) {
-    if(user.password!==pass){err.textContent='Incorrect password.';err.style.display='flex';return;}
+    if(user.password!==pass){err.textContent='Incorrect password. Please try again.';err.style.display='flex';return;}
     currentUser = user;
     localStorage.setItem('wave_customer_session', JSON.stringify(user));
     updateHeaderAuth();
@@ -1074,7 +1074,7 @@ function submitLogin(){
     .then(r=>r.json())
     .then(data => {
       if(loginBtn){ loginBtn.textContent='Sign in →'; loginBtn.disabled=false; }
-      if(!data){ err.textContent='No account found.'; err.style.display='flex'; return; }
+      if(!data){ err.textContent='No account found with this email address.'; err.style.display='flex'; return; }
       // Note: password check would need server-side in production
       currentUser = {
         id: data['ID'], name: data['Nombre'], firstName: data['Nombre'].split(' ')[0],
@@ -1100,11 +1100,11 @@ function submitRegister(){
   const phone = document.getElementById('reg-phone').value.trim();
   const err   = document.getElementById('reg-err');
 
-  if(!fname||!lname||!email||!pass){err.textContent='Please fill in all required fields';err.style.display='flex';return;}
-  if(pass.length<8){err.textContent='Password must be at least 8 characters';err.style.display='flex';return;}
+  if(!fname||!lname||!email||!pass){err.textContent='Please fill in all required fields.';err.style.display='flex';return;}
+  if(pass.length<8){err.textContent='Password must be at least 8 characters.';err.style.display='flex';return;}
 
   const customers = JSON.parse(localStorage.getItem('wave_customers')||'[]');
-  if(customers.find(u=>u.email===email)){err.textContent='An account with this email already exists';err.style.display='flex';return;}
+  if(customers.find(u=>u.email===email)){err.textContent='An account with this email already exists.';err.style.display='flex';return;}
 
   const newUser = {
     id: Date.now(), name: fname+' '+lname, firstName:fname, lastName:lname,
@@ -1186,8 +1186,20 @@ function checkVerifyToken(){
       updateHeaderAuth();
       delete tokens[email];
       localStorage.setItem('wave_verify_tokens', JSON.stringify(tokens));
-      showToast('Email verified! Welcome to Wave Experiences ✓', 'success');
+      showToast('Email verified! Please sign in to continue ✓', 'success');
       window.history.replaceState({}, document.title, window.location.pathname);
+      // Open login modal automatically
+      setTimeout(function(){
+        openModal('auth-modal', 'login');
+        var loginErr = document.getElementById('login-err');
+        if(loginErr){ 
+          loginErr.textContent = '✅ Email verified! Sign in to start booking.';
+          loginErr.style.display = 'flex';
+          loginErr.style.background = 'var(--success-bg,#E8F7EF)';
+          loginErr.style.color = 'var(--success,#0A8A4A)';
+          loginErr.style.borderColor = '#A8DFC1';
+        }
+      }, 500);
     }
   }
 }
