@@ -451,8 +451,11 @@ tr:last-child td{border-bottom:none}
       <i class="ti ti-files"></i> Validar Ofertas <span id="pending-count" class="notif-dot" style="display:none"></span>
     </button>
     <button class="nav-item" onclick="showView('admin-users')" data-view="admin-users">
-      <i class="ti ti-users"></i> Usuarios <span id="pending-users-dot" class="notif-dot" style="display:none"></span>
+      <i class="ti ti-building-store"></i> Collaborators <span id="pending-users-dot" class="notif-dot" style="display:none"></span>
     </button>
+      <button class="nav-item" onclick="showView('admin-customers')" data-view="admin-customers">
+        <i class="ti ti-users"></i> Users
+      </button>
     <button class="nav-item" onclick="showView('admin-billing')" data-view="admin-billing">
       <i class="ti ti-receipt"></i> Facturación
     </button>
@@ -1050,7 +1053,7 @@ tr:last-child td{border-bottom:none}
     <div class="view" id="view-admin-customers">
   <div class="section-header">
     <div class="page-header" style="margin:0">
-      <h1>Clientes</h1>
+      <h1>Users</h1>
       <p>Users registered on wave-clientes.html who book offers</p>
     </div>
     <button class="btn btn-ghost" onclick="loadCustomers()">
@@ -1149,7 +1152,7 @@ const I18N = {
     'nav.offers':'Offers','nav.list-biz':'List your business',
     'nav.my-dashboard':'My Dashboard','nav.my-offers':'My Offers',
     'nav.validate-qr':'Validate QR','nav.control-panel':'Control Panel',
-    'nav.approve-offers':'Approve Offers','nav.users':'Users',
+    'nav.approve-offers':'Approve Offers','nav.users':'Collaborators',
     'nav.billing':'Billing','nav.new-offer':'+ New Offer',
     'pub.title':'Exclusive Mallorca Offers',
     'pub.sub':'Get your QR via WhatsApp or email · Redeem it at the venue',
@@ -1178,7 +1181,7 @@ const I18N = {
     'adm.rejected-tab':'Rejected','adm.all-tab':'All',
     'adm.approve':'Approve','adm.reject':'Reject',
     'adm.no-offers':'No offers in this status',
-    'usr.title':'Users / Businesses',
+    'usr.title':'Collaborators',
     'usr.sub':'Manage businesses registered on the platform',
     'usr.loading':'Loading from Google Sheets...',
     'bil.title':'Billing',
@@ -1225,7 +1228,7 @@ const I18N = {
     'nav.offers':'Ofertas','nav.list-biz':'Publica tu negocio',
     'nav.my-dashboard':'Mi Panel','nav.my-offers':'Mis Ofertas',
     'nav.validate-qr':'Validar QR','nav.control-panel':'Panel de Control',
-    'nav.approve-offers':'Validar Ofertas','nav.users':'Usuarios',
+    'nav.approve-offers':'Validar Ofertas','nav.users':'Collaborators',
     'nav.billing':'Facturación','nav.new-offer':'+ Nueva Oferta',
     'pub.title':'Ofertas Exclusivas Mallorca',
     'pub.sub':'Recibe tu QR por WhatsApp o email · Canjéalo en el local',
@@ -1326,6 +1329,7 @@ function _applyNav(){
     'admin-dashboard': T('nav.control-panel'),
     'admin-offers':    T('nav.approve-offers'),
     'admin-users':     T('nav.users'),
+    'admin-customers': 'Users',
     'admin-billing':   T('nav.billing'),
   };
   Object.entries(map).forEach(([view, label])=>{
@@ -1599,9 +1603,9 @@ function getViewTitles(){
     'new-offer':       typeof T==='function'?T('new.title'):'New Offer',
     'admin-dashboard': typeof T==='function'?T('adm.title'):'Control Panel',
     'admin-offers':    typeof T==='function'?T('adm.offers.title'):'Approve Offers',
-    'admin-users':     'Colaboradores',
+    'admin-users':     'Collaborators',
     'admin-billing':   'Billing',
-    'admin-customers': 'Clientes',
+    'admin-customers': 'Users',
   };
 }
 
@@ -1700,7 +1704,7 @@ const viewTitles = {
   'new-offer':       'New Offer',
   'admin-dashboard': 'Control Panel',
   'admin-offers':    'Approve Offers',
-  'admin-users':     'Users',
+  'admin-users':     'Collaborators',
   'admin-billing':   'Billing',
 };
 
@@ -1729,6 +1733,7 @@ function renderView(v){
     case 'admin-users':      loadSheetsUsers(); break;
     case 'admin-customers':  loadCustomers(); break;
     case 'admin-billing':    renderAdminBilling(); break;
+    case 'admin-customers':  loadCustomers(); break;
   }
 }
 
