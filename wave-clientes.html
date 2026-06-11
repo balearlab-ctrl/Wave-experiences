@@ -974,8 +974,29 @@ function bookOffer(id, requestedDate, requestedTime){
     date:requestedDate||new Date().toLocaleDateString('en-GB'),
     time:requestedTime||'', status:bookingStatus});
 
+  // Auto-confirm: if offer has confirmMode='auto', confirm instantly
+  const isAutoConfirm = hasPendingDate && o.confirmMode==='auto';
+
+  if(isAutoConfirm){
+    saveUserBooking({offerId:String(o.id),offerTitle:o.title,biz:o.biz,qr:qrId,
+      date:requestedDate,time:requestedTime||'',status:'active'});
+    fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {method:'POST',mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({_action:'saveBooking',autoConfirm:true,
+        offerId:String(o.id),offerTitle:o.title,biz:o.biz,bizEmail:o.bizEmail||'',
+        clientName:currentUser.name,clientEmail:currentUser.email,
+        clientPhone:currentUser.phone||'',qr:qrId,
+        requestedDate:requestedDate,requestedTime:requestedTime||'Flexible',
+        includes:o.includes||'',desc:o.desc||'',price:o.price||'',
+        conditions:o.conditions||'',schedule:o.schedule||''
+      })
+    }).catch(()=>{});
+    showBookingSuccess(o, qrId, requestedDate, requestedTime, true);
+    return;
+  }
+
   if(hasPendingDate){
-    // Save booking + send QR + notify business for date confirmation
+    // MANUAL: Save booking + send QR + notify business for date confirmation
     fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {
       method:'POST', mode:'no-cors',
       headers:{'Content-Type':'application/json'},
@@ -1009,8 +1030,8 @@ function bookOffer(id, requestedDate, requestedTime){
   showBookingSuccess(o, qrId, requestedDate, requestedTime);
 }
 
-function showBookingSuccess(o, qrId, requestedDate, requestedTime){
-  const hasPending = o.bookingType && o.bookingType!=='none' && requestedDate && requestedDate!=='Flexible';
+function showBookingSuccess(o, qrId, requestedDate, requestedTime, autoConfirmed){
+  const hasPending = !autoConfirmed && o.bookingType && o.bookingType!=='none' && requestedDate && requestedDate!=='Flexible';
   const el = document.getElementById('offer-modal-content');
   if(!el) return;
   el.innerHTML =
@@ -1083,18 +1104,30 @@ function renderCalendarGrid(o){
   for(let d=1;d<=daysInMonth;d++){
     const date = new Date(calState.year, calState.month, d);
     const isPast = date < today;
+    const dateStr = date.toLocaleDateString('en-GB');
+    const isBlocked = (o.blockedDates||[]).indexOf(dateStr) > -1;
     const isSelected = calState.selectedDate &&
       calState.selectedDate.toDateString()===date.toDateString();
     const isToday = date.toDateString()===today.toDateString();
-    html += `<div class="cal-day${isPast?' disabled':''}${isSelected?' selected':''}${isToday&&!isPast?' today':''}"
-      onclick="${isPast?'':'selectDate('+d+','+o.id+')'}">${d}</div>`;
+    const dayCls = (isPast||isBlocked)?' disabled':isSelected?' selected':isToday?' today':'';
+    html += '<div class="cal-day'+dayCls+'"'+
+      (isBlocked?' style="text-decoration:line-through;opacity:.35"':'')+
+      ' onclick="'+(isPast||isBlocked?'':'selectDate('+d+','+o.id+')')+'">'+d+'</div>';
   }
   grid.innerHTML = html;
 }
 
 function selectDate(d, oid){
-  calState.selectedDate = new Date(calState.year, calState.month, d);
   const o = allOffers.find(x => String(x.id)===String(oid));
+  if(!o) return;
+  const date = new Date(calState.year, calState.month, d);
+  const dateStr = date.toLocaleDateString('en-GB');
+  const blocked = o.blockedDates || [];
+  if(blocked.indexOf(dateStr) > -1){
+    showToast('This date is not available. Please choose another.', 'warning');
+    return;
+  }
+  calState.selectedDate = date;
   renderCalendarGrid(o);
   renderTimeSlots(o);
 }

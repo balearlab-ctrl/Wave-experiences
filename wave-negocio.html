@@ -1423,6 +1423,24 @@ function buildStep3() {
       '<div class="wiz-field">' +
       '<label class="wiz-label">Which days? *<span class="wiz-tip">Select all days when this activity runs.</span></label>' +
       buildDaySelector() + '</div>' +
+      // Auto-confirm + blocked dates for activity
+      '<div class="wiz-field">' +
+      '<label class="wiz-label">Booking confirmation<span class="wiz-tip">Auto-confirm for instant booking, manual if you want to review each request.</span></label>' +
+      '<div style="display:flex;gap:10px">' +
+      '<label style="flex:1;display:flex;align-items:center;gap:10px;padding:12px;border:1.5px solid var(--border);border-radius:var(--r);cursor:pointer;background:#fff">' +
+      '<input type="radio" name="confirm-mode" value="auto" id="confirm-auto" style="accent-color:var(--fuchsia)" checked> ' +
+      '<div><div style="font-size:13px;font-weight:600;color:var(--navy)">⚡ Auto-confirm</div>' +
+      '<div style="font-size:11px;color:var(--text3)">Instant if slot available</div></div></label>' +
+      '<label style="flex:1;display:flex;align-items:center;gap:10px;padding:12px;border:1.5px solid var(--border);border-radius:var(--r);cursor:pointer;background:#fff">' +
+      '<input type="radio" name="confirm-mode" value="manual" id="confirm-manual" style="accent-color:var(--fuchsia)"> ' +
+      '<div><div style="font-size:13px;font-weight:600;color:var(--navy)">👁 Manual review</div>' +
+      '<div style="font-size:11px;color:var(--text3)">You confirm each request</div></div></label>' +
+      '</div></div>' +
+      '<div class="wiz-field">' +
+      '<label class="wiz-label">Block specific dates (optional)<span class="wiz-tip">Dates you are unavailable. DD/MM/YYYY, one per line.</span></label>' +
+      '<textarea class="form-control" id="w-blocked-dates" rows="3" placeholder="25/12/2025&#10;01/01/2026"></textarea>' +
+      '</div>' +
+
       '<div class="wiz-field">' +
       '<label class="wiz-label">Session times *<span class="wiz-tip">What time does each session start? Add one or more.</span></label>' +
       '<div id="activity-times">' +
@@ -1444,6 +1462,24 @@ function buildStep3() {
       '<div class="wiz-field">' +
       '<label class="wiz-label">Which days? *<span class="wiz-tip">Select your working days for this service.</span></label>' +
       buildDaySelector() + '</div>' +
+      // Auto-confirm + blocked dates for service
+      '<div class="wiz-field">' +
+      '<label class="wiz-label">Booking confirmation<span class="wiz-tip">Auto-confirm for instant booking, manual if you want to review each request.</span></label>' +
+      '<div style="display:flex;gap:10px">' +
+      '<label style="flex:1;display:flex;align-items:center;gap:10px;padding:12px;border:1.5px solid var(--border);border-radius:var(--r);cursor:pointer;background:#fff">' +
+      '<input type="radio" name="confirm-mode" value="auto" id="confirm-auto" style="accent-color:var(--fuchsia)" checked> ' +
+      '<div><div style="font-size:13px;font-weight:600;color:var(--navy)">⚡ Auto-confirm</div>' +
+      '<div style="font-size:11px;color:var(--text3)">Instant if slot available</div></div></label>' +
+      '<label style="flex:1;display:flex;align-items:center;gap:10px;padding:12px;border:1.5px solid var(--border);border-radius:var(--r);cursor:pointer;background:#fff">' +
+      '<input type="radio" name="confirm-mode" value="manual" id="confirm-manual" style="accent-color:var(--fuchsia)"> ' +
+      '<div><div style="font-size:13px;font-weight:600;color:var(--navy)">👁 Manual review</div>' +
+      '<div style="font-size:11px;color:var(--text3)">You confirm each request</div></div></label>' +
+      '</div></div>' +
+      '<div class="wiz-field">' +
+      '<label class="wiz-label">Block specific dates (optional)<span class="wiz-tip">Dates you are unavailable. DD/MM/YYYY, one per line.</span></label>' +
+      '<textarea class="form-control" id="w-blocked-dates" rows="3" placeholder="25/12/2025&#10;01/01/2026"></textarea>' +
+      '</div>' +
+
       '<div class="wiz-field">' +
       '<label class="wiz-label">Working hours *<span class="wiz-tip">Customers can book any slot within these hours.</span></label>' +
       '<div style="display:flex;align-items:center;gap:10px">' +
