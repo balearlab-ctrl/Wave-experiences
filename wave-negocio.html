@@ -239,6 +239,9 @@ select.form-control option{background:#fff}
       <button class="nav-item" onclick="showView('new-offer')" data-view="new-offer">
         <i class="ti ti-plus"></i> New Offer
       </button>
+      <button class="nav-item" onclick="showView('profile')" data-view="profile">
+        <i class="ti ti-building-store"></i> My Profile
+      </button>
       <button class="nav-item" onclick="showView('scanner')" data-view="scanner">
         <i class="ti ti-scan"></i> Validate QR
       </button>
@@ -266,6 +269,18 @@ select.form-control option{background:#fff}
 
       <!-- DASHBOARD -->
       <div class="view active" id="view-dashboard">
+        <div id="fiscal-warning-banner" style="display:none;background:rgba(233,30,140,.08);
+          border:1.5px solid rgba(233,30,140,.2);border-radius:var(--r2);padding:14px 18px;margin-bottom:20px;
+          display:none;align-items:center;gap:14px;flex-wrap:wrap">
+          <div style="font-size:22px">📋</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;color:var(--fuchsia);margin-bottom:2px">Complete your fiscal details</div>
+            <div style="font-size:12px;color:var(--text3)">Required before publishing your first offer.</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="showView('profile');setTimeout(function(){switchProfileTab('fiscal')},100)">
+            <i class="ti ti-file-invoice"></i> Complete now
+          </button>
+        </div>
         <div class="page-header">
           <h1 id="dash-title">Welcome back!</h1>
           <p>Here's how your offers are performing</p>
@@ -593,6 +608,185 @@ select.form-control option{background:#fff}
       </button>
     </div>
 
+  </div>
+</div>
+
+<div class="view" id="view-profile">
+  <div class="section-header">
+    <div class="page-header" style="margin:0">
+      <h1>My Profile</h1>
+      <p>Business information and fiscal details</p>
+    </div>
+    <button class="btn btn-primary" onclick="saveProfile()">
+      <i class="ti ti-device-floppy"></i> Save changes
+    </button>
+  </div>
+
+  <div id="profile-save-msg" style="display:none" class="alert alert-success">
+    <i class="ti ti-circle-check"></i> Profile saved successfully!
+  </div>
+
+  <!-- TABS -->
+  <div class="tab-bar" style="margin-bottom:20px">
+    <button class="tab-btn active" id="ptab-biz" onclick="switchProfileTab('biz')">
+      <i class="ti ti-building-store"></i> Business Info
+    </button>
+    <button class="tab-btn" id="ptab-fiscal" onclick="switchProfileTab('fiscal')">
+      <i class="ti ti-file-invoice"></i> Fiscal Details
+      <span id="fiscal-badge" style="display:none;background:var(--fuchsia);color:#fff;
+        font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px;margin-left:4px">Required</span>
+    </button>
+  </div>
+
+  <!-- BUSINESS INFO TAB -->
+  <div id="ptab-content-biz">
+    <div class="card" style="padding:24px;max-width:680px">
+      <div class="form-row" style="margin-bottom:16px">
+        <div class="form-group">
+          <label class="form-label">Business name *</label>
+          <input class="form-control" id="p-name" placeholder="Your business name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="form-control" id="p-cat">
+            <option>Food & Drink</option>
+            <option>Leisure & Adventure</option>
+            <option>Health & Wellness</option>
+            <option>Fashion & Lifestyle</option>
+            <option>Travel & Tours</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row" style="margin-bottom:16px">
+        <div class="form-group">
+          <label class="form-label">City</label>
+          <input class="form-control" id="p-city" placeholder="Palma, Alcúdia...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Address</label>
+          <input class="form-control" id="p-address" placeholder="Street and number">
+        </div>
+      </div>
+      <div class="form-row" style="margin-bottom:16px">
+        <div class="form-group">
+          <label class="form-label">Web / Instagram</label>
+          <input class="form-control" id="p-web" placeholder="www.yourbusiness.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">WhatsApp</label>
+          <input class="form-control" id="p-phone" placeholder="+34 600 000 000">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" id="p-desc" rows="3" placeholder="What makes your business special..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- FISCAL TAB -->
+  <div id="ptab-content-fiscal" style="display:none">
+    <div class="card" style="padding:24px;max-width:680px">
+      <div style="background:linear-gradient(135deg,rgba(233,30,140,.08),rgba(0,212,255,.06));
+        border:1px solid rgba(233,30,140,.2);border-radius:var(--r2);padding:14px 16px;margin-bottom:20px;
+        font-size:13px;color:var(--text2);line-height:1.7">
+        <i class="ti ti-shield-check" style="color:var(--fuchsia)"></i>
+        Required to issue invoices. Treated as confidential — never visible to customers.
+      </div>
+
+      <div style="font-size:11px;font-weight:700;color:var(--fuchsia);text-transform:uppercase;
+        letter-spacing:.08em;margin-bottom:14px;padding-bottom:6px;border-bottom:2px solid var(--fuchsia)">
+        Business identity
+      </div>
+      <div class="form-row" style="margin-bottom:16px">
+        <div class="form-group">
+          <label class="form-label">Legal business name *</label>
+          <input class="form-control" id="f-legal-name" placeholder="e.g. La Taberna S.L.">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Business type *</label>
+          <select class="form-control" id="f-biz-type">
+            <option value="">Select...</option>
+            <option value="autonomo">Autónomo</option>
+            <option value="sl">S.L.</option>
+            <option value="sa">S.A.</option>
+            <option value="cb">C.B.</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row" style="margin-bottom:16px">
+        <div class="form-group">
+          <label class="form-label">NIF / CIF *</label>
+          <input class="form-control" id="f-nif" placeholder="e.g. B12345678">
+          <div class="form-hint">Spanish tax ID number</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">VAT Number</label>
+          <input class="form-control" id="f-vat" placeholder="e.g. ESB12345678">
+          <div class="form-hint">EU VAT — usually ES + CIF</div>
+        </div>
+      </div>
+
+      <div style="font-size:11px;font-weight:700;color:var(--fuchsia);text-transform:uppercase;
+        letter-spacing:.08em;margin:20px 0 14px;padding-bottom:6px;border-bottom:2px solid var(--fuchsia)">
+        Registered address
+      </div>
+      <div class="form-group" style="margin-bottom:16px">
+        <label class="form-label">Street address *</label>
+        <input class="form-control" id="f-address" placeholder="Calle Colón, 42, 1º">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px">
+        <div class="form-group">
+          <label class="form-label">City *</label>
+          <input class="form-control" id="f-city" placeholder="Palma">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Postcode *</label>
+          <input class="form-control" id="f-postcode" placeholder="07001">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Province</label>
+          <input class="form-control" id="f-province" value="Illes Balears">
+        </div>
+      </div>
+
+      <div style="font-size:11px;font-weight:700;color:var(--fuchsia);text-transform:uppercase;
+        letter-spacing:.08em;margin:20px 0 14px;padding-bottom:6px;border-bottom:2px solid var(--fuchsia)">
+        Banking & billing
+      </div>
+      <div class="form-group" style="margin-bottom:16px">
+        <label class="form-label">IBAN *</label>
+        <input class="form-control" id="f-iban" placeholder="ES91 2100 0418 4502 0005 1332">
+        <div class="form-hint">Bank account for receiving payments from Wave Experiences</div>
+      </div>
+      <div class="form-row" style="margin-bottom:16px">
+        <div class="form-group">
+          <label class="form-label">Bank name</label>
+          <input class="form-control" id="f-bank" placeholder="CaixaBank">
+        </div>
+        <div class="form-group">
+          <label class="form-label">BIC / SWIFT</label>
+          <input class="form-control" id="f-swift" placeholder="CAIXESBB">
+        </div>
+      </div>
+      <div class="form-row" style="margin-bottom:16px">
+        <div class="form-group">
+          <label class="form-label">VAT rate *</label>
+          <select class="form-control" id="f-vat-rate">
+            <option value="21">21% (general)</option>
+            <option value="10" selected>10% (hospitality)</option>
+            <option value="4">4% (super-reduced)</option>
+            <option value="0">0% (exempt)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Billing email *</label>
+          <input class="form-control" id="f-email" type="email" placeholder="billing@yourbusiness.com">
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1029,7 +1223,36 @@ var wizState = {
   validUntil: ''
 };
 
+function checkFiscalComplete(){
+  if(!currentUser) return false;
+  var fiscal = JSON.parse(localStorage.getItem('wave_fiscal_'+currentUser.email)||'{}');
+  var complete = fiscal.nif && fiscal.iban && fiscal.legalName;
+  if(!complete){
+    // Show modal prompting to complete fiscal details
+    document.getElementById('modal-offer-title').textContent = 'Fiscal details required';
+    document.getElementById('modal-offer-body').innerHTML =
+      '<div style="text-align:center;padding:16px 0">' +
+      '<div style="font-size:52px;margin-bottom:16px">📋</div>' +
+      '<p style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:10px">Complete your fiscal details first</p>' +
+      '<p style="font-size:13px;color:var(--text3);line-height:1.7;margin-bottom:20px">' +
+      'Before publishing your first offer, we need your billing information (NIF/CIF and IBAN) to process payments and issue invoices.</p>' +
+      '<p style="font-size:12px;color:var(--text3)">It only takes 2 minutes.</p>' +
+      '</div>';
+    document.getElementById('modal-offer-footer').innerHTML =
+      '<button class="btn btn-ghost" onclick="document.getElementById(&quot;offer-modal&quot;).style.display=&quot;none&quot;">Later</button>' +
+      '<button class="btn btn-primary" onclick="document.getElementById(&quot;offer-modal&quot;).style.display=&quot;none&quot;;showView(&quot;profile&quot;);setTimeout(function(){switchProfileTab(&quot;fiscal&quot;)},100)">' +
+      '<i class="ti ti-file-invoice"></i> Complete fiscal details</button>';
+    document.getElementById('modal-offer-footer').style.display = 'flex';
+    document.getElementById('offer-modal').style.display = 'flex';
+    return false;
+  }
+  return true;
+}
+
 function initWizard() {
+  // Check fiscal data is complete before allowing offer creation
+  if(!checkFiscalComplete()) return;
+
   wizState = { step:1, type:null, cat:'Food & Drink', days:[], slots:{},
     hours:{start:'09:00',end:'22:00',interval:60}, maxPerSlot:10, maxTotal:0, validUntil:'' };
   showWizStep(1);
@@ -1836,6 +2059,98 @@ function updateBookingState(bookingId, newState){
   if(b) b['Estado']=newState;
   renderBookings();
 }
+// ══════════════════════════════════════════════════
+//  PROFILE & FISCAL
+// ══════════════════════════════════════════════════
+function switchProfileTab(tab){
+  ['biz','fiscal'].forEach(function(t){
+    document.getElementById('ptab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('ptab-content-'+t).style.display = t===tab ? 'block' : 'none';
+  });
+}
+
+function loadProfile(){
+  if(!currentUser) return;
+  // Fill business info from currentUser session
+  var fields = {
+    'p-name':    currentUser.name||'',
+    'p-cat':     currentUser.category||'',
+    'p-city':    currentUser.city||'',
+    'p-address': currentUser.address||'',
+    'p-web':     currentUser.web||'',
+    'p-phone':   currentUser.phone||'',
+    'p-desc':    currentUser.desc||'',
+  };
+  Object.keys(fields).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.value = fields[id];
+  });
+  // Load fiscal from localStorage
+  var fiscal = JSON.parse(localStorage.getItem('wave_fiscal_'+currentUser.email)||'{}');
+  var ffields = ['f-legal-name','f-biz-type','f-nif','f-vat','f-address','f-city',
+    'f-postcode','f-province','f-iban','f-bank','f-swift','f-vat-rate','f-email'];
+  ffields.forEach(function(id){
+    var key = id.replace('f-','');
+    var el = document.getElementById(id);
+    if(el && fiscal[key]) el.value = fiscal[key];
+  });
+  // Show fiscal badge if not filled
+  var badge = document.getElementById('fiscal-badge');
+  if(badge) badge.style.display = (!fiscal.nif || !fiscal.iban) ? 'inline' : 'none';
+}
+
+function saveProfile(){
+  var bizData = {
+    name:    document.getElementById('p-name')?.value.trim()||'',
+    category:document.getElementById('p-cat')?.value||'',
+    city:    document.getElementById('p-city')?.value.trim()||'',
+    address: document.getElementById('p-address')?.value.trim()||'',
+    web:     document.getElementById('p-web')?.value.trim()||'',
+    phone:   document.getElementById('p-phone')?.value.trim()||'',
+    desc:    document.getElementById('p-desc')?.value.trim()||'',
+  };
+  var fiscalData = {
+    legalName: document.getElementById('f-legal-name')?.value.trim()||'',
+    bizType:   document.getElementById('f-biz-type')?.value||'',
+    nif:       document.getElementById('f-nif')?.value.trim()||'',
+    vat:       document.getElementById('f-vat')?.value.trim()||'',
+    address:   document.getElementById('f-address')?.value.trim()||'',
+    city:      document.getElementById('f-city')?.value.trim()||'',
+    postcode:  document.getElementById('f-postcode')?.value.trim()||'',
+    province:  document.getElementById('f-province')?.value.trim()||'',
+    iban:      document.getElementById('f-iban')?.value.trim()||'',
+    bank:      document.getElementById('f-bank')?.value.trim()||'',
+    swift:     document.getElementById('f-swift')?.value.trim()||'',
+    vatRate:   document.getElementById('f-vat-rate')?.value||'',
+    email:     document.getElementById('f-email')?.value.trim()||currentUser.email||'',
+  };
+
+  // Save fiscal locally
+  localStorage.setItem('wave_fiscal_'+currentUser.email, JSON.stringify(fiscalData));
+
+  // Update session
+  Object.assign(currentUser, bizData);
+  localStorage.setItem('wave_biz_session', JSON.stringify(currentUser));
+
+  // Send to Sheets
+  fetch(SCRIPT_URL, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(Object.assign({_action:'saveFiscal', email:currentUser.email,
+      submittedAt:new Date().toLocaleDateString('en-GB')}, fiscalData))
+  }).catch(function(){});
+
+  // Show success message
+  var msg = document.getElementById('profile-save-msg');
+  if(msg){ msg.style.display='flex'; setTimeout(function(){ msg.style.display='none'; }, 3000); }
+
+  // Update fiscal badge
+  var badge = document.getElementById('fiscal-badge');
+  if(badge) badge.style.display = (!fiscalData.nif || !fiscalData.iban) ? 'inline' : 'none';
+
+  showToast('Profile saved ✓', 'success');
+}
+
 function showView(v) {
   document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
