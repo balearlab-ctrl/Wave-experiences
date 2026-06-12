@@ -3151,18 +3151,22 @@ function renderAdminUsers(){ if(sheetsUsers&&sheetsUsers.length) renderCollabs()
 
 
 function approveUserDirect(id, email, name){
-  if(!confirm('Approve "' + name + '"?')) return;
-  fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec',{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({_action:'approveUser',id:id,email:email,name:name,contact:name,plan:'Basic'})
-  }).catch(function(){});
-  var u=sheetsUsers.find(function(s){return s['Email']===email;});
-  if(u) u['Estado']='Activo';
+  console.log('Approving:', id, email, name);
+  // Update locally first for instant feedback
+  var u = sheetsUsers.find(function(s){ return s['Email']===email; });
+  if(u){ u['Estado']='Activo'; console.log('Local update done'); }
   showToast(name+' approved ✓','success');
   renderCollabs();
-  setTimeout(loadSheetsUsers,2000);
+  // Send to Sheets
+  fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec',{
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({_action:'approveUser',id:String(id),email:email,name:name,contact:name,plan:'Basic'})
+  }).then(function(){ console.log('Sheets updated'); }).catch(function(e){ console.error('Sheets error:',e); });
+  // Reload after 3s to confirm
+  setTimeout(loadSheetsUsers, 3000);
 }
 function archiveCollaborator(id, email, name){
-  if(!confirm('Archive "'+name+'"?')) return;
   fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec',{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({_action:'updateStatus',id:id,email:email,status:'Archivado'})
   }).catch(function(){});
@@ -3181,7 +3185,7 @@ function unarchiveCollaborator(id, email, name){
   renderCollabs();
 }
 function deleteCollaborator(id, email, name){
-  if(!confirm('Delete "'+name+'" permanently?')) return;
+  if(!window.confirm('Delete "'+name+'" permanently? This cannot be undone.')) return;
   fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec',{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({_action:'deleteCollaborator',id:id,email:email})
   }).catch(function(){});
