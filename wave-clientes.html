@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Wave Experiences Mallorca — Exclusive Offers</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1343,7 +1346,10 @@ function sendVerificationEmail(user){
 
   const verifyUrl = window.location.href.split('?')[0] + '?verify=' + token + '&email=' + encodeURIComponent(user.email);
   const html =
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="font-family:Arial,sans-serif;background:#F0F6FA">' +
+    '<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0"></head><body style="font-family:Arial,sans-serif;background:#F0F6FA">' +
     '<div style="max-width:720px;margin:32px auto">' +
     '<div style="background:linear-gradient(135deg,#060E20,#0E2D5F);padding:32px;text-align:center;border-radius:16px 16px 0 0">' +
     '<img src="' + 'https://balearlab-ctrl.github.io/Wave-experiences/LOGO_WAVE_EXPERIENCES_azul_ok.png?v=2' + '" alt="Wave Experiences" width="160" style="height:auto;display:block;margin:0 auto 16px">' +
