@@ -3151,7 +3151,7 @@ function renderAdminUsers(){ if(sheetsUsers&&sheetsUsers.length) renderCollabs()
 
 
 function approveUserDirect(id, email, name){
-  console.log('Approving:', id, email, name);
+  alert('DEBUG: approveUserDirect called for ' + name);
   // Update locally first for instant feedback
   var u = sheetsUsers.find(function(s){ return s['Email']===email; });
   if(u){ u['Estado']='Activo'; console.log('Local update done'); }
