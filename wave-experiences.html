@@ -1375,10 +1375,12 @@ function toggleLang(){
 // Wire translate keys into render functions via global T()
 // (render functions already reference T() where needed via statusBadge etc.)
 
-// ── INIT (runs after all functions defined) ──
-_applyTheme();
-_applyLangLabel();
-_applyNav();
+// ── INIT (runs after DOM is ready) ──
+document.addEventListener('DOMContentLoaded', function(){
+  _applyTheme();
+  _applyLangLabel();
+  _applyNav();
+});
 
 
 
@@ -3142,5 +3144,4 @@ function renderAdminUsers(){ if(sheetsUsers&&sheetsUsers.length) renderCollabs()
 
 
 </script>
-</body>
-</html>
+</body></html>
