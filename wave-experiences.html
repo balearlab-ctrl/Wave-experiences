@@ -3189,5 +3189,31 @@ function deleteCollaborator(id, email, name){
   showToast(name+' deleted','danger');
   renderCollabs();
 }
+
+// ── UTILITY FUNCTIONS ───────────────────────────────────────────
+function showToast(msg, type){
+  var icons = {success:'ti-circle-check',warning:'ti-alert-triangle',danger:'ti-alert-circle',info:'ti-info-circle'};
+  var colors = {success:'#0A8A4A',warning:'#A86800',danger:'#C8341A',info:'#0E2D5F'};
+  var inner = document.getElementById('toast-inner');
+  if(inner) inner.innerHTML = '<i class="ti '+(icons[type]||'ti-info-circle')+'" style="color:'+(colors[type]||'#0E2D5F')+';font-size:16px"></i> '+msg;
+  var t = document.getElementById('toast');
+  if(t){ t.style.display='block'; setTimeout(function(){ t.style.display='none'; }, 3500); }
+}
+
+function closeModal(id){
+  var el = typeof id==='string' ? document.getElementById(id) : null;
+  if(!el && typeof id==='string') el = document.getElementById(id);
+  if(el) el.style.display='none';
+}
+
+function openModal(id){
+  var el = document.getElementById(id);
+  if(el) el.style.display='flex';
+}
+
+function showLoginErr(msg){
+  var el = document.getElementById('login-err');
+  if(el){ el.textContent=msg; el.style.display='flex'; }
+}
 </script>
 </body></html>
