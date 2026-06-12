@@ -2947,19 +2947,21 @@ function rejectOffer(id){
   updatePendingIndicator();
 }
 function updatePendingIndicator(){
-  const c=offers.filter(o=>o.status==='pending').length;
-  document.getElementById('pending-count').style.display=c?'inline-block':'none';
-  // Check pending user registrations from localStorage
-  try {
-    const pendingUsers = JSON.parse(localStorage.getItem('wave_pending_users') || '[]');
-    const pendingDot = document.getElementById('pending-users-dot');
-    const pendingCount = pendingUsers.filter(u=>u.status==='pending').length
-      + users.filter(u=>u.status==='pending').length;
-    if(pendingDot) pendingDot.style.display = pendingCount ? 'inline-block' : 'none';
-  } catch(e) {}
-}
+  // Offers pending
+  var offersPending = offers.filter(function(o){ return o.status==='pending'; }).length
+    + sheetsOffers.filter(function(o){ return o['Estado']==='Pending'; }).length;
+  var pc = document.getElementById('pending-count');
+  if(pc) pc.style.display = offersPending ? 'inline-block' : 'none';
+  if(pc) pc.textContent = offersPending;
 
-let userTabFilter = 'all';
+  // Collaborators pending - from sheetsUsers directly
+  var collabPending = sheetsUsers.filter(function(s){
+    var e = (s['Estado']||'').toLowerCase();
+    return e !== 'activo' && e !== 'active' && e !== 'archivado' && e !== 'archived';
+  }).length;
+  var dot = document.getElementById('pending-users-dot');
+  if(dot) dot.style.display = collabPending ? 'inline-block' : 'none';
+}
 
 function changeTier(id){
   var u = users.find(function(x){ return x.id == id; });
@@ -2983,7 +2985,51 @@ function switchUserTab(tab){
     var el = document.getElementById('utab-' + t);
     if(el) el.classList.toggle('active', t === tab);
   });
-  renderUsersTable();
+  // Re-render directly from sheetsUsers with filter
+  renderCollaboratorsFiltered(tab);
+}
+
+function renderCollaboratorsFiltered(tab){
+  var tbody = document.getElementById('admin-users-table');
+  if(!tbody) return;
+  var data = sheetsUsers;
+  if(tab === 'active')   data = sheetsUsers.filter(function(s){ var e=(s['Estado']||'').toLowerCase(); return e==='activo'||e==='active'; });
+  if(tab === 'pending')  data = sheetsUsers.filter(function(s){ var e=(s['Estado']||'').toLowerCase(); return e!=='activo'&&e!=='active'&&e!=='archivado'&&e!=='archived'; });
+  if(tab === 'archived') data = sheetsUsers.filter(function(s){ var e=(s['Estado']||'').toLowerCase(); return e==='archivado'||e==='archived'; });
+
+  if(!data.length){
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text3)">No collaborators in this category</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map(function(s){
+    var name    = s['Negocio']||'—';
+    var email   = s['Email']||'—';
+    var cat     = s['Categoría']||'—';
+    var city    = s['Ciudad']||'—';
+    var plan    = s['Plan']||'basic';
+    var estado  = s['Estado']||'Pending';
+    var id      = s['ID']||email;
+    var estadoLow = estado.toLowerCase();
+    var statusBadge = (estadoLow==='activo'||estadoLow==='active')
+      ? '<span class="badge badge-active">✅ Active</span>'
+      : (estadoLow==='archivado'||estadoLow==='archived')
+      ? '<span class="badge" style="background:var(--bg3);color:var(--text3)">Archived</span>'
+      : '<span class="badge badge-pending">⏳ Pending</span>';
+    return '<tr>' +
+      '<td><div style="display:flex;align-items:center;gap:10px">' +
+      '<div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--fuchsia),var(--cyan));display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:14px;flex-shrink:0">' + (name[0]||'?') + '</div>' +
+      '<div><div class="td-primary">' + name + '</div><div style="font-size:11px;color:var(--text3)">' + city + '</div></div></div></td>' +
+      '<td style="font-size:12px;color:var(--text2)">' + email + '</td>' +
+      '<td><span style="background:var(--bg3);color:var(--text3);font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px">' + cat + '</span></td>' +
+      '<td>' + statusBadge + '</td>' +
+      '<td style="font-size:12px;color:var(--text3)">' + plan + '</td>' +
+      '<td><div class="action-row">' +
+      (estadoLow!=='activo'&&estadoLow!=='active'
+        ? '<button class="btn btn-success btn-sm" data-id="'+id+'" data-email="'+email+'" data-name="'+name+'" onclick="approveUserDirect(this.dataset.id,this.dataset.email,this.dataset.name)" title="Approve"><i class="ti ti-check"></i></button>'
+        : '') +
+      '<button class="btn btn-ghost btn-sm" data-email="'+email+'" onclick="sendEmail(this.dataset.email)" title="Email"><i class="ti ti-mail"></i></button>' +
+      '</div></td></tr>';
+  }).join('');
 }
 
 function updateUserCounts(){
@@ -3027,41 +3073,102 @@ function renderUsersTable(){ renderAdminUsers(); }
 
 function loadSheetsUsers(){
   const tbody = document.getElementById('admin-users-table');
-  tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text3)">
-    <i class="ti ti-loader" style="font-size:24px;animation:spin 1s linear infinite;display:block;margin:0 auto 10px"></i>
-    Loading from Google Sheets...
-  </td></tr>`;
+  if(tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px"><i class="ti ti-loader" style="font-size:24px;animation:spin 1s linear infinite;display:block;margin:0 auto 10px"></i>Loading...</td></tr>';
 
-  // Use XMLHttpRequest to handle Apps Script redirects properly
   var xhr = new XMLHttpRequest();
-  xhr.open('GET', GOOGLE_SCRIPT_URL + '?action=getBusinesses&t=' + Date.now(), true);
+  xhr.open('GET', 'https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec?action=getBusinesses&t=' + Date.now(), true);
   xhr.onload = function(){
-    console.log('XHR status:', xhr.status, 'length:', xhr.responseText.length);
-    console.log('XHR response preview:', xhr.responseText.substring(0,200));
-    try {
-      var data = JSON.parse(xhr.responseText);
-      console.log('Parsed data:', Array.isArray(data), data.length, data[0]);
-      sheetsUsers = Array.isArray(data) ? data : [];
-    } catch(e) {
-      console.warn('Parse error:', e, xhr.responseText.substring(0,100));
-      sheetsUsers = [];
+    var data = [];
+    try { data = JSON.parse(xhr.responseText); } catch(e){}
+    if(!Array.isArray(data)) data = [];
+
+    // Render directly to table — bypassing all filter/merge logic
+    if(!tbody) return;
+    if(!data.length){
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text3)">No collaborators yet</td></tr>';
+      return;
     }
-    console.log('sheetsUsers after load:', sheetsUsers.length);
-    userTabFilter = 'all';
-    // Update tab UI
-    ['active','archived','pending','all'].forEach(function(t){
-      var el = document.getElementById('utab-'+t);
-      if(el) el.classList.toggle('active', t==='all');
+
+    tbody.innerHTML = data.map(function(s){
+      var name    = s['Negocio']||'—';
+      var email   = s['Email']||'—';
+      var cat     = s['Categoría']||'—';
+      var city    = s['Ciudad']||'—';
+      var plan    = s['Plan']||'basic';
+      var estado  = s['Estado']||'Pending';
+      var phone   = s['WhatsApp']||'—';
+      var contact = s['Contacto']||'—';
+      var id      = s['ID']||email;
+
+      var estadoLow = (estado||'').toLowerCase();
+      var statusBadge = (estadoLow==='activo'||estadoLow==='active')
+        ? '<span class="badge badge-active">✅ Active</span>'
+        : (estadoLow==='pending'||estadoLow==='pendiente')
+        ? '<span class="badge badge-pending">⏳ Pending</span>'
+        : (estadoLow==='archived'||estadoLow==='archivado')
+        ? '<span class="badge" style="background:var(--bg3);color:var(--text3)">Archived</span>'
+        : '<span class="badge badge-pending">⏳ '+estado+'</span>';
+
+      var initial = name[0]||'?';
+
+      return '<tr>' +
+        '<td><div style="display:flex;align-items:center;gap:10px">' +
+        '<div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--fuchsia),var(--cyan));display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:14px;flex-shrink:0">' + initial + '</div>' +
+        '<div><div class="td-primary">' + name + '</div>' +
+        '<div style="font-size:11px;color:var(--text3)">' + city + '</div></div></div></td>' +
+        '<td style="font-size:12px;color:var(--text2)">' + email + '</td>' +
+        '<td><span style="background:var(--bg3);color:var(--text3);font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px">' + cat + '</span></td>' +
+        '<td>' + statusBadge + '</td>' +
+        '<td style="font-size:12px;color:var(--text3)">' + plan + '</td>' +
+        '<td><div class="action-row">' +
+        (estadoLow!=='activo'&&estadoLow!=='active'
+          ? '<button class="btn btn-success btn-sm" data-id="'+id+'" data-email="'+email+'" data-name="'+name+'" onclick="approveUserDirect(this.dataset.id,this.dataset.email,this.dataset.name)" title="Approve"><i class="ti ti-check"></i></button>'
+          : '') +
+        '<button class="btn btn-ghost btn-sm" data-email="'+email+'" onclick="sendEmail(this.dataset.email)" title="Email"><i class="ti ti-mail"></i></button>' +
+        '</div></td></tr>';
+    }).join('');
+
+    // Also update the users array for other functions
+    sheetsUsers = data;
+    data.forEach(function(s){
+      if(s['Email'] && !users.find(function(u){ return u.email===s['Email']; })){
+        users.push({
+          id: s['ID']||s['Email'], name: s['Negocio']||'', email: s['Email']||'',
+          phone: s['WhatsApp']||'', category: s['Categoría']||'', city: s['Ciudad']||'',
+          contact: s['Contacto']||'', plan: s['Plan']||'basic',
+          status: s['Estado']==='Activo'?'active':'pending',
+          registeredAt: s['Fecha']||''
+        });
+      }
     });
-    renderAdminUsers();
+    // Update counts from actual data
+    var activeCount  = data.filter(function(s){ var e=(s['Estado']||'').toLowerCase(); return e==='activo'||e==='active'; }).length;
+    var pendingCount = data.filter(function(s){ var e=(s['Estado']||'').toLowerCase(); return e!=='activo'&&e!=='active'&&e!=='archivado'&&e!=='archived'; }).length;
+    var archivedCount= data.filter(function(s){ var e=(s['Estado']||'').toLowerCase(); return e==='archivado'||e==='archived'; }).length;
+    function setEl(id,v){ var el=document.getElementById(id); if(el) el.textContent=v; }
+    setEl('ucnt-active',        activeCount);
+    setEl('ucnt-pending-users', pendingCount);
+    setEl('ucnt-archived',      archivedCount);
+    setEl('ucnt-all-users',     data.length);
     updatePendingIndicator();
   };
   xhr.onerror = function(){
-    sheetsUsers = [];
-    renderAdminUsers();
+    if(tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--danger)">⚠️ Error loading. Check connection.</td></tr>';
   };
   xhr.send();
 }
+
+function approveUserDirect(id, email, name){
+  if(!confirm('Approve "' + name + '"?')) return;
+  fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({_action:'approveUser', id:id, email:email, name:name, contact:name, plan:'Basic'})
+  }).catch(function(){});
+  showToast(name + ' approved ✓', 'success');
+  setTimeout(loadSheetsUsers, 500);
+}
+
 
 function mergeExternalUsers(){
   try {
@@ -3100,7 +3207,6 @@ function renderAdminUsers(){
     });
   } catch(e) {}
   // Merge Sheets users
-  console.log('sheetsUsers count:', sheetsUsers.length, sheetsUsers[0]);
   sheetsUsers.forEach(s => {
     if (s['Email'] && !users.find(u => u.email === s['Email'])) {
       users.push({
