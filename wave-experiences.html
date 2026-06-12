@@ -3151,7 +3151,7 @@ function renderAdminUsers(){ if(sheetsUsers&&sheetsUsers.length) renderCollabs()
 
 
 function approveUserDirect(id, email, name){
-  alert('DEBUG: approveUserDirect called for ' + name);
+  
   // Update locally first for instant feedback
   var u = sheetsUsers.find(function(s){ return s['Email']===email; });
   if(u){ u['Estado']='Activo'; console.log('Local update done'); }
@@ -3164,7 +3164,7 @@ function approveUserDirect(id, email, name){
     body:JSON.stringify({_action:'approveUser',id:String(id),email:email,name:name,contact:name,plan:'Basic'})
   }).then(function(){ console.log('Sheets updated'); }).catch(function(e){ console.error('Sheets error:',e); });
   // Reload after 3s to confirm
-  setTimeout(loadSheetsUsers, 3000);
+  setTimeout(loadSheetsUsers, 5000);
 }
 function archiveCollaborator(id, email, name){
   fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec',{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
