@@ -3091,6 +3091,7 @@ function renderAdminUsers(){
     });
   } catch(e) {}
   // Merge Sheets users
+  console.log('sheetsUsers count:', sheetsUsers.length, sheetsUsers[0]);
   sheetsUsers.forEach(s => {
     if (s['Email'] && !users.find(u => u.email === s['Email'])) {
       users.push({
@@ -3102,7 +3103,7 @@ function renderAdminUsers(){
         city: s['Ciudad'] || '',
         address: s['Dirección'] || '',
         desc: s['Descripción'] || '',
-        web: s['Web/Instagram'] || '',
+        web: s['Web'] || s['Web/Instagram'] || '',
         contact: s['Contacto'] || '',
         role: s['Cargo'] || '',
         plan: s['Plan'] || 'basico',
