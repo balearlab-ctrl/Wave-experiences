@@ -1730,7 +1730,7 @@ function renderView(v){
     case 'new-offer':        renderNewOffer(); break;
     case 'admin-dashboard':  renderAdminDashboard(); break;
     case 'admin-offers':     loadAdminOffers(); break;
-    case 'admin-users':      loadSheetsUsers(); userTabFilter='pending'; setTimeout(function(){ document.getElementById('utab-pending')?.click(); },100); break;
+    case 'admin-users':      loadSheetsUsers(); break;
     case 'admin-customers':  loadCustomers(); break;
     case 'admin-billing':    renderAdminBilling(); break;
   }
@@ -3047,6 +3047,12 @@ function loadSheetsUsers(){
       sheetsUsers = [];
     }
     console.log('sheetsUsers after load:', sheetsUsers.length);
+    userTabFilter = 'all';
+    // Update tab UI
+    ['active','archived','pending','all'].forEach(function(t){
+      var el = document.getElementById('utab-'+t);
+      if(el) el.classList.toggle('active', t==='all');
+    });
     renderAdminUsers();
     updatePendingIndicator();
   };
