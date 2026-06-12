@@ -1730,7 +1730,7 @@ function renderView(v){
     case 'new-offer':        renderNewOffer(); break;
     case 'admin-dashboard':  renderAdminDashboard(); break;
     case 'admin-offers':     loadAdminOffers(); break;
-    case 'admin-users':      loadSheetsUsers(); break;
+    case 'admin-users':      loadSheetsUsers(); userTabFilter='pending'; setTimeout(function(){ document.getElementById('utab-pending')?.click(); },100); break;
     case 'admin-customers':  loadCustomers(); break;
     case 'admin-billing':    renderAdminBilling(); break;
     case 'admin-customers':  loadCustomers(); break;
@@ -2633,6 +2633,86 @@ function viewOfferDetail(id) {
   document.getElementById('offer-modal').style.display = 'flex';
 }
 
+function viewCollaboratorDetail(userId){
+  var u = users.find(function(x){ return String(x.id)===String(userId) || x.email===userId; });
+  if(!u){ showToast('User not found','danger'); return; }
+
+  var statusBadge = u.status==='active'
+    ? '<span class="badge badge-active">✅ Active</span>'
+    : u.status==='pending'
+    ? '<span class="badge badge-pending">⏳ Pending approval</span>'
+    : '<span class="badge" style="background:var(--bg3);color:var(--text3)">Archived</span>';
+
+  var tierBadge = u.tier==='gold'
+    ? '<span class="badge-gold">⭐ Gold</span>'
+    : u.tier==='platinum'
+    ? '<span class="badge-platinum">💎 Platinum</span>'
+    : '<span style="font-size:11px;color:var(--text3)">Standard</span>';
+
+  var offersCount = offers.filter(function(o){ return o.biz===u.name||o.bizEmail===u.email; }).length;
+
+  document.getElementById('modal-offer-title').textContent = u.name || 'Collaborator Profile';
+  document.getElementById('modal-offer-body').innerHTML =
+    // Profile header
+    '<div style="background:linear-gradient(135deg,var(--navy),var(--ocean),var(--blue));' +
+    'border-radius:var(--r2);padding:20px;margin-bottom:16px;color:#fff;position:relative">' +
+    (u.logo ? '<img src="'+u.logo+'" style="width:56px;height:56px;border-radius:12px;object-fit:contain;background:#fff;padding:4px;margin-bottom:10px;display:block">' :
+      '<div style="width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--fuchsia),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;margin-bottom:10px">' +
+      (u.name||'?')[0].toUpperCase() + '</div>') +
+    '<div style="font-size:18px;font-weight:800;margin-bottom:3px">' + (u.name||'—') + '</div>' +
+    '<div style="font-size:12px;opacity:.6;margin-bottom:10px">' + (u.category||'') + (u.city?' · '+u.city:'') + '</div>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">' + statusBadge + tierBadge + '</div>' +
+    '</div>' +
+
+    // Business details
+    '<div style="font-size:11px;font-weight:700;color:var(--fuchsia);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Business details</div>' +
+    '<table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px">' +
+    (u.email    ? '<tr><td style="padding:6px 0;color:var(--text3);width:36%">Email</td><td style="font-weight:600;color:var(--text)">' + u.email + '</td></tr>' : '') +
+    (u.phone    ? '<tr><td style="padding:6px 0;color:var(--text3)">WhatsApp</td><td style="font-weight:600">' + u.phone + '</td></tr>' : '') +
+    (u.contact  ? '<tr><td style="padding:6px 0;color:var(--text3)">Contact</td><td style="font-weight:600">' + u.contact + (u.role?' ('+u.role+')':'') + '</td></tr>' : '') +
+    (u.address  ? '<tr><td style="padding:6px 0;color:var(--text3)">Address</td><td style="font-weight:600">' + u.address + '</td></tr>' : '') +
+    (u.city     ? '<tr><td style="padding:6px 0;color:var(--text3)">City</td><td style="font-weight:600">' + u.city + '</td></tr>' : '') +
+    (u.web      ? '<tr><td style="padding:6px 0;color:var(--text3)">Web / Social</td><td><a href="' + u.web + '" target="_blank" style="color:var(--fuchsia);font-weight:600">' + u.web + '</a></td></tr>' : '') +
+    (u.plan     ? '<tr><td style="padding:6px 0;color:var(--text3)">Plan</td><td style="font-weight:600">' + u.plan + '</td></tr>' : '') +
+    '<tr><td style="padding:6px 0;color:var(--text3)">Offers</td><td style="font-weight:600">' + offersCount + ' published</td></tr>' +
+    (u.registeredAt ? '<tr><td style="padding:6px 0;color:var(--text3)">Registered</td><td style="font-weight:600">' + u.registeredAt + '</td></tr>' : '') +
+    '</table>' +
+
+    // Description
+    (u.desc ? '<div style="font-size:11px;font-weight:700;color:var(--fuchsia);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">About</div>' +
+    '<div style="background:var(--bg3);border-radius:var(--r);padding:12px;font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:16px">' + u.desc + '</div>' : '') +
+
+    // Notes
+    (u.notes ? '<div style="background:var(--warning-bg);border:1px solid var(--warning-border);border-radius:var(--r);padding:10px 12px;font-size:12px;color:var(--warning);margin-bottom:16px"><strong>Notes:</strong> ' + u.notes + '</div>' : '') +
+
+    // Source
+    (u.source ? '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">How they found us: <strong>' + u.source + '</strong></div>' : '');
+
+  // Footer buttons
+  var footerBtns =
+    '<button class="btn btn-ghost" onclick="document.getElementById(&quot;offer-modal&quot;).style.display=&quot;none&quot;" style="font-size:12px">Close</button>';
+
+  if(u.status === 'pending'){
+    footerBtns +=
+      '<button class="btn btn-success" data-uid="'+u.id+'" onclick="approveUser(this.dataset.uid);document.getElementById(&quot;offer-modal&quot;).style.display=&quot;none&quot;">' +
+      '<i class="ti ti-check"></i> Approve</button>';
+  }
+
+  footerBtns +=
+    '<a href="mailto:' + (u.email||'') + '" class="btn btn-ghost" style="font-size:12px">' +
+    '<i class="ti ti-mail"></i> Email</a>';
+
+  if(u.status === 'active'){
+    footerBtns +=
+      '<a href="' + FISCAL_URL + '?email=' + encodeURIComponent(u.email||'') + '" target="_blank" ' +
+      'class="btn btn-ghost" style="font-size:12px"><i class="ti ti-file-invoice"></i> Fiscal form</a>';
+  }
+
+  document.getElementById('modal-offer-footer').innerHTML = footerBtns;
+  document.getElementById('modal-offer-footer').style.display = 'flex';
+  document.getElementById('offer-modal').style.display = 'flex';
+}
+
 function editOfferAdmin(id){
   const o = sheetsOffers.find(function(x){ return String(x['ID'])===String(id); });
   if(!o){ showToast('Offer not found','danger'); return; }
@@ -2878,7 +2958,7 @@ function updatePendingIndicator(){
   } catch(e) {}
 }
 
-let userTabFilter = 'active';
+let userTabFilter = 'all';
 
 function changeTier(id){
   var u = users.find(function(x){ return x.id == id; });
@@ -2951,7 +3031,7 @@ function loadSheetsUsers(){
     Loading from Google Sheets...
   </td></tr>`;
 
-  fetch(GOOGLE_SCRIPT_URL, { redirect: 'follow' })
+  fetch(GOOGLE_SCRIPT_URL + '?action=getBusinesses&t=' + Date.now(), { redirect: 'follow' })
     .then(r => {
       if(!r.ok && r.status !== 0) throw new Error('HTTP ' + r.status);
       return r.text();
@@ -2970,6 +3050,8 @@ function loadSheetsUsers(){
       console.warn('Sheets fetch error:', err);
       sheetsUsers = [];
       renderAdminUsers();
+      const tbody = document.getElementById('admin-users-table');
+      if(tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--danger)">⚠️ Could not load from Sheets. Check Apps Script deployment. Error: ' + err.message + '</td></tr>';
     });
 }
 
