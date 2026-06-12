@@ -2346,10 +2346,12 @@ function loadAdminOffers() {
     <i class="ti ti-loader" style="font-size:28px;animation:spin 1s linear infinite;display:block;margin:0 auto 12px"></i>
     Loading offers from Google Sheets...</div>`;
 
-  fetch(GOOGLE_SCRIPT_URL + '?action=getOffers&t=' + Date.now())
-  .then(r => r.json())
-  .then(data => {
-    sheetsOffers = Array.isArray(data) ? data : [];
+  var xhrO = new XMLHttpRequest();
+  xhrO.open('GET', GOOGLE_SCRIPT_URL + '?action=getOffers&t=' + Date.now(), true);
+  xhrO.onload = function(){
+    try { var data = JSON.parse(xhrO.responseText);
+      sheetsOffers = Array.isArray(data) ? data : [];
+    } catch(e){ sheetsOffers = []; }
     // Also merge local offers
     offers.forEach(o => {
       if (!sheetsOffers.find(s => String(s['ID']) === String(o.id))) {
@@ -2367,10 +2369,9 @@ function loadAdminOffers() {
     });
     updateOfferCounts();
     renderOfferReview();
-  })
-  .catch(() => {
-    // Fallback to local offers
-    sheetsOffers = offers.map(o => ({
+  };
+  xhrO.onerror = function(){
+    sheetsOffers = offers.map(function(o){ return {
       'ID': o.id, 'Fecha': o.createdAt||'', 'Título': o.title,
       'Negocio': o.biz, 'Categoría': o.category, 'Descripción': o.desc,
       'Condiciones': o.conditions||'', 'Horario': o.schedule||'',
@@ -2379,10 +2380,11 @@ function loadAdminOffers() {
       'Estado': o.status==='active'?'Approved':o.status==='rejected'?'Rejected':'Pending',
       'Cover URL': o.cover||'', 'Logo URL': o.bizLogo||'',
       '_local': true, '_obj': o
-    }));
+    }; });
     updateOfferCounts();
     renderOfferReview();
-  });
+  };
+  xhrO.send();
 }
 
 function updateOfferCounts() {
@@ -3031,28 +3033,25 @@ function loadSheetsUsers(){
     Loading from Google Sheets...
   </td></tr>`;
 
-  fetch(GOOGLE_SCRIPT_URL + '?action=getBusinesses&t=' + Date.now(), { redirect: 'follow' })
-    .then(r => {
-      if(!r.ok && r.status !== 0) throw new Error('HTTP ' + r.status);
-      return r.text();
-    })
-    .then(text => {
-      try {
-        const data = JSON.parse(text);
-        sheetsUsers = Array.isArray(data) ? data : [];
-      } catch(e) {
-        sheetsUsers = [];
-      }
-      renderAdminUsers();
-      updatePendingIndicator();
-    })
-    .catch(err => {
-      console.warn('Sheets fetch error:', err);
+  // Use XMLHttpRequest to handle Apps Script redirects properly
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', GOOGLE_SCRIPT_URL + '?action=getBusinesses&t=' + Date.now(), true);
+  xhr.onload = function(){
+    try {
+      var data = JSON.parse(xhr.responseText);
+      sheetsUsers = Array.isArray(data) ? data : [];
+    } catch(e) {
       sheetsUsers = [];
-      renderAdminUsers();
-      const tbody = document.getElementById('admin-users-table');
-      if(tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--danger)">⚠️ Could not load from Sheets. Check Apps Script deployment. Error: ' + err.message + '</td></tr>';
-    });
+      console.warn('Parse error:', e, xhr.responseText.substring(0,100));
+    }
+    renderAdminUsers();
+    updatePendingIndicator();
+  };
+  xhr.onerror = function(){
+    sheetsUsers = [];
+    renderAdminUsers();
+  };
+  xhr.send();
 }
 
 function mergeExternalUsers(){
