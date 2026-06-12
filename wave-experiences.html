@@ -7,7 +7,60 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
+function approveUserDirect(id, email, name){
+  if(!confirm('Approve "' + name + '"?')) return;
+  fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({_action:'approveUser', id:id, email:email, name:name, contact:name, plan:'Basic'})
+  }).catch(function(){});
+  // Update locally
+  var u = sheetsUsers.find(function(s){ return s['Email']===email; });
+  if(u) u['Estado'] = 'Activo';
+  showToast(name + ' approved ✓', 'success');
+  renderCollabs();
+  setTimeout(loadSheetsUsers, 2000);
+}
+
+function archiveCollaborator(id, email, name){
+  if(!confirm('Archive "' + name + '"?')) return;
+  fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({_action:'updateStatus', id:id, email:email, status:'Archivado'})
+  }).catch(function(){});
+  var u = sheetsUsers.find(function(s){ return s['Email']===email; });
+  if(u) u['Estado'] = 'Archivado';
+  showToast(name + ' archived', 'warning');
+  renderCollabs();
+}
+
+function unarchiveCollaborator(id, email, name){
+  fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({_action:'updateStatus', id:id, email:email, status:'Pending'})
+  }).catch(function(){});
+  var u = sheetsUsers.find(function(s){ return s['Email']===email; });
+  if(u) u['Estado'] = 'Pending';
+  showToast(name + ' restored', 'success');
+  renderCollabs();
+}
+
+function deleteCollaborator(id, email, name){
+  if(!confirm('Permanently delete "' + name + '"? This cannot be undone.')) return;
+  fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({_action:'deleteCollaborator', id:id, email:email})
+  }).catch(function(){});
+  sheetsUsers = sheetsUsers.filter(function(s){ return s['Email'] !== email; });
+  showToast(name + ' deleted', 'danger');
+  renderCollabs();
+}
+
+</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
