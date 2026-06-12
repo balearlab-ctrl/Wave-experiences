@@ -3023,11 +3023,15 @@ function renderCollaboratorsFiltered(tab){
       '<td><span style="background:var(--bg3);color:var(--text3);font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px">' + cat + '</span></td>' +
       '<td>' + statusBadge + '</td>' +
       '<td style="font-size:12px;color:var(--text3)">' + plan + '</td>' +
-      '<td><div class="action-row">' +
+      '<td><div class="action-row" style="gap:4px">' +
       (estadoLow!=='activo'&&estadoLow!=='active'
         ? '<button class="btn btn-success btn-sm" data-id="'+id+'" data-email="'+email+'" data-name="'+name+'" onclick="approveUserDirect(this.dataset.id,this.dataset.email,this.dataset.name)" title="Approve"><i class="ti ti-check"></i></button>'
         : '') +
+      (estadoLow!=='archivado'&&estadoLow!=='archived'
+        ? '<button class="btn btn-ghost btn-sm" data-id="'+id+'" data-email="'+email+'" data-name="'+name+'" onclick="archiveCollaborator(this.dataset.id,this.dataset.email,this.dataset.name)" title="Archive" style="color:var(--warning)"><i class="ti ti-archive"></i></button>'
+        : '<button class="btn btn-ghost btn-sm" data-id="'+id+'" data-email="'+email+'" data-name="'+name+'" onclick="unarchiveCollaborator(this.dataset.id,this.dataset.email,this.dataset.name)" title="Restore" style="color:var(--success)"><i class="ti ti-archive-off"></i></button>') +
       '<button class="btn btn-ghost btn-sm" data-email="'+email+'" onclick="sendEmail(this.dataset.email)" title="Email"><i class="ti ti-mail"></i></button>' +
+      '<button class="btn btn-ghost btn-sm" data-id="'+id+'" data-email="'+email+'" data-name="'+name+'" onclick="deleteCollaborator(this.dataset.id,this.dataset.email,this.dataset.name)" title="Delete" style="color:var(--danger)"><i class="ti ti-trash"></i></button>' +
       '</div></td></tr>';
   }).join('');
 }
@@ -3124,7 +3128,11 @@ function loadSheetsUsers(){
         (estadoLow!=='activo'&&estadoLow!=='active'
           ? '<button class="btn btn-success btn-sm" data-id="'+id+'" data-email="'+email+'" data-name="'+name+'" onclick="approveUserDirect(this.dataset.id,this.dataset.email,this.dataset.name)" title="Approve"><i class="ti ti-check"></i></button>'
           : '') +
+        (estadoLow!=='archivado'&&estadoLow!=='archived'
+          ? '<button class="btn btn-ghost btn-sm" data-id="'+id+'" data-email="'+email+'" data-name="'+name+'" onclick="archiveCollaborator(this.dataset.id,this.dataset.email,this.dataset.name)" title="Archive" style="color:var(--warning)"><i class="ti ti-archive"></i></button>'
+          : '<button class="btn btn-ghost btn-sm" data-id="'+id+'" data-email="'+email+'" data-name="'+name+'" onclick="unarchiveCollaborator(this.dataset.id,this.dataset.email,this.dataset.name)" title="Restore" style="color:var(--success)"><i class="ti ti-archive-off"></i></button>') +
         '<button class="btn btn-ghost btn-sm" data-email="'+email+'" onclick="sendEmail(this.dataset.email)" title="Email"><i class="ti ti-mail"></i></button>' +
+        '<button class="btn btn-ghost btn-sm" data-id="'+id+'" data-email="'+email+'" data-name="'+name+'" onclick="deleteCollaborator(this.dataset.id,this.dataset.email,this.dataset.name)" title="Delete" style="color:var(--danger)"><i class="ti ti-trash"></i></button>' +
         '</div></td></tr>';
     }).join('');
 
@@ -3156,6 +3164,40 @@ function loadSheetsUsers(){
     if(tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--danger)">⚠️ Error loading. Check connection.</td></tr>';
   };
   xhr.send();
+}
+
+function archiveCollaborator(id, email, name){
+  if(!confirm('Archive "' + name + '"? They will not be able to log in.')) return;
+  fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({_action:'updateStatus', id:id, email:email, status:'Archivado'})
+  }).catch(function(){});
+  showToast(name + ' archived', 'warning');
+  setTimeout(loadSheetsUsers, 600);
+}
+
+function unarchiveCollaborator(id, email, name){
+  fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({_action:'updateStatus', id:id, email:email, status:'Pending'})
+  }).catch(function(){});
+  showToast(name + ' restored to Pending', 'success');
+  setTimeout(loadSheetsUsers, 600);
+}
+
+function deleteCollaborator(id, email, name){
+  if(!confirm('Permanently delete "' + name + '" (' + email + ')? This cannot be undone.')) return;
+  fetch('https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec', {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({_action:'deleteCollaborator', id:id, email:email})
+  }).catch(function(){});
+  // Remove from sheetsUsers immediately
+  sheetsUsers = sheetsUsers.filter(function(s){ return s['Email'] !== email; });
+  showToast(name + ' deleted', 'danger');
+  loadSheetsUsers();
 }
 
 function approveUserDirect(id, email, name){
