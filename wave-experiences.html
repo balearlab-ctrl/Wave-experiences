@@ -1733,7 +1733,6 @@ function renderView(v){
     case 'admin-users':      loadSheetsUsers(); userTabFilter='pending'; setTimeout(function(){ document.getElementById('utab-pending')?.click(); },100); break;
     case 'admin-customers':  loadCustomers(); break;
     case 'admin-billing':    renderAdminBilling(); break;
-    case 'admin-customers':  loadCustomers(); break;
   }
 }
 
@@ -3037,13 +3036,17 @@ function loadSheetsUsers(){
   var xhr = new XMLHttpRequest();
   xhr.open('GET', GOOGLE_SCRIPT_URL + '?action=getBusinesses&t=' + Date.now(), true);
   xhr.onload = function(){
+    console.log('XHR status:', xhr.status, 'length:', xhr.responseText.length);
+    console.log('XHR response preview:', xhr.responseText.substring(0,200));
     try {
       var data = JSON.parse(xhr.responseText);
+      console.log('Parsed data:', Array.isArray(data), data.length, data[0]);
       sheetsUsers = Array.isArray(data) ? data : [];
     } catch(e) {
-      sheetsUsers = [];
       console.warn('Parse error:', e, xhr.responseText.substring(0,100));
+      sheetsUsers = [];
     }
+    console.log('sheetsUsers after load:', sheetsUsers.length);
     renderAdminUsers();
     updatePendingIndicator();
   };
