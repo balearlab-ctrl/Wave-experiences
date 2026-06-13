@@ -1076,11 +1076,68 @@ function loadApp() {
 
 // ── OFFERS ────────────────────────────────────────────────────────────────
 function loadMyOffers() {
+  // Load from localStorage first (instant)
   const stored = JSON.parse(localStorage.getItem('wave_offers_' + currentUser.email) || '[]');
   myOffers = stored;
   renderDashboard();
   renderMyOffers();
   renderBookings();
+
+  // Then sync from Sheets (authoritative — has admin approval status)
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', 'https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec?action=getOffers&t=' + Date.now(), true);
+  xhr.onload = function(){
+    var sheetsOffers = [];
+    try { sheetsOffers = JSON.parse(xhr.responseText); } catch(e){ return; }
+    if(!Array.isArray(sheetsOffers)) return;
+
+    // Filter offers belonging to this business
+    var mine = sheetsOffers.filter(function(o){
+      return o['Negocio'] === currentUser.name ||
+             o['Email Negocio'] === currentUser.email ||
+             o['Negocio Email'] === currentUser.email;
+    });
+
+    // Map Sheets format to local format
+    myOffers = mine.map(function(o){
+      return {
+        id:        o['ID'],
+        title:     o['Título'] || o['Titulo'] || '',
+        biz:       o['Negocio'] || currentUser.name,
+        bizEmail:  currentUser.email,
+        category:  o['Categoría'] || o['Categoria'] || '',
+        desc:      o['Descripción'] || o['Descripcion'] || '',
+        includes:  o['Incluye'] || '',
+        conditions:o['Condiciones'] || '',
+        price:     o['Precio'] || '',
+        schedule:  o['Horario'] || '',
+        max:       parseInt(o['Máx'] || o['Max'] || 0),
+        status:    (o['Estado']==='Approved'||o['Estado']==='Aprobada') ? 'active'
+                 : (o['Estado']==='Rejected'||o['Estado']==='Rechazada') ? 'rejected'
+                 : 'pending',
+        cover:     o['Cover URL'] || '',
+        bizLogo:   o['Logo URL'] || '',
+        confirmMode: o['Tipo Reserva'] || 'manual',
+        createdAt: o['Fecha'] || '',
+        enrolled:  [],
+        scanned:   []
+      };
+    });
+
+    // Merge any local-only offers not yet in Sheets
+    stored.forEach(function(local){
+      if(!myOffers.find(function(m){ return String(m.id)===String(local.id); })){
+        myOffers.push(local);
+      }
+    });
+
+    saveMyOffers();
+    renderDashboard();
+    renderMyOffers();
+    renderBookings();
+  };
+  xhr.onerror = function(){ /* keep localStorage version */ };
+  xhr.send();
 }
 
 function saveMyOffers() {
@@ -1761,6 +1818,7 @@ function wizSubmit(){
     id: Date.now(),
     title: title,
     biz: currentUser.name,
+    bizEmail: currentUser.email,
     category: wizState.cat,
     includes: includes,
     desc: desc,

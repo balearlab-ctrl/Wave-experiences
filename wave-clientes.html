@@ -1255,86 +1255,43 @@ async function submitLogin(){
   const email = document.getElementById('login-email').value.trim();
   const pass  = document.getElementById('login-pass').value;
   const err   = document.getElementById('login-err');
-  if(!email||!pass){err.textContent=T('err.fill');err.style.display='flex';return;}
+  if(!email||!pass){ err.textContent=T('err.fill'); err.style.display='flex'; return; }
 
-  // First check localStorage (fast), then Sheets
-  const customers = JSON.parse(localStorage.getItem('wave_customers')||'[]');
-  let user = customers.find(u => u.email===email);
+  const loginBtn = document.getElementById('login-submit-btn');
+  if(loginBtn){ loginBtn.textContent='...'; loginBtn.disabled=true; }
+  err.style.display='none';
 
-  if(user) {
-    const hashedLoginPass = await hashPassword(pass);
-  if(user.password!==hashedLoginPass && user.password!==pass){err.textContent=T('err.wrongpass');err.style.display='flex';return;}
-    currentUser = user;
-    localStorage.setItem('wave_customer_session', JSON.stringify(user));
+  const hashedPass = await hashPassword(pass);
+
+  // Verify against Sheets with password
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', 'https://script.google.com/macros/s/AKfycbw0cvGjxMEPIDr3odxNpF6u1qHNlwZ6HTgXvGm61Hn4AnmOHDRN_z73g9hUR9ak8lNB/exec?action=login&email=' + encodeURIComponent(email) + '&pass=' + encodeURIComponent(hashedPass) + '&t=' + Date.now(), true);
+  xhr.onload = function(){
+    if(loginBtn){ loginBtn.textContent=T('auth.signinbtn')||'Sign in →'; loginBtn.disabled=false; }
+    var data = null;
+    try { data = JSON.parse(xhr.responseText); } catch(e){}
+
+    if(!data || data.error==='not_found'){ err.textContent=T('err.noaccount'); err.style.display='flex'; return; }
+    if(data.error==='wrong_password'){ err.textContent=T('err.wrongpass'); err.style.display='flex'; return; }
+    if(data.error==='not_verified'){ err.textContent='Please verify your email first. Check your inbox.'; err.style.display='flex'; return; }
+    if(data.error){ err.textContent=T('err.connection'); err.style.display='flex'; return; }
+
+    // Success
+    currentUser = {
+      id: data.id, name: data.name, firstName: (data.name||'').split(' ')[0],
+      email: data.email, phone: data.phone||'',
+      tier: data.tier||'standard', verified: true
+    };
+    localStorage.setItem('wave_customer_session', JSON.stringify(currentUser));
     updateHeaderAuth();
     closeModal('auth-modal');
-    showToast('Welcome back, ' + user.firstName + '!', 'success');
-    return;
-  }
-
-  // Try Sheets
-  const loginBtn = document.querySelector('#auth-login .btn-primary');
-  if(loginBtn){ loginBtn.textContent='Signing in...'; loginBtn.disabled=true; }
-  fetch(SCRIPT_URL + '?action=login&email=' + encodeURIComponent(email) + '&pass=' + encodeURIComponent(hashedLoginPass))
-    .then(r=>r.json())
-    .then(data => {
-      if(loginBtn){ loginBtn.textContent='Sign in →'; loginBtn.disabled=false; }
-      if(!data){ err.textContent=T('err.noaccount'); err.style.display='flex'; return; }
-      // Note: password check would need server-side in production
-      currentUser = {
-        id: data['ID'], name: data['Nombre'], firstName: data['Nombre'].split(' ')[0],
-        email: data['Email'], phone: data['Teléfono']||'',
-        tier: data['Tier']||'standard', verified: data['Verificado']==='Yes'
-      };
-      localStorage.setItem('wave_customer_session', JSON.stringify(currentUser));
-      updateHeaderAuth();
-      closeModal('auth-modal');
-      showToast('Welcome back, ' + currentUser.firstName + '!', 'success');
-    })
-    .catch(() => {
-      if(loginBtn){ loginBtn.textContent='Sign in →'; loginBtn.disabled=false; }
-      err.textContent='Connection error. Please try again.'; err.style.display='flex';
-    });
-}
-
-async function submitRegister(){
-  const fname = document.getElementById('reg-fname').value.trim();
-  const lname = document.getElementById('reg-lname').value.trim();
-  const email = document.getElementById('reg-email').value.trim();
-  const pass  = document.getElementById('reg-pass').value;
-  const phone = document.getElementById('reg-phone').value.trim();
-  const err   = document.getElementById('reg-err');
-
-  if(!fname||!lname||!email||!pass){err.textContent=T('err.fillreg');err.style.display='flex';return;}
-  if(pass.length<8){err.textContent=T('err.passlen');err.style.display='flex';return;}
-
-  const customers = JSON.parse(localStorage.getItem('wave_customers')||'[]');
-  if(customers.find(u=>u.email===email)){err.textContent=T('err.exists');err.style.display='flex';return;}
-
-  const newUser = {
-    id: Date.now(), name: fname+' '+lname, firstName:fname, lastName:lname,
-    email, password:await hashPassword(pass), phone, tier:'standard',
-    verified:false, createdAt:new Date().toLocaleDateString('en-GB'),
-    bookings:[]
+    showToast('Welcome back, ' + currentUser.firstName + '!', 'success');
   };
-  customers.push(newUser);
-  localStorage.setItem('wave_customers', JSON.stringify(customers));
-
-  // Save to Sheets AND send verification email via Apps Script
-  fetch(SCRIPT_URL, {
-    method:'POST', mode:'no-cors',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({_action:'saveCustomer', id:newUser.id,
-      name:newUser.name, email, password:pass, phone, firstName:fname})
-  }).catch(()=>{});
-
-  // Also send verification locally (fallback)
-  sendVerificationEmail(newUser);
-
-  document.getElementById('verify-email-addr').textContent = email;
-  document.getElementById('auth-login').style.display    = 'none';
-  document.getElementById('auth-register').style.display = 'none';
-  document.getElementById('auth-verify').style.display   = 'block';
+  xhr.onerror = function(){
+    if(loginBtn){ loginBtn.textContent=T('auth.signinbtn')||'Sign in →'; loginBtn.disabled=false; }
+    err.textContent=T('err.connection'); err.style.display='flex';
+  };
+  xhr.send();
 }
 
 function sendVerificationEmail(user){
@@ -1346,10 +1303,7 @@ function sendVerificationEmail(user){
 
   const verifyUrl = window.location.href.split('?')[0] + '?verify=' + token + '&email=' + encodeURIComponent(user.email);
   const html =
-    '<!DOCTYPE html><html><head><meta charset="UTF-8">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0"></head><body style="font-family:Arial,sans-serif;background:#F0F6FA">' +
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="font-family:Arial,sans-serif;background:#F0F6FA">' +
     '<div style="max-width:720px;margin:32px auto">' +
     '<div style="background:linear-gradient(135deg,#060E20,#0E2D5F);padding:32px;text-align:center;border-radius:16px 16px 0 0">' +
     '<img src="' + 'https://balearlab-ctrl.github.io/Wave-experiences/LOGO_WAVE_EXPERIENCES_azul_ok.png?v=2' + '" alt="Wave Experiences" width="160" style="height:auto;display:block;margin:0 auto 16px">' +
